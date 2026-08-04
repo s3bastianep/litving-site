@@ -2,7 +2,7 @@
 
 import { FormEvent, useEffect, useState } from "react";
 
-const propertyData = [
+const properties = [
   {
     zone: "Rosales, Bogotá",
     title: "Apartamento con vista",
@@ -30,49 +30,38 @@ const propertyData = [
   },
 ];
 
-const valueColumns = [
+const outcomes = [
   {
     number: "01",
-    eyebrow: "PARA PROPIETARIOS",
-    title: "Tu ingreso y tu propiedad, bajo control.",
-    text: "Administramos el arriendo, coordinamos la póliza y cuidamos el inmueble con información que puedes revisar cuando quieras.",
-    points: ["Pago conciliado y visible", "Mantenimiento con autorización y evidencia", "Contratos, póliza y documentos vigentes"],
+    title: "Arrendar mejor",
+    text: "Fotografía, video y tour 360 profesional para presentar el inmueble con un solo precio y datos verificados.",
+    proof: "Una publicación coherente, lista para decidir",
   },
   {
     number: "02",
-    eyebrow: "PARA ARRENDATARIOS",
-    title: "Un hogar verificado y alguien que responde.",
-    text: "Desde la visita hasta la entrega, sabes qué sigue, quién atiende tu solicitud y cuándo recibirás una actualización.",
-    points: ["Avisos vigentes y costos claros", "Solicitudes con responsable y plazo", "Entrada y salida documentadas"],
-  },
-];
-
-const promises = [
-  {
-    number: "01",
-    title: "Verificado de verdad",
-    text: "Identidad, disponibilidad, precio total y estado del inmueble revisados antes de publicar.",
-    proof: "Sello con fecha de verificación",
-  },
-  {
-    number: "02",
-    title: "Todo deja rastro",
-    text: "Pagos, contratos, mensajes, cotizaciones y mantenimientos viven en un solo expediente.",
-    proof: "Una línea de tiempo compartida",
+    title: "Elegir mejor",
+    text: "Validamos candidatos, coordinamos visitas útiles y gestionamos la póliza antes de entregar las llaves.",
+    proof: "Menos visitas vacías, más intención real",
   },
   {
     number: "03",
-    title: "Una persona a cargo",
-    text: "Un Property Partner conoce la propiedad, coordina al equipo y responde por el caso.",
-    proof: "Responsable y próxima acción visibles",
+    title: "Cobrar con tranquilidad",
+    text: "El canon, la póliza y cada movimiento quedan conciliados y disponibles para consulta.",
+    proof: "Pago respaldado según la cobertura contratada",
+  },
+  {
+    number: "04",
+    title: "Cuidar sin perseguir",
+    text: "Cada mantenimiento tiene responsable, diagnóstico, autorización, evidencia y cierre documentado.",
+    proof: "Una historia completa de cada solicitud",
   },
 ];
 
 const steps = [
-  ["01", "Verificamos", "Conocemos el inmueble, validamos la información y dejamos un inventario completo."],
-  ["02", "Presentamos", "Creamos fotos, video y tour 360 para atraer candidatos que sí corresponden."],
-  ["03", "Administramos", "Coordinamos contrato, póliza, pagos, solicitudes y comunicación de principio a fin."],
-  ["04", "Cuidamos", "Gestionamos mantenimientos con autorización, evidencia, factura y seguimiento al cierre."],
+  ["01", "Conocemos", "Visitamos el inmueble, validamos su información y definimos una estrategia de salida."],
+  ["02", "Presentamos", "Producimos el contenido, publicamos y filtramos a quienes sí corresponden."],
+  ["03", "Formalizamos", "Coordinamos póliza, contrato, inventario, firma y entrega de llaves."],
+  ["04", "Respondemos", "Gestionamos pagos, solicitudes y mantenimiento durante toda la relación."],
 ];
 
 export default function Home() {
@@ -90,8 +79,8 @@ export default function Home() {
   function submitSearch(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    setMessage(`Mostrando propiedades verificadas en ${data.get("zone")} · ${data.get("type")}.`);
-    document.querySelector("#propiedades")?.scrollIntoView({ behavior: "smooth" });
+    setMessage(`Mostrando hogares verificados en ${data.get("zone")} · ${data.get("type")}.`);
+    document.querySelector("#resultados")?.scrollIntoView({ behavior: "smooth" });
   }
 
   return (
@@ -99,10 +88,10 @@ export default function Home() {
       <header className="header">
         <a href="#inicio" className="brand" aria-label="Litving, inicio">LITVING</a>
         <nav className={menuOpen ? "nav open" : "nav"} aria-label="Navegación principal">
-          <a href="#valor" onClick={() => setMenuOpen(false)}>Por qué Litving</a>
-          <a href="#propiedades" onClick={() => setMenuOpen(false)}>Propiedades</a>
+          <a href="#propietarios" onClick={() => setMenuOpen(false)}>Para propietarios</a>
+          <a href="#arrendatarios" onClick={() => setMenuOpen(false)}>Para arrendatarios</a>
           <a href="#experiencia" onClick={() => setMenuOpen(false)}>Cómo funciona</a>
-          <a href="#equipo" onClick={() => setMenuOpen(false)}>Nosotros</a>
+          <a href="#propiedades" onClick={() => setMenuOpen(false)}>Propiedades</a>
         </nav>
         <button className="portal" type="button" onClick={() => setPortalOpen(true)}>Entrar al portal</button>
         <button className="menu" type="button" aria-label="Abrir menú" aria-expanded={menuOpen} onClick={() => setMenuOpen(!menuOpen)}><i /><i /></button>
@@ -110,48 +99,61 @@ export default function Home() {
 
       <section className="hero" id="inicio">
         <div className="heroCopy">
-          <p className="kicker">GESTIÓN INMOBILIARIA RESIDENCIAL · BOGOTÁ</p>
-          <h1>Tu propiedad,<br />bien cuidada.<br /><em>Tu arriendo, claro.</em></h1>
+          <p className="kicker">ADMINISTRACIÓN DE ARRIENDOS · BOGOTÁ</p>
+          <h1>Recibe tu arriendo.<br /><em>Nosotros cuidamos todo lo demás.</em></h1>
           <span className="dash" />
-          <p className="lead">Administramos cada arriendo con un asesor que conoce el inmueble y una plataforma donde todo queda visible.</p>
+          <p className="lead">Presentamos tu propiedad, verificamos al inquilino y gestionamos póliza, contrato, pagos y mantenimiento. Tú puedes seguir cada avance desde tu celular.</p>
           <div className="heroActions">
-            <a href="#contacto" className="primary">Confiar mi propiedad</a>
-            <a href="#propiedades" className="underlink">Buscar un hogar</a>
+            <a href="#contacto" className="primary">Quiero arrendar mi propiedad</a>
+            <a href="#experiencia" className="underlink">Ver cómo funciona</a>
           </div>
           <p className="brandLine">Vivir bien también es estar bien acompañado.</p>
         </div>
         <div className="heroPhoto">
           <img src="/media/hero-reference-hd-v2.png" alt="Casa contemporánea administrada por Litving" />
-          <span className="imageLabel"><b>Propiedad verificada</b><small>Bogotá · agosto 2026</small></span>
+          <span className="imageLabel"><b>Gestión Litving</b><small>Una propiedad · una historia · un responsable</small></span>
         </div>
-        <form className="search" onSubmit={submitSearch} aria-label="Buscar propiedades">
-          <label><span>Zona</span><select name="zone" defaultValue="Bogotá"><option>Bogotá</option><option>Usaquén</option><option>Chapinero</option><option>Barrios Unidos</option><option>Teusaquillo</option></select></label>
-          <label><span>Tipo de propiedad</span><select name="type" defaultValue="Todos los tipos"><option>Todos los tipos</option><option>Apartamento</option><option>Casa</option></select></label>
-          <label><span>Presupuesto mensual</span><select name="budget" defaultValue="Todos los rangos"><option>Todos los rangos</option><option>Hasta COP 4 millones</option><option>COP 4–8 millones</option><option>Más de COP 8 millones</option></select></label>
-          <button type="submit">Buscar</button>
-        </form>
+        <div className="heroSignals" aria-label="Beneficios principales de Litving">
+          <article><span>01</span><div><b>Propiedad mejor presentada</b><small>Fotografía, video y tour 360</small></div></article>
+          <article><span>02</span><div><b>Pago respaldado</b><small>Póliza y seguimiento del canon</small></div></article>
+          <article><span>03</span><div><b>Una persona responsable</b><small>Cada caso con plazo y próxima acción</small></div></article>
+        </div>
       </section>
 
-      <section className="proof" aria-label="Estándares de servicio Litving">
-        <article><b>01</b><p>Avisos con <strong>fecha de verificación</strong></p></article>
-        <article><b>02</b><p>Cada solicitud con <strong>responsable y plazo</strong></p></article>
-        <article><b>03</b><p>Póliza, pagos y documentos <strong>siempre visibles</strong></p></article>
+      <section className="answerStrip" aria-label="Atención humana Litving">
+        <div className="answerAvatar"><img src="/media/advisor-reference-hd-v2.png" alt="Asesora Litving" /></div>
+        <div><b>Cuando escribes, responde una persona que conoce tu propiedad.</b><p>La plataforma organiza la información. Tu Property Partner coordina al equipo y se hace cargo.</p></div>
+        <a href="#equipo">Conocer al equipo <span>→</span></a>
       </section>
 
-      <section className="value" id="valor">
+      <section className="problem" id="propietarios">
+        <div className="problemCopy">
+          <p className="kicker">EL PROBLEMA QUE RESOLVEMOS</p>
+          <h2>Administrar un arriendo no debería convertirse en otro trabajo.</h2>
+          <span className="dash" />
+          <p>Perseguir respuestas, conciliar pagos, coordinar técnicos y reconstruir conversaciones desgasta el valor del inmueble y la tranquilidad del propietario.</p>
+          <blockquote>Cada obligación se convierte en un responsable, un plazo y una evidencia.</blockquote>
+        </div>
+        <div className="problemPanel">
+          <article><span>01</span><div><h3>Publicar sin perder valor</h3><p>Un solo precio, información validada y material profesional en cada canal.</p></div></article>
+          <article><span>02</span><div><h3>Cobrar sin perseguir</h3><p>Póliza, canon, comprobantes y novedades reunidos en un mismo expediente.</p></div></article>
+          <article><span>03</span><div><h3>Resolver sin improvisar</h3><p>Diagnóstico, cotización, autorización y cierre visibles para todas las partes.</p></div></article>
+        </div>
+      </section>
+
+      <section className="outcomes">
         <div className="sectionIntro">
-          <p className="kicker">UNA INMOBILIARIA SIN PUNTOS CIEGOS</p>
-          <h2>Menos incertidumbre.<br />Más tranquilidad para ambos.</h2>
-          <p>La tecnología no reemplaza el servicio. Lo hace visible, medible y más fácil de cumplir.</p>
+          <p className="kicker">EL VALOR DE LITVING</p>
+          <h2>El resultado que compra el propietario.</h2>
+          <p>No vendemos una plataforma. Construimos una administración que protege el ingreso, el inmueble y el tiempo de quien confía en nosotros.</p>
         </div>
-        <div className="valueGrid">
-          {valueColumns.map((column) => (
-            <article className="valueCard" key={column.number}>
-              <span className="valueNumber">{column.number}</span>
-              <p className="kicker">{column.eyebrow}</p>
-              <h3>{column.title}</h3>
-              <p>{column.text}</p>
-              <ul>{column.points.map((point) => <li key={point}>{point}</li>)}</ul>
+        <div className="outcomeGrid">
+          {outcomes.map((outcome) => (
+            <article key={outcome.number}>
+              <span>{outcome.number}</span>
+              <h3>{outcome.title}</h3>
+              <p>{outcome.text}</p>
+              <small>{outcome.proof}</small>
             </article>
           ))}
         </div>
@@ -160,9 +162,9 @@ export default function Home() {
       <section className="platform" id="administracion">
         <div className="platformCopy">
           <p className="kicker">PLATAFORMA LITVING</p>
-          <h2>Lo importante,<br />siempre visible.</h2>
+          <h2>No te decimos que todo está bajo control.<br />Te lo mostramos.</h2>
           <span className="dash" />
-          <p>Propietario e inquilino consultan el mismo estado. Pagos, contratos, mantenimientos y decisiones quedan reunidos en una sola historia.</p>
+          <p>Pagos, contratos, mantenimientos y decisiones viven en una sola historia. Propietario y arrendatario consultan el mismo estado, sin mensajes perdidos.</p>
           <div className="platformNote"><b>En seguimiento</b><span>Fuga de agua · Cocina</span><small>Próxima actualización hoy, 4:30 p. m.</small></div>
         </div>
         <div className="dashboard" aria-label="Vista del portal Litving">
@@ -183,49 +185,54 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="promises">
-        <div className="promiseHeading">
-          <p className="kicker">PROMESAS QUE SE PUEDEN VER</p>
-          <h2>No tienes que creer que funciona.<br />Puedes comprobarlo.</h2>
-        </div>
-        <div className="promiseGrid">
-          {promises.map((item) => <article key={item.number}><span>{item.number}</span><h3>{item.title}</h3><p>{item.text}</p><small>{item.proof}</small></article>)}
+      <section className="tenant" id="arrendatarios">
+        <div className="tenantPhoto"><img src="/media/apartment-reference-hd.png" alt="Apartamento verificado por Litving" /><span>Verificada · información vigente</span></div>
+        <div className="tenantCopy">
+          <p className="kicker">PARA QUIEN BUSCA HOGAR</p>
+          <h2>Menos anuncios dudosos. Más hogares que sí corresponden.</h2>
+          <span className="dash" />
+          <p>Cada propiedad se revisa antes de publicarse. El precio, la disponibilidad y las condiciones están claras antes de coordinar la visita.</p>
+          <ul><li>Fotos reales y datos verificados</li><li>Visitas presenciales o virtuales coordinadas</li><li>Una persona que responde tus dudas</li></ul>
+          <a href="#propiedades" className="underlink">Explorar hogares verificados</a>
         </div>
       </section>
 
       <section className="properties" id="propiedades">
-        <div className="propertyHeading">
-          <p className="kicker">SELECCIÓN LITVING</p>
-          <h2>Hogares que sí<br />corresponden.</h2>
-          <span className="dash" />
-          <p>Cada anuncio muestra información vigente, medios profesionales y el costo mensual de forma clara.</p>
-          <a href="#propiedades">Ver todas las propiedades →</a>
+        <div className="propertyTop">
+          <div><p className="kicker">SELECCIÓN LITVING</p><h2>Hogares verificados para decidir mejor.</h2></div>
+          <p>Información vigente, contenido profesional y el costo mensual presentado con claridad.</p>
         </div>
+        <form className="search" onSubmit={submitSearch} aria-label="Buscar propiedades">
+          <label><span>Zona</span><select name="zone" defaultValue="Bogotá"><option>Bogotá</option><option>Usaquén</option><option>Chapinero</option><option>Barrios Unidos</option><option>Teusaquillo</option></select></label>
+          <label><span>Tipo de propiedad</span><select name="type" defaultValue="Todos los tipos"><option>Todos los tipos</option><option>Apartamento</option><option>Casa</option></select></label>
+          <label><span>Presupuesto mensual</span><select name="budget" defaultValue="Todos los rangos"><option>Todos los rangos</option><option>Hasta COP 4 millones</option><option>COP 4–8 millones</option><option>Más de COP 8 millones</option></select></label>
+          <button type="submit">Buscar hogar</button>
+        </form>
         {message && <p className="result" role="status" aria-live="polite">{message}</p>}
-        <div className="propertyLayout">
-          {propertyData.map((item) => (
-            <article className={item.feature ? "propertyCard feature" : "propertyCard"} key={item.title}>
-              <div className="propertyImage"><img src={item.image} alt={item.title} /><span>{item.verified}</span></div>
-              <div className="propertyInfo"><small>{item.zone}</small><h3>{item.title}</h3><span>{item.meta}</span><strong>{item.price}</strong><a href="#contacto">Ver propiedad →</a></div>
+        <div className="propertyLayout" id="resultados">
+          {properties.map((property) => (
+            <article className={property.feature ? "propertyCard feature" : "propertyCard"} key={property.title}>
+              <div className="propertyImage"><img src={property.image} alt={property.title} /><span>{property.verified}</span></div>
+              <div className="propertyInfo"><small>{property.zone}</small><h3>{property.title}</h3><span>{property.meta}</span><strong>{property.price}</strong><a href="#contacto">Ver propiedad →</a></div>
             </article>
           ))}
         </div>
       </section>
 
       <section className="method" id="experiencia">
-        <div className="methodTitle"><p className="kicker">DE PRINCIPIO A FIN</p><h2>Así cuidamos<br />cada arriendo.</h2><span className="dash" /><p>Un estándar claro para que la calidad no dependa de perseguir a nadie.</p></div>
+        <div className="methodTitle"><p className="kicker">DE PRINCIPIO A FIN</p><h2>Una gestión que no deja cabos sueltos.</h2><span className="dash" /><p>Cuatro momentos, un mismo estándar y una persona responsable durante toda la relación.</p></div>
         {steps.map(([number, title, text]) => <article key={number}><b>{number}</b><h3>{title}</h3><p>{text}</p></article>)}
       </section>
 
       <section className="human" id="equipo">
         <div className="humanPhoto"><img src="/media/advisor-reference-hd-v2.png" alt="Property Partner de Litving" /></div>
-        <div className="humanCopy"><p className="kicker">PERSONAS DETRÁS DE CADA PROPIEDAD</p><b className="quote">“</b><h2>La tecnología deja todo claro.<br />Nuestro equipo se hace cargo.</h2><span className="dash" /><p>Un Property Partner conoce tu inmueble, coordina al equipo y te mantiene informado hasta el cierre.</p><a href="#contacto" className="underlink">Conocer cómo trabajamos</a></div>
+        <div className="humanCopy"><p className="kicker">PERSONAS DETRÁS DE CADA PROPIEDAD</p><b className="quote">“</b><h2>La tecnología organiza.<br />Nuestro equipo responde.</h2><span className="dash" /><p>Tu Property Partner conoce el inmueble, coordina a cada proveedor y te mantiene informado hasta el cierre. No es un bot y no desaparece cuando hay un problema.</p><a href="#contacto" className="underlink">Hablar con el equipo</a></div>
       </section>
 
-      <section className="cta" id="contacto"><div><p className="kicker">CONVERSEMOS</p><h2>Tu propiedad merece una gestión a su altura.</h2></div><a href="mailto:hola@litving.co">Agendar una conversación <span>→</span></a></section>
-      <footer><a href="#inicio" className="brand">LITVING</a><p>Gestión inmobiliaria residencial.<br />Tecnología visible, atención humana.</p><div><b>Explorar</b><a href="#valor">Por qué Litving</a><a href="#propiedades">Propiedades</a><a href="#experiencia">Cómo funciona</a></div><div><b>Servicios</b><a href="#propiedades">Arriendo</a><a href="#administracion">Administración</a><a href="#contacto">Litving Switch</a></div><div><b>Contacto</b><span>hola@litving.co</span><span>Bogotá, Colombia</span></div><small>© 2026 LITVING. Todos los derechos reservados.</small></footer>
+      <section className="cta" id="contacto"><div><p className="kicker">CONVERSEMOS</p><h2>Hablemos de tu propiedad.</h2><p>Cuéntanos qué necesitas. Te responderá una persona de nuestro equipo.</p></div><a href="mailto:hola@litving.co">Agendar una conversación <span>→</span></a></section>
+      <footer><a href="#inicio" className="brand">LITVING</a><p>Administración de arriendos residenciales.<br />Tecnología visible, atención humana.</p><div><b>Propietarios</b><a href="#propietarios">Por qué Litving</a><a href="#administracion">Plataforma</a><a href="#experiencia">Cómo funciona</a></div><div><b>Arrendatarios</b><a href="#arrendatarios">La experiencia</a><a href="#propiedades">Propiedades</a><button type="button" onClick={() => setPortalOpen(true)}>Portal</button></div><div><b>Contacto</b><span>hola@litving.co</span><span>Bogotá, Colombia</span></div><small>© 2026 LITVING. Todos los derechos reservados.</small></footer>
 
-      {portalOpen && <div className="modalBackdrop" onMouseDown={() => setPortalOpen(false)}><section className="modal" role="dialog" aria-modal="true" aria-labelledby="portal-title" onMouseDown={(e) => e.stopPropagation()}><button className="close" aria-label="Cerrar portal" onClick={() => setPortalOpen(false)}>×</button><p className="kicker">PORTAL LITVING</p><h2 id="portal-title">Todo en un solo lugar.</h2><div className="roleTabs"><button className={role === "propietario" ? "active" : ""} onClick={() => setRole("propietario")}>Propietario</button><button className={role === "arrendatario" ? "active" : ""} onClick={() => setRole("arrendatario")}>Arrendatario</button></div><p>{role === "propietario" ? "Revisa pagos, contratos, mantenimiento y solicitudes de tus propiedades." : "Consulta pagos, documentos y mantenimientos con trazabilidad completa."}</p><form onSubmit={(e) => { e.preventDefault(); setPortalOpen(false); }}><input type="email" placeholder="tu@correo.com" aria-label="Correo" required /><button>Solicitar acceso</button></form></section></div>}
+      {portalOpen && <div className="modalBackdrop" onMouseDown={() => setPortalOpen(false)}><section className="modal" role="dialog" aria-modal="true" aria-labelledby="portal-title" onMouseDown={(e) => e.stopPropagation()}><button className="close" aria-label="Cerrar portal" onClick={() => setPortalOpen(false)}>×</button><p className="kicker">PORTAL LITVING</p><h2 id="portal-title">Todo en un solo lugar.</h2><div className="roleTabs"><button className={role === "propietario" ? "active" : ""} onClick={() => setRole("propietario")}>Propietario</button><button className={role === "arrendatario" ? "active" : ""} onClick={() => setRole("arrendatario")}>Arrendatario</button></div><p>{role === "propietario" ? "Revisa pagos, contratos, mantenimiento y solicitudes de tus propiedades." : "Consulta pagos, documentos y mantenimientos con trazabilidad completa."}</p><form onSubmit={(event) => { event.preventDefault(); setPortalOpen(false); }}><input type="email" placeholder="tu@correo.com" aria-label="Correo" required /><button>Solicitar acceso</button></form></section></div>}
     </main>
   );
 }
