@@ -44,7 +44,7 @@ function ArchitecturalBlueprint() {
     <div className="blueprint" aria-label="Ilustración arquitectónica de una casa moderna">
       <img
         className="blueprint-art"
-        src="/media/hero-architectural-illustration-v2.png"
+        src="/media/hero-architectural-illustration-v4.png"
         alt="Casa moderna ilustrada con trazo arquitectónico y paisajismo detallado"
       />
       <span className="blueprint-status status--verified"><i /> Verificado</span>
@@ -100,7 +100,7 @@ export default function Home() {
   return (
     <main>
       <header className="site-header">
-        <a className="brand" href="#inicio" aria-label="Litving, inicio"><span>L</span>ITVING</a>
+        <a className="brand" href="#inicio" aria-label="Litving, inicio">LITVING</a>
         <nav className={menuOpen ? "main-nav open" : "main-nav"} aria-label="Navegación principal">
           <a href="#presentacion" onClick={closeMenu}>Propiedades</a>
           <a href="#portal" onClick={closeMenu}>Administración</a>
@@ -213,7 +213,7 @@ export default function Home() {
         <div className="human-copy"><p className="eyebrow">TECNOLOGÍA + PERSONAS</p><h2>La tecnología organiza.<br />Nuestro equipo responde.</h2><p>Cada propiedad tiene un asesor responsable. Siempre sabrás quién te acompaña y qué está pasando.</p><button className="button button-primary" onClick={() => setContactOpen(true)}>Hablemos de tu propiedad <Arrow /></button></div>
       </section>
 
-      <footer className="site-footer section-shell"><a className="brand" href="#inicio"><span>L</span>ITVING</a><p>Bogotá · Colombia</p><button onClick={() => setContactOpen(true)}>Contacto</button><a href="#beneficios">Privacidad</a><small>© 2026 LITVING</small></footer>
+      <footer className="site-footer section-shell"><a className="brand" href="#inicio">LITVING</a><p>Bogotá · Colombia</p><button onClick={() => setContactOpen(true)}>Contacto</button><a href="#beneficios">Privacidad</a><small>© 2026 LITVING</small></footer>
 
       {contactOpen && (
         <div className="modal-backdrop" onMouseDown={() => setContactOpen(false)}>
