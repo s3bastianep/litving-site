@@ -47,8 +47,8 @@ function ArchitecturalBlueprint() {
         src="/media/hero-architectural-illustration-v4.png"
         alt="Casa moderna ilustrada con trazo arquitectónico y paisajismo detallado"
       />
-      <span className="blueprint-status status--verified"><i /> Verificado</span>
-      <span className="blueprint-status status--updated"><i /> Actualizado <small>Hoy, 09:40</small></span>
+      <span className="blueprint-status status--verified"><i /> Inmueble verificado</span>
+      <span className="blueprint-status status--updated"><i /> Ficha actualizada <small>Hoy, 09:40</small></span>
     </div>
   );
 }
@@ -122,14 +122,15 @@ export default function Home() {
             <a className="button button-primary" href="#presentacion">Ver propiedades <Arrow /></a>
             <button className="button button-secondary" onClick={() => setContactOpen(true)}>Confía tu propiedad</button>
           </div>
-          <div className="hero-signals" aria-label="Principales ventajas">
-            <span><i /> Documentos revisados</span>
-            <span><i /> Tour 360°</span>
-            <span><i /> Asesor asignado</span>
-          </div>
         </div>
         <div className="hero-visual">
           <ArchitecturalBlueprint />
+        </div>
+        <div className="hero-trust" aria-label="Razones para elegir Litving">
+          <span><b>Propiedades verificadas</b><small>Documentos y estado revisados</small></span>
+          <span><b>Presentación profesional</b><small>Fotografía, video y tour 360°</small></span>
+          <span><b>Gestión trazable</b><small>Pagos, contratos y solicitudes</small></span>
+          <span><b>Asesor responsable</b><small>Una persona conoce tu caso</small></span>
         </div>
       </section>
 
