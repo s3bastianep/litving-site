@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   description: "Administración residencial con presentación profesional, tecnología visible y atención humana en Bogotá.",
   openGraph: {
     title: "LITVING | Tu propiedad, bien administrada",
-    description: "Una gestión clara de principio a fin.",
+    description: "Tecnología que organiza. Personas que responden.",
     url: "/",
     siteName: "LITVING",
     locale: "es_CO",
@@ -17,7 +17,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "LITVING | Tu propiedad, bien administrada",
-    description: "Una gestión clara de principio a fin.",
+    description: "Tecnología que organiza. Personas que responden.",
     images: ["/og.png"],
   },
 };
