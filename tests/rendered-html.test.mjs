@@ -14,25 +14,25 @@ async function render() {
   );
 }
 
-test("server-renders the Litving value proposition", async () => {
+test("server-renders the approved Litving experience", async () => {
   const response = await render();
   assert.equal(response.status, 200);
   assert.match(response.headers.get("content-type") ?? "", /^text\/html\b/i);
 
   const html = await response.text();
   assert.match(html, /<title>LITVING \| Tu propiedad, bien administrada<\/title>/i);
-  assert.match(html, /Tu propiedad,<br\/>bien administrada\./i);
+  assert.match(html, /Tu propiedad, bien administrada\./i);
   assert.match(html, /Propiedades verificadas/i);
   assert.match(html, /Presentación profesional/i);
-  assert.match(html, /Así se verá tu anuncio/i);
-  assert.match(html, /VISTA PREVIA · ANUNCIO DE EJEMPLO/i);
-  assert.match(html, /Tu propiedad,<br\/>siempre visible\./i);
+  assert.match(html, /Propiedades elegidas con criterio/i);
+  assert.match(html, /Tu propiedad, siempre visible/i);
   assert.match(html, /Nuestro equipo responde/i);
+  assert.match(html, /litving-approved-page\.png/i);
   assert.match(html, /og:image/i);
   assert.doesNotMatch(html, /codex-preview|Building your site|react-loading-skeleton/i);
 });
 
-test("keeps the finished product metadata, layout and social card", async () => {
+test("keeps the approved visual, interactions and metadata", async () => {
   const [page, layout, css, packageJson] = await Promise.all([
     readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/layout.tsx", import.meta.url), "utf8"),
@@ -40,18 +40,20 @@ test("keeps the finished product metadata, layout and social card", async () => 
     readFile(new URL("../package.json", import.meta.url), "utf8"),
   ]);
 
-  assert.match(page, /id="beneficios"/);
-  assert.match(page, /id="anuncio"/);
+  assert.match(page, /id="propiedades"/);
   assert.match(page, /id="portal"/);
-  assert.match(page, /className="dashboard-mock"/);
-  assert.match(page, /drawing-/);
+  assert.match(page, /id="personas"/);
+  assert.match(page, /className="approved-page"/);
+  assert.match(page, /className="hotspot portal-button"/);
   assert.match(layout, /metadataBase/);
   assert.match(layout, /openGraph/);
   assert.match(layout, /twitter/);
-  assert.match(css, /@media \(max-width: 740px\)/);
-  assert.match(css, /\.hero-signals/);
+  assert.match(css, /@media \(max-width: 680px\)/);
+  assert.match(css, /\.page-canvas/);
+  assert.match(css, /\.hotspot/);
   assert.match(packageJson, /"build": "vinext build"/);
   assert.doesNotMatch(page + layout + packageJson, /codex-preview|_sites-preview|react-loading-skeleton/);
 
   await access(new URL("../public/og.png", import.meta.url));
+  await access(new URL("../public/litving-approved-page.png", import.meta.url));
 });
