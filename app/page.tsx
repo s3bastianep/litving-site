@@ -39,6 +39,79 @@ function LineIcon({ type }: { type: string }) {
   );
 }
 
+function BenefitIllustration({ type }: { type: string }) {
+  const common = {
+    className: "benefit-illustration",
+    viewBox: "0 0 220 136",
+    fill: "none",
+    xmlns: "http://www.w3.org/2000/svg",
+    "aria-hidden": true,
+  };
+
+  if (type === "verify") return (
+    <svg {...common}>
+      <path className="soft-fill" d="M8 118h100V52L58 27 8 52v66Z" />
+      <path d="M8 118h100V52L58 27 8 52v66Zm12 0V60h76v58M58 27v91M31 71h17v20H31zm36 0h17v20H67zm-36 31h17v16H31zm36 0h17v16H67z" />
+      <path className="paper-fill" d="M94 18h86v101H94z" />
+      <path d="M94 18h86v101H94zm16 22h50m-50 13h50m-50 13h35" />
+      <path className="soft-fill" d="M147 78h51v41h-51z" />
+      <path d="M147 78h51v41h-51" />
+      <path className="accent-stroke" d="m160 98 9 8 17-20" />
+      <circle className="paper-fill" cx="100" cy="109" r="22" />
+      <circle cx="100" cy="109" r="22" />
+      <path d="m84 125-16 10m25-35a12 12 0 1 1 14 19" />
+    </svg>
+  );
+
+  if (type === "camera") return (
+    <svg {...common}>
+      <path className="paper-fill" d="M60 35h91v60H60z" />
+      <path d="M60 35h91v60H60zm13-10h24l7 10H68l5-10Z" />
+      <circle className="soft-fill" cx="106" cy="65" r="22" />
+      <circle cx="106" cy="65" r="22" />
+      <circle className="accent-stroke" cx="106" cy="65" r="11" />
+      <path d="M89 95 68 134m55-39 22 39m-39-39v39M32 91C11 75 10 53 30 38m156 54c19-17 17-39-1-53" />
+      <path className="accent-stroke" d="m23 42 8-5-1 10m164-4-9-5 1 10" />
+      <path className="soft-fill" d="m160 49 48 7-5 57-48-7 5-57Z" />
+      <path d="m160 49 48 7-5 57-48-7 5-57Zm8 15 27 4m-29 12 12 2m4 3 12 2m-29 10 29 4" />
+      <circle className="accent-fill" cx="31" cy="107" r="3" />
+      <text x="15" y="123" className="svg-label">360°</text>
+    </svg>
+  );
+
+  if (type === "portal") return (
+    <svg {...common}>
+      <rect className="paper-fill" x="15" y="18" width="190" height="105" rx="3" />
+      <path d="M15 36h190M47 36v87M15 18h190v105H15z" />
+      <circle className="accent-fill" cx="26" cy="27" r="2.5" />
+      <circle cx="35" cy="27" r="2.5" />
+      <path d="M25 51h12m-12 12h12m-12 12h12m-12 12h12M59 51h57v28H59z" />
+      <path className="soft-fill" d="M59 87h57v24H59z" />
+      <path d="M59 87h57v24H59zm10 8h35m-35 8h22m39-50h54m-54 12h54" />
+      <circle className="soft-fill" cx="151" cy="94" r="18" />
+      <circle cx="151" cy="94" r="18" />
+      <path className="accent-stroke" d="m143 94 6 6 11-13" />
+      <path d="M135 52v17m0-8h25m-13-9v18m-7-18h15" />
+      <circle cx="127" cy="52" r="5" />
+      <path d="m127 57 7 7" />
+    </svg>
+  );
+
+  return (
+    <svg {...common}>
+      <path className="soft-fill" d="M14 113h70V83c0-12-9-21-21-21H35c-12 0-21 9-21 21v30Zm192 0h-70V83c0-12 9-21 21-21h28c12 0 21 9 21 21v30Z" />
+      <circle className="paper-fill" cx="58" cy="37" r="17" />
+      <circle cx="58" cy="37" r="17" />
+      <circle className="paper-fill" cx="162" cy="37" r="17" />
+      <circle cx="162" cy="37" r="17" />
+      <path d="M14 113h70V83c0-12-9-21-21-21H35c-12 0-21 9-21 21v30Zm192 0h-70V83c0-12 9-21 21-21h28c12 0 21 9 21 21v30ZM58 54v14m104-14v14M39 82l22 14 21-15m99 1-22 14-21-15M83 123h54m-43-16h32" />
+      <path className="paper-fill" d="M84 8h52v30h-22l-8 8v-8H84z" />
+      <path d="M84 8h52v30h-22l-8 8v-8H84zm12 12h29m-29 8h18" />
+      <circle className="accent-fill" cx="110" cy="119" r="3" />
+    </svg>
+  );
+}
+
 function ArchitecturalBlueprint() {
   return (
     <div className="blueprint" aria-label="Ilustración arquitectónica de una casa moderna">
@@ -126,26 +199,25 @@ export default function Home() {
         <div className="hero-visual">
           <ArchitecturalBlueprint />
         </div>
-        <div className="hero-trust" aria-label="Razones para elegir Litving">
-          <span><b>Propiedades verificadas</b><small>Documentos y estado revisados</small></span>
-          <span><b>Presentación profesional</b><small>Fotografía, video y tour 360°</small></span>
-          <span><b>Gestión trazable</b><small>Pagos, contratos y solicitudes</small></span>
-          <span><b>Asesor responsable</b><small>Una persona conoce tu caso</small></span>
-        </div>
       </section>
 
       <section className="value section-shell" id="beneficios">
-        <div className="section-intro"><p className="eyebrow">POR QUÉ LITVING</p><h2>Todo lo importante,<br />bien resuelto.</h2></div>
+        <p className="value-label">POR QUÉ LITVING</p>
         <div className="value-grid">
           {valueItems.map(item => (
             <article className="value-card" key={item.number}>
               <span className="value-number">{item.number}</span>
-              <LineIcon type={item.icon} />
+              <BenefitIllustration type={item.icon} />
               <h3>{item.title}<i /></h3>
               <p>{item.copy}</p>
             </article>
           ))}
         </div>
+        <svg className="value-key" viewBox="0 0 100 74" aria-hidden="true">
+          <circle cx="27" cy="25" r="14" />
+          <circle cx="27" cy="25" r="5" />
+          <path d="m38 35 36 36 9-9-7-7 7-7-9-9-7 7-20-20" />
+        </svg>
       </section>
 
       <section className="presentation" id="presentacion">

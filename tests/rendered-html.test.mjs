@@ -47,7 +47,8 @@ test("uses responsive native sections and HD assets", async () => {
   assert.match(layout, /metadataBase/);
   assert.match(layout, /openGraph/);
   assert.match(css, /\.hero \{ width: 100%; max-width: none; min-height: 640px/);
-  assert.match(page, /className="hero-trust"/);
+  assert.match(page, /function BenefitIllustration/);
+  assert.match(page, /className="value-grid"/);
   assert.match(css, /family=Inter:wght@400;500;600;700&family=Montserrat:wght@600;700/);
   assert.match(css, /@media \(max-width: 760px\)/);
   assert.match(css, /\.blueprint/);
