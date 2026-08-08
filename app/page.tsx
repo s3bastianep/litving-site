@@ -42,19 +42,11 @@ function LineIcon({ type }: { type: string }) {
 function ArchitecturalBlueprint() {
   return (
     <div className="blueprint" aria-label="Ilustración arquitectónica de una casa moderna">
-      <div className="blueprint-grid" />
-      <div className="blueprint-tree blueprint-tree--one"><i /><i /><i /><i /><i /></div>
-      <div className="blueprint-tree blueprint-tree--two"><i /><i /><i /><i /><i /></div>
-      <div className="building building--rear"><span /><span /><span /></div>
-      <div className="building building--main">
-        <div className="window-grid"><i /><i /><i /><i /><i /><i /></div>
-        <div className="entry" />
-      </div>
-      <div className="building building--wing"><span /><span /></div>
-      <div className="blueprint-ground"><i /><i /><i /></div>
-      <div className="blueprint-node node--one" />
-      <div className="blueprint-node node--two" />
-      <div className="blueprint-node node--three" />
+      <img
+        className="blueprint-art"
+        src="/media/hero-architectural-illustration-v2.png"
+        alt="Casa moderna ilustrada con trazo arquitectónico y paisajismo detallado"
+      />
       <span className="blueprint-status status--verified"><i /> Verificado</span>
       <span className="blueprint-status status--updated"><i /> Actualizado <small>Hoy, 09:40</small></span>
     </div>
@@ -110,23 +102,24 @@ export default function Home() {
       <header className="site-header">
         <a className="brand" href="#inicio" aria-label="Litving, inicio"><span>L</span>ITVING</a>
         <nav className={menuOpen ? "main-nav open" : "main-nav"} aria-label="Navegación principal">
-          <a href="#presentacion" onClick={closeMenu}>Cómo presentamos</a>
+          <a href="#presentacion" onClick={closeMenu}>Propiedades</a>
           <a href="#portal" onClick={closeMenu}>Administración</a>
-          <a href="#beneficios" onClick={closeMenu}>Beneficios</a>
-          <a href="#proceso" onClick={closeMenu}>Proceso</a>
-          <button className="nav-contact" onClick={() => { setContactOpen(true); closeMenu(); }}>Confiar mi propiedad <Arrow /></button>
+          <a href="#beneficios" onClick={closeMenu}>Servicios</a>
+          <a href="#personas" onClick={closeMenu}>Nosotros</a>
+          <a href="#proceso" onClick={closeMenu}>Recursos</a>
+          <button className="nav-contact" onClick={() => { setContactOpen(true); closeMenu(); }}>Portal <Arrow /></button>
         </nav>
         <button className="menu-toggle" aria-expanded={menuOpen} aria-label="Abrir menú" onClick={() => setMenuOpen(!menuOpen)}><i /><i /></button>
       </header>
 
       <section className="hero section-shell" id="inicio">
         <div className="hero-copy">
-          <p className="eyebrow">BOGOTÁ · COMPRA · ARRIENDA · ADMINISTRA</p>
+          <p className="eyebrow">COMPRA · ARRIENDA · ADMINISTRA</p>
           <h1>Tu propiedad,<br />bien administrada.</h1>
           <p className="hero-lead">Una gestión clara de principio a fin.</p>
-          <p className="hero-support">Tecnología que organiza, información que siempre puedes consultar y personas que sí responden.</p>
+          <p className="hero-support">Procesos claros, tecnología que organiza y personas que responden.</p>
           <div className="hero-actions">
-            <a className="button button-primary" href="#presentacion">Ver cómo se publica <Arrow /></a>
+            <a className="button button-primary" href="#presentacion">Ver propiedades <Arrow /></a>
             <button className="button button-secondary" onClick={() => setContactOpen(true)}>Confía tu propiedad</button>
           </div>
           <div className="hero-signals" aria-label="Principales ventajas">

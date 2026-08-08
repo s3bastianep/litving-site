@@ -39,6 +39,7 @@ test("uses responsive native sections and HD assets", async () => {
   assert.match(page, /id="portal"/);
   assert.match(page, /id="beneficios"/);
   assert.match(page, /className="blueprint"/);
+  assert.match(page, /hero-architectural-illustration-v2\.png/);
   assert.match(page, /className="portal-window"/);
   assert.match(page, /asesora-litving-hd\.png/);
   assert.doesNotMatch(page, /approved-page|hotspot|litving-approved-page/);
@@ -50,5 +51,6 @@ test("uses responsive native sections and HD assets", async () => {
   assert.match(css, /\.portal-window/);
   assert.match(packageJson, /"build": "vinext build"/);
   await access(new URL("../public/media/hero-daylight-hd.png", import.meta.url));
+  await access(new URL("../public/media/hero-architectural-illustration-v2.png", import.meta.url));
   await access(new URL("../public/media/asesora-litving-hd.png", import.meta.url));
 });
