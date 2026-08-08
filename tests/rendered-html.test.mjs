@@ -45,7 +45,7 @@ test("uses responsive native sections and HD assets", async () => {
   assert.doesNotMatch(page, /approved-page|hotspot|litving-approved-page/);
   assert.match(layout, /metadataBase/);
   assert.match(layout, /openGraph/);
-  assert.match(css, /min-height: 100svh/);
+  assert.match(css, /\.hero \{ min-height: 520px/);
   assert.match(css, /@media \(max-width: 760px\)/);
   assert.match(css, /\.blueprint/);
   assert.match(css, /\.portal-window/);
