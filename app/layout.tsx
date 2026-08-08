@@ -3,21 +3,21 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://litving-bogota.macampoq.chatgpt.site"),
-  title: "LITVING | Administración de arriendos en Bogotá",
-  description: "Presentamos tu propiedad, verificamos al inquilino y gestionamos póliza, pagos y mantenimiento con tecnología visible y atención humana.",
+  title: "LITVING | Tu propiedad, bien administrada",
+  description: "Administración residencial con presentación profesional, tecnología visible y atención humana en Bogotá.",
   openGraph: {
-    title: "LITVING | Administración de arriendos en Bogotá",
-    description: "Recibe tu arriendo. Nosotros cuidamos todo lo demás.",
+    title: "LITVING | Tu propiedad, bien administrada",
+    description: "Una gestión clara de principio a fin.",
     url: "/",
     siteName: "LITVING",
     locale: "es_CO",
     type: "website",
-    images: [{ url: "/og.png", width: 1200, height: 630, alt: "LITVING, administración de arriendos en Bogotá" }],
+    images: [{ url: "/og.png", width: 1200, height: 630, alt: "LITVING, tu propiedad bien administrada" }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "LITVING | Administración de arriendos en Bogotá",
-    description: "Recibe tu arriendo. Nosotros cuidamos todo lo demás.",
+    title: "LITVING | Tu propiedad, bien administrada",
+    description: "Una gestión clara de principio a fin.",
     images: ["/og.png"],
   },
 };
