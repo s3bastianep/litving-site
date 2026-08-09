@@ -10,9 +10,9 @@ const valueItems = [
 ];
 
 const listingExamples = [
-  { image: "/media/el-virrey.png", zone: "El Virrey", kind: "Apartamento", note: "Fotografía profesional", tag: "Verificado" },
-  { image: "/media/san-simon.png", zone: "San Simón", kind: "Casa", note: "Recorrido 360°", tag: "Verificado" },
-  { image: "/media/terraza-hd.png", zone: "Rosales", kind: "Apartamento", note: "Ficha completa", tag: "Verificado" },
+  { image: "/media/el-virrey.png", zone: "Rosales", city: "Bogotá", operation: "Arriendo", kind: "Apartamento", price: "$8.900.000 / mes", tag: "Verificado", badge: "360°", sketch: "verify" },
+  { image: "/media/san-simon.png", zone: "Chicó Reservado", city: "Bogotá", operation: "Venta", kind: "Casa", price: "$3.950.000.000", tag: "Verificado", badge: "360°", sketch: "camera" },
+  { image: "/media/terraza-hd.png", zone: "La Cabrera", city: "Bogotá", operation: "Arriendo", kind: "Apartamento", price: "$12.500.000 / mes", tag: "Verificado", badge: "360°", sketch: "portal" },
 ];
 
 const ownerBenefits = [
@@ -161,15 +161,19 @@ export default function Home() {
 
       <section className="presentation" id="presentacion">
         <div className="section-shell">
-          <div className="section-heading">
-            <div><p className="eyebrow">PRESENTACIÓN PROFESIONAL</p><h2>Así se verá tu propiedad.</h2></div>
-            <p>Ejemplos visuales de nuestros anuncios.<br /><b>No corresponden a inventario activo.</b></p>
+          <div className="catalog-heading">
+            <div><h2>Propiedades elegidas con criterio.</h2><p>Ejemplos de cómo presentamos cada anuncio. No corresponden a inventario activo.</p></div>
+            <a href="#portal">Ver cómo administramos <Arrow /></a>
           </div>
           <div className="listing-grid">
-            {listingExamples.map((item, index) => (
+            {listingExamples.map(item => (
               <article className="listing-card" key={item.zone}>
-                <div className="listing-image"><img src={item.image} alt={`Ejemplo de fotografía inmobiliaria profesional en ${item.zone}`} /><span><i /> {item.tag}</span><b>{index === 1 ? 'VIDEO' : 'HD'}</b></div>
-                <div className="listing-body"><small>ANUNCIO DE MUESTRA</small><h3>{item.zone}</h3><p>{item.kind} · {item.note}</p><div><span>Ficha verificada</span><button onClick={() => setContactOpen(true)} aria-label={`Quiero presentar mi propiedad como ${item.zone}`}><Arrow /></button></div></div>
+                <div className="listing-image"><img src={item.image} alt={`Ejemplo de fotografía inmobiliaria profesional en ${item.zone}`} /><span><i /> {item.tag}</span><b>{item.badge}</b></div>
+                <div className="listing-body">
+                  <div className="listing-copy"><small>{item.city}</small><h3>{item.zone}</h3><p>{item.operation} · {item.kind}</p><strong>{item.price}</strong></div>
+                  <BenefitIllustration type={item.sketch} />
+                </div>
+                <small className="listing-disclaimer">ANUNCIO DE MUESTRA · FICHA ACTUALIZADA</small>
               </article>
             ))}
           </div>
@@ -178,9 +182,9 @@ export default function Home() {
 
       <section className="portal-section section-shell" id="portal">
         <div className="portal-copy">
-          <p className="eyebrow">TU PROPIEDAD, SIEMPRE VISIBLE</p>
-          <h2>Todo en un solo lugar.</h2>
-          <p>Pagos, contratos, solicitudes y mantenimientos con trazabilidad. Sin depender de llamadas, chats perdidos o respuestas de memoria.</p>
+          <span className="section-number">03</span>
+          <h2>Tu propiedad,<br />siempre visible.</h2>
+          <p>Pagos, contratos, solicitudes y mantenimientos organizados en un solo lugar. Sin chats perdidos ni respuestas de memoria.</p>
           <div className="micro-benefits">
             <span><LineIcon type="file" /> Información centralizada</span>
             <span><LineIcon type="track" /> Seguimiento en tiempo real</span>
@@ -194,35 +198,34 @@ export default function Home() {
 
       <section className="audiences" id="personas">
         <div className="section-shell">
-          <div className="audience-heading"><p className="eyebrow">UNA MISMA CLARIDAD</p><h2>Para quien confía su propiedad.<br />Para quien la habita.</h2></div>
           <div className="audience-grid">
             <article className="audience-card owner-card">
-              <div className="audience-photo"><img src="/media/el-tesoro.png" alt="Interior de una propiedad administrada por Litving" /><span>PROPIETARIOS</span></div>
-              <div className="audience-content"><h3>Protección y control,<br />sin perseguir respuestas.</h3>{ownerBenefits.map(([title, copy]) => <div className="benefit-row" key={title}><span>✓</span><p><b>{title}</b>{copy}</p></div>)}</div>
+              <div className="audience-sketch"><img src="/media/benefit-human-sketch.png" alt="Propietario consultando la gestión de su inmueble" /></div>
+              <div className="audience-content"><p className="eyebrow">PARA PROPIETARIOS</p><h3>Tu activo protegido<br />y bajo control.</h3>{ownerBenefits.map(([title, copy]) => <div className="benefit-row" key={title}><span>✓</span><p><b>{title}</b>{copy}</p></div>)}</div>
             </article>
             <article className="audience-card tenant-card">
-              <div className="audience-content"><h3>Un arriendo claro,<br />desde el primer día.</h3>{tenantBenefits.map(([title, copy]) => <div className="benefit-row" key={title}><span>✓</span><p><b>{title}</b>{copy}</p></div>)}</div>
-              <div className="audience-photo"><img src="/media/terraza-hd.png" alt="Terraza de una propiedad presentada por Litving" /><span>INQUILINOS</span></div>
+              <div className="audience-content"><p className="eyebrow">PARA INQUILINOS</p><h3>Un arriendo claro,<br />desde el primer día.</h3>{tenantBenefits.map(([title, copy]) => <div className="benefit-row" key={title}><span>✓</span><p><b>{title}</b>{copy}</p></div>)}</div>
+              <div className="audience-sketch"><img src="/media/benefit-human-sketch.png" alt="Inquilina revisando su información en el portal" /></div>
             </article>
           </div>
         </div>
       </section>
 
       <section className="process section-shell" id="proceso">
-        <div className="section-heading process-heading"><div><p className="eyebrow">ASÍ CUIDAMOS TU PROPIEDAD</p><h2>Un proceso visible<br />de principio a fin.</h2></div><p>Cada etapa tiene entregables,<br />estado y una persona responsable.</p></div>
+        <div className="process-heading"><span className="section-number">06</span><h2>Así cuidamos tu propiedad.</h2></div>
         <div className="process-grid">
           {[
-            ['01', 'Conocemos', 'Tu propiedad, tus objetivos y la documentación.'],
-            ['02', 'Preparamos', 'Fotografía, video, ficha y estrategia de publicación.'],
-            ['03', 'Gestionamos', 'Visitas, validación, contratos, pagos y mantenimiento.'],
-            ['04', 'Respondemos', 'Seguimiento claro y atención durante toda la relación.'],
-          ].map(([n, title, copy], index) => <article key={n}><span>{n}</span><div className={`process-symbol symbol-${index + 1}`}><i /><b /><em /></div><h3>{title}</h3><p>{copy}</p>{index < 3 && <Arrow />}</article>)}
+            ['01', 'Conocemos', 'Entendemos tu propiedad y tus objetivos.', 'verify', 'VERIFICADO'],
+            ['02', 'Preparamos', 'Organizamos y dejamos todo listo para presentar.', 'camera', 'ACTUALIZADO'],
+            ['03', 'Gestionamos', 'Publicamos, coordinamos y damos seguimiento.', 'portal', 'EN PROCESO'],
+            ['04', 'Respondemos', 'Atención humana, rápida y efectiva.', 'people', 'ACTUALIZADO'],
+          ].map(([n, title, copy, icon, status], index) => <article key={n}><span>{n}</span><BenefitIllustration type={icon} /><small><i />{status}</small><h3>{title}</h3><p>{copy}</p>{index < 3 && <Arrow />}</article>)}
         </div>
       </section>
 
-      <section className="human-section">
+      <section className="human-section section-shell">
         <div className="human-image"><img src="/media/asesora-litving-hd.png" alt="Asesora Litving acompañando personalmente a un cliente" /></div>
-        <div className="human-copy"><p className="eyebrow">TECNOLOGÍA + PERSONAS</p><h2>La tecnología organiza.<br />Nuestro equipo responde.</h2><p>Cada propiedad tiene un asesor responsable. Siempre sabrás quién te acompaña y qué está pasando.</p><button className="button button-primary" onClick={() => setContactOpen(true)}>Hablemos de tu propiedad <Arrow /></button></div>
+        <div className="human-copy"><span className="section-number">07</span><h2>La tecnología organiza.<br />Nuestro equipo responde.</h2><p>Siempre sabrás quién te acompaña y qué está pasando.</p><button className="button button-primary" onClick={() => setContactOpen(true)}>Conoce nuestro equipo <Arrow /></button></div>
       </section>
 
       <footer className="site-footer section-shell"><a className="brand" href="#inicio">LITVING</a><p>Bogotá · Colombia</p><button onClick={() => setContactOpen(true)}>Contacto</button><a href="#beneficios">Privacidad</a><small>© 2026 LITVING</small></footer>

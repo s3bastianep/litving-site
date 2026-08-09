@@ -22,8 +22,12 @@ test("server-renders the native Litving experience", async () => {
   assert.match(html, /Tu propiedad,/i);
   assert.match(html, /Propiedades verificadas/i);
   assert.match(html, /Presentación profesional/i);
-  assert.match(html, /Así se verá tu propiedad/i);
+  assert.match(html, /Propiedades elegidas con criterio/i);
   assert.match(html, /No corresponden a inventario activo/i);
+  assert.match(html, /Tu propiedad,[\s\S]*siempre visible/i);
+  assert.match(html, /Para propietarios/i);
+  assert.match(html, /Para inquilinos/i);
+  assert.match(html, /Así cuidamos tu propiedad/i);
   assert.match(html, /Nuestro equipo responde/i);
   assert.doesNotMatch(html, /litving-approved-page\.png|codex-preview|Building your site/i);
 });
