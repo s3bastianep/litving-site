@@ -49,12 +49,16 @@ test("uses responsive native sections and HD assets", async () => {
   assert.match(css, /\.hero \{ width: 100%; max-width: none; min-height: 640px/);
   assert.match(page, /function BenefitIllustration/);
   assert.match(page, /className="value-grid"/);
-  assert.match(css, /family=Inter:wght@400;500;600;700&family=Montserrat:wght@600;700/);
+  assert.match(css, /family=Inter:wght@400;500;600;700&family=Lora:wght@500;600&family=Montserrat:wght@600;700/);
   assert.match(css, /@media \(max-width: 760px\)/);
   assert.match(css, /\.blueprint/);
   assert.match(css, /\.portal-window/);
   assert.match(packageJson, /"build": "vinext build"/);
   await access(new URL("../public/media/hero-daylight-hd.png", import.meta.url));
   await access(new URL("../public/media/hero-architectural-illustration-v4.png", import.meta.url));
+  await access(new URL("../public/media/benefit-verified-sketch.png", import.meta.url));
+  await access(new URL("../public/media/benefit-presentation-sketch.png", import.meta.url));
+  await access(new URL("../public/media/benefit-management-sketch.png", import.meta.url));
+  await access(new URL("../public/media/benefit-human-sketch.png", import.meta.url));
   await access(new URL("../public/media/asesora-litving-hd.png", import.meta.url));
 });
