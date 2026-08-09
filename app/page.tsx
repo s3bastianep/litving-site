@@ -3,10 +3,10 @@
 import { FormEvent, useEffect, useState } from "react";
 
 const valueItems = [
-  { number: "01", icon: "verify", title: "Propiedades verificadas", copy: "Documentos, datos y estado revisados antes de publicar." },
-  { number: "02", icon: "camera", title: "Presentación profesional", copy: "Fotografía HD, video y recorrido 360° para decidir mejor." },
-  { number: "03", icon: "portal", title: "Gestión transparente", copy: "Pagos, contratos y mantenimientos con trazabilidad." },
-  { number: "04", icon: "people", title: "Acompañamiento humano", copy: "Una persona responsable conoce tu caso y te acompaña." },
+  { number: "01", icon: "verify", title: "Arriendo con respaldo", copy: "Estudio del inquilino y póliza de aseguradora para proteger el canon según la cobertura contratada." },
+  { number: "02", icon: "camera", title: "Menos tiempo desocupado", copy: "Precio competitivo, presentación profesional y publicación enfocada en conseguir mejores prospectos." },
+  { number: "03", icon: "portal", title: "Control sin perseguir a nadie", copy: "Cartera, contratos, solicitudes y mantenimientos visibles desde un solo lugar." },
+  { number: "04", icon: "people", title: "Un responsable de principio a fin", copy: "Un asesor conoce tu inmueble, coordina el proceso y responde por cada novedad." },
 ];
 
 const listingExamples = [
@@ -16,15 +16,15 @@ const listingExamples = [
 ];
 
 const ownerBenefits = [
-  ["Transparencia total", "Reportes, cartera y acceso permanente a la información."],
-  ["Protegemos tu propiedad", "Validación de inquilinos y seguimiento documentado."],
-  ["Ingresos más predecibles", "Seguro de arrendamiento y control mensual de pagos."],
+  ["Canon con respaldo", "Seguro de arrendamiento sujeto a las condiciones de la aseguradora."],
+  ["Menos vacancia", "Precio sustentado y una publicación preparada para competir mejor."],
+  ["Propiedad cuidada", "Mantenimientos con responsable, estado e historial verificable."],
 ];
 
 const tenantBenefits = [
-  ["Proceso simple", "Solicitudes claras, documentos digitales y menos vueltas."],
-  ["Atención ágil", "Cada solicitud queda registrada y tiene un responsable."],
-  ["Experiencia clara", "Contratos, pagos y mantenimientos en un solo lugar."],
+  ["Inmuebles reales", "Información y estado revisados antes de publicar; cero avisos señuelo."],
+  ["Proceso sin vueltas", "Requisitos claros, documentos digitales y respuestas oportunas."],
+  ["Soporte que continúa", "Las solicitudes no se pierden: quedan registradas y asignadas."],
 ];
 
 function Arrow() {
@@ -59,8 +59,8 @@ function ArchitecturalBlueprint() {
         src="/media/hero-architectural-illustration-v4.png"
         alt="Casa moderna ilustrada con trazo arquitectónico y paisajismo detallado"
       />
-      <span className="blueprint-status status--verified"><i /> Inmueble verificado</span>
-      <span className="blueprint-status status--updated"><i /> Ficha actualizada <small>Hoy, 09:40</small></span>
+      <span className="blueprint-status status--verified"><i /> Publicación verificada</span>
+      <span className="blueprint-status status--updated"><i /> Asesor asignado <small>En línea</small></span>
     </div>
   );
 }
@@ -114,25 +114,25 @@ export default function Home() {
       <header className="site-header">
         <a className="brand" href="#inicio" aria-label="Litving, inicio">LITVING</a>
         <nav className={menuOpen ? "main-nav open" : "main-nav"} aria-label="Navegación principal">
-          <a href="#presentacion" onClick={closeMenu}>Propiedades</a>
+          <a href="#presentacion" onClick={closeMenu}>Así publicamos</a>
           <a href="#portal" onClick={closeMenu}>Administración</a>
-          <a href="#beneficios" onClick={closeMenu}>Servicios</a>
-          <a href="#personas" onClick={closeMenu}>Nosotros</a>
-          <a href="#proceso" onClick={closeMenu}>Recursos</a>
-          <button className="nav-contact" onClick={() => { setContactOpen(true); closeMenu(); }}>Portal <Arrow /></button>
+          <a href="#beneficios" onClick={closeMenu}>Por qué Litving</a>
+          <a href="#personas" onClick={closeMenu}>Para quién</a>
+          <a href="#proceso" onClick={closeMenu}>Cómo trabajamos</a>
+          <button className="nav-contact" onClick={() => { setContactOpen(true); closeMenu(); }}>Hablar con un asesor <Arrow /></button>
         </nav>
         <button className="menu-toggle" aria-expanded={menuOpen} aria-label="Abrir menú" onClick={() => setMenuOpen(!menuOpen)}><i /><i /></button>
       </header>
 
       <section className="hero section-shell" id="inicio">
         <div className="hero-copy">
-          <p className="eyebrow">COMPRA · ARRIENDA · ADMINISTRA</p>
+          <p className="eyebrow">INMOBILIARIA DIGITAL · BOGOTÁ</p>
           <h1>Tu propiedad,<br />bien administrada.</h1>
-          <p className="hero-lead">Una gestión clara de principio a fin.</p>
-          <p className="hero-support">Procesos claros, tecnología que organiza y personas que responden.</p>
+          <p className="hero-lead">La inmobiliaria que protege tu ingreso y te devuelve el control.</p>
+          <p className="hero-support">Conseguimos el inquilino, gestionamos el contrato y operamos pagos y mantenimientos con respaldo de aseguradora, tecnología y un equipo responsable.</p>
           <div className="hero-actions">
-            <a className="button button-primary" href="#presentacion">Ver propiedades <Arrow /></a>
-            <button className="button button-secondary" onClick={() => setContactOpen(true)}>Confía tu propiedad</button>
+            <button className="button button-primary" onClick={() => setContactOpen(true)}>Quiero arrendar mi propiedad <Arrow /></button>
+            <a className="button button-secondary" href="#beneficios">Ver por qué Litving</a>
           </div>
         </div>
         <div className="hero-visual">
@@ -141,7 +141,7 @@ export default function Home() {
       </section>
 
       <section className="value section-shell" id="beneficios">
-        <p className="value-label">POR QUÉ LITVING</p>
+        <p className="value-label">LO QUE CAMBIA CUANDO ADMINISTRAMOS TU PROPIEDAD</p>
         <div className="value-grid">
           {valueItems.map(item => (
             <article className="value-card" key={item.number}>
@@ -162,8 +162,8 @@ export default function Home() {
       <section className="presentation" id="presentacion">
         <div className="section-shell">
           <div className="catalog-heading">
-            <div><h2>Propiedades elegidas con criterio.</h2><p>Ejemplos de cómo presentamos cada anuncio. No corresponden a inventario activo.</p></div>
-            <a href="#portal">Ver cómo administramos <Arrow /></a>
+            <div><h2>Así hacemos que tu propiedad compita mejor.</h2><p>Fotografía HD, recorrido 360° y ficha verificada. Estos son ejemplos de presentación, no inventario activo.</p></div>
+            <a href="#portal">Conocer la gestión <Arrow /></a>
           </div>
           <div className="listing-grid">
             {listingExamples.map(item => (
@@ -183,15 +183,15 @@ export default function Home() {
       <section className="portal-section section-shell" id="portal">
         <div className="portal-copy">
           <span className="section-number">03</span>
-          <h2>Tu propiedad,<br />siempre visible.</h2>
-          <p>Pagos, contratos, solicitudes y mantenimientos organizados en un solo lugar. Sin chats perdidos ni respuestas de memoria.</p>
+          <h2>Control sin perseguir respuestas.</h2>
+          <p>Consulta el estado real de tu inmueble y de cada gestión. Lo importante deja de vivir en llamadas, chats y archivos dispersos.</p>
           <div className="micro-benefits">
-            <span><LineIcon type="file" /> Información centralizada</span>
-            <span><LineIcon type="track" /> Seguimiento en tiempo real</span>
-            <span><LineIcon type="document" /> Documentos disponibles</span>
-            <span><LineIcon type="message" /> Solicitudes registradas</span>
+            <span><LineIcon type="file" /> Canon y cartera</span>
+            <span><LineIcon type="track" /> Mantenimientos con estado</span>
+            <span><LineIcon type="document" /> Contratos y documentos</span>
+            <span><LineIcon type="message" /> Responsable y trazabilidad</span>
           </div>
-          <button className="text-link" onClick={() => setContactOpen(true)}>Conocer el portal <Arrow /></button>
+          <button className="text-link" onClick={() => setContactOpen(true)}>Ver cómo funciona <Arrow /></button>
         </div>
         <PortalPreview />
       </section>
@@ -201,10 +201,10 @@ export default function Home() {
           <div className="audience-grid">
             <article className="audience-card owner-card">
               <div className="audience-sketch"><img src="/media/audience-diptych-v2.png" alt="Propietario consultando la gestión de su inmueble" /></div>
-              <div className="audience-content"><p className="eyebrow">PARA PROPIETARIOS</p><h3>Tu activo protegido<br />y bajo control.</h3>{ownerBenefits.map(([title, copy]) => <div className="benefit-row" key={title}><span>✓</span><p><b>{title}</b>{copy}</p></div>)}</div>
+              <div className="audience-content"><p className="eyebrow">SI ERES PROPIETARIO</p><h3>Protegemos el ingreso.<br />Cuidamos el inmueble.</h3>{ownerBenefits.map(([title, copy]) => <div className="benefit-row" key={title}><span>✓</span><p><b>{title}</b>{copy}</p></div>)}</div>
             </article>
             <article className="audience-card tenant-card">
-              <div className="audience-content"><p className="eyebrow">PARA INQUILINOS</p><h3>Un arriendo claro,<br />desde el primer día.</h3>{tenantBenefits.map(([title, copy]) => <div className="benefit-row" key={title}><span>✓</span><p><b>{title}</b>{copy}</p></div>)}</div>
+              <div className="audience-content"><p className="eyebrow">SI BUSCAS UN HOGAR</p><h3>Inmuebles reales.<br />Un proceso que responde.</h3>{tenantBenefits.map(([title, copy]) => <div className="benefit-row" key={title}><span>✓</span><p><b>{title}</b>{copy}</p></div>)}</div>
               <div className="audience-sketch"><img src="/media/audience-diptych-v2.png" alt="Inquilina revisando su información en el portal" /></div>
             </article>
           </div>
@@ -212,20 +212,20 @@ export default function Home() {
       </section>
 
       <section className="process section-shell" id="proceso">
-        <div className="process-heading"><span className="section-number">06</span><h2>Así cuidamos tu propiedad.</h2></div>
+        <div className="process-heading"><span className="section-number">06</span><h2>Del precio correcto al mantenimiento resuelto.</h2></div>
         <div className="process-grid">
           {[
-            ['01', 'Conocemos', 'Entendemos tu propiedad y tus objetivos.', 'verify', 'VERIFICADO'],
-            ['02', 'Preparamos', 'Organizamos y dejamos todo listo para presentar.', 'camera', 'ACTUALIZADO'],
-            ['03', 'Gestionamos', 'Publicamos, coordinamos y damos seguimiento.', 'portal', 'EN PROCESO'],
-            ['04', 'Respondemos', 'Atención humana, rápida y efectiva.', 'people', 'ACTUALIZADO'],
+            ['01', 'Valoramos', 'Revisamos precio, documentos, estado y riesgos.', 'verify', 'DIAGNÓSTICO'],
+            ['02', 'Posicionamos', 'Producimos fotos, 360°, ficha y estrategia de publicación.', 'camera', 'PUBLICACIÓN'],
+            ['03', 'Arrendamos', 'Filtramos prospectos, coordinamos póliza y firmamos contrato.', 'portal', 'CONTRATO'],
+            ['04', 'Administramos', 'Controlamos cartera, novedades, mantenimiento y reportes.', 'people', 'OPERACIÓN'],
           ].map(([n, title, copy, icon, status], index) => <article key={n}><span>{n}</span><BenefitIllustration type={icon} /><small><i />{status}</small><h3>{title}</h3><p>{copy}</p>{index < 3 && <Arrow />}</article>)}
         </div>
       </section>
 
       <section className="human-section section-shell">
         <div className="human-image"><img src="/media/asesora-litving-hd.png" alt="Asesora Litving acompañando personalmente a un cliente" /></div>
-        <div className="human-copy"><span className="section-number">07</span><h2>La tecnología organiza.<br />Nuestro equipo responde.</h2><p>Siempre sabrás quién te acompaña y qué está pasando.</p><button className="button button-primary" onClick={() => setContactOpen(true)}>Conoce nuestro equipo <Arrow /></button></div>
+        <div className="human-copy"><span className="section-number">07</span><h2>La plataforma no reemplaza el servicio. Lo hace visible.</h2><p>Tu asesor se encarga de la operación; tú puedes verla completa y saber quién responde.</p><button className="button button-primary" onClick={() => setContactOpen(true)}>Hablar con un asesor <Arrow /></button></div>
       </section>
 
       <footer className="site-footer section-shell"><a className="brand" href="#inicio">LITVING</a><p>Bogotá · Colombia</p><button onClick={() => setContactOpen(true)}>Contacto</button><a href="#beneficios">Privacidad</a><small>© 2026 LITVING</small></footer>
@@ -236,7 +236,7 @@ export default function Home() {
             <button className="modal-close" onClick={() => setContactOpen(false)} aria-label="Cerrar">×</button>
             <p className="eyebrow">LITVING · BOGOTÁ</p>
             <h2 id="contact-title">Hablemos de tu propiedad.</h2>
-            <p>Cuéntanos qué necesitas. Una persona del equipo te contactará para conocer tu caso.</p>
+            <p>Cuéntanos sobre tu inmueble. Revisaremos su situación, el canon esperado y la mejor estrategia para arrendarlo y administrarlo.</p>
             {sent ? <div className="success-message"><b>Solicitud recibida.</b><span>Gracias. Pronto nos pondremos en contacto contigo.</span></div> : (
               <form onSubmit={submitContact}>
                 <label>Nombre<input name="name" required autoFocus /></label>

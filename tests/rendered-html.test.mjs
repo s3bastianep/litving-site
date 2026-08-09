@@ -20,15 +20,15 @@ test("server-renders the native Litving experience", async () => {
   const html = await response.text();
   assert.match(html, /<title>LITVING \| Tu propiedad, bien administrada<\/title>/i);
   assert.match(html, /Tu propiedad,/i);
-  assert.match(html, /Propiedades verificadas/i);
-  assert.match(html, /Presentación profesional/i);
-  assert.match(html, /Propiedades elegidas con criterio/i);
-  assert.match(html, /No corresponden a inventario activo/i);
-  assert.match(html, /Tu propiedad,[\s\S]*siempre visible/i);
-  assert.match(html, /Para propietarios/i);
-  assert.match(html, /Para inquilinos/i);
-  assert.match(html, /Así cuidamos tu propiedad/i);
-  assert.match(html, /Nuestro equipo responde/i);
+  assert.match(html, /Arriendo con respaldo/i);
+  assert.match(html, /Menos tiempo desocupado/i);
+  assert.match(html, /Así hacemos que tu propiedad compita mejor/i);
+  assert.match(html, /no inventario activo/i);
+  assert.match(html, /Control sin perseguir respuestas/i);
+  assert.match(html, /Si eres propietario/i);
+  assert.match(html, /Si buscas un hogar/i);
+  assert.match(html, /Del precio correcto al mantenimiento resuelto/i);
+  assert.match(html, /La plataforma no reemplaza el servicio/i);
   assert.doesNotMatch(html, /litving-approved-page\.png|codex-preview|Building your site/i);
 });
 

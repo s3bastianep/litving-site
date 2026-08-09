@@ -4,10 +4,10 @@ import "./globals.css";
 export const metadata: Metadata = {
   metadataBase: new URL("https://litving-bogota.macampoq.chatgpt.site"),
   title: "LITVING | Tu propiedad, bien administrada",
-  description: "Administración residencial con presentación profesional, tecnología visible y atención humana en Bogotá.",
+  description: "Arrendamos y administramos propiedades en Bogotá con canon respaldado, publicación profesional, portal de gestión y un asesor responsable.",
   openGraph: {
     title: "LITVING | Tu propiedad, bien administrada",
-    description: "Tecnología que organiza. Personas que responden.",
+    description: "Una inmobiliaria digital para arrendar mejor, proteger el ingreso y mantener el control.",
     url: "/",
     siteName: "LITVING",
     locale: "es_CO",
@@ -17,7 +17,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "LITVING | Tu propiedad, bien administrada",
-    description: "Tecnología que organiza. Personas que responden.",
+    description: "Una inmobiliaria digital para arrendar mejor, proteger el ingreso y mantener el control.",
     images: ["/og.png"],
   },
 };
