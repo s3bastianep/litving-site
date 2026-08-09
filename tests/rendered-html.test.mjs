@@ -58,7 +58,11 @@ test("uses responsive native sections and HD assets", async () => {
   assert.equal((page.match(/<BenefitIllustration/g) ?? []).length, 1, "benefit artwork must only appear in the value section");
   assert.doesNotMatch(page, /item\.sketch/);
   assert.match(page, /className="value-grid"/);
-  assert.match(css, /family=Inter:wght@400;500;600;700&family=Lora:wght@500;600&family=Montserrat:wght@600;700/);
+  assert.match(css, /family=Inter:wght@400;500;600;700&family=Montserrat:wght@500;600;700/);
+  assert.match(css, /--font-display: "Montserrat"/);
+  assert.doesNotMatch(css, /Lora|Georgia/);
+  assert.match(page, /TU PROPIEDAD, SIEMPRE VISIBLE/);
+  assert.match(page, /portal-footer/);
   assert.match(css, /@media \(max-width: 760px\)/);
   assert.match(css, /\.blueprint/);
   assert.match(css, /\.portal-window/);

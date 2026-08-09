@@ -31,14 +31,6 @@ function Arrow() {
   return <span aria-hidden="true">→</span>;
 }
 
-function LineIcon({ type }: { type: string }) {
-  return (
-    <span className={`line-icon line-icon--${type}`} aria-hidden="true">
-      <i /><b /><em />
-    </span>
-  );
-}
-
 const benefitAssets: Record<string, { src: string; alt: string }> = {
   verify: { src: "/media/benefit-verified-sketch.png", alt: "Edificio, documento y lupa ilustrados a lápiz" },
   camera: { src: "/media/benefit-presentation-sketch.png", alt: "Cámara profesional, trípode y plano arquitectónico ilustrados a lápiz" },
@@ -90,24 +82,29 @@ function PortalPreview() {
   return (
     <div className="portal-window" aria-label="Vista previa del portal Litving">
       <aside className="portal-sidebar">
-        <strong>LITVING</strong>
+        <div className="portal-brand"><strong>LITVING</strong><small>Portal de gestión</small></div>
         {['Inicio', 'Propiedades', 'Contratos', 'Pagos', 'Mantenimientos', 'Solicitudes', 'Documentos'].map((item, index) => (
           <span key={item} className={index === 0 ? 'active' : ''}><i />{item}</span>
         ))}
+        <div className="portal-advisor"><span>CR</span><p><b>Carolina R.</b><small>Tu asesora</small></p></div>
       </aside>
       <div className="portal-content">
-        <header><div><b>Hola, Carolina</b><small>Resumen de tu propiedad</small></div><span className="online"><i /> Al día</span></header>
+        <header>
+          <div><b>Hola, Carolina</b><small>Resumen de tu propiedad</small></div>
+          <div className="portal-head-actions"><button>Apartamento 506 · Rosales <span>⌄</span></button><span className="online"><i /> Al día</span></div>
+        </header>
         <div className="portal-metrics">
-          <article><small>Estado</small><strong><i /> Al día</strong></article>
-          <article><small>Próximo pago</small><strong>05.Jun.2026</strong></article>
-          <article><small>Contratos activos</small><strong>2</strong></article>
+          <article><small>Estado de cartera</small><strong><i /> Al día</strong><em>Sin saldos pendientes</em></article>
+          <article><small>Próximo pago</small><strong>05 Jun. 2026</strong><em>Canon de arrendamiento</em></article>
+          <article><small>Gestiones abiertas</small><strong>2</strong><em>Ambas dentro del plazo</em></article>
         </div>
         <div className="portal-activity">
           <div className="activity-head"><b>Actividad reciente</b><small>Seguimiento en tiempo real</small></div>
-          {[['20 Abr', 'Pago recibido', 'Completado'], ['22 Abr', 'Mantenimiento', 'En proceso'], ['15 Abr', 'Solicitud', 'Respondida'], ['10 Abr', 'Documento', 'Actualizado']].map(row => (
-            <div className="activity-row" key={row[0] + row[1]}><time>{row[0]}</time><i /><span>{row[1]}</span><b>{row[2]}</b></div>
+          {[['20 Abr', 'Pago recibido', 'Canon de arrendamiento', 'Completado'], ['22 Abr', 'Mantenimiento', 'Revisión del ascensor', 'En proceso'], ['15 Abr', 'Solicitud', 'Ajuste de cerradura', 'Respondida'], ['10 Abr', 'Documento', 'Contrato actualizado', 'Disponible']].map(row => (
+            <div className="activity-row" key={row[0] + row[1]}><time>{row[0]}</time><i /><span><b>{row[1]}</b><small>{row[2]}</small></span><em>{row[3]}</em></div>
           ))}
         </div>
+        <footer className="portal-footer"><span><i /> Información actualizada hoy, 09:40</span><button>Ver reporte mensual <Arrow /></button></footer>
       </div>
     </div>
   );
@@ -204,15 +201,16 @@ export default function Home() {
       <section className="portal-section section-shell" id="portal">
         <div className="portal-copy">
           <span className="section-number">03</span>
+          <p className="eyebrow">TU PROPIEDAD, SIEMPRE VISIBLE</p>
           <h2>Control sin perseguir respuestas.</h2>
-          <p>Consulta el estado real de tu inmueble y de cada gestión. Lo importante deja de vivir en llamadas, chats y archivos dispersos.</p>
+          <p>Consulta pagos, contratos, solicitudes y mantenimientos sin depender de llamadas o chats dispersos.</p>
           <div className="micro-benefits">
-            <span><LineIcon type="file" /> Canon y cartera</span>
-            <span><LineIcon type="track" /> Mantenimientos con estado</span>
-            <span><LineIcon type="document" /> Contratos y documentos</span>
-            <span><LineIcon type="message" /> Responsable y trazabilidad</span>
+            <span><b>01</b><em>Canon y cartera</em><small>Pagos y saldos visibles.</small></span>
+            <span><b>02</b><em>Mantenimientos</em><small>Responsable, estado y fecha.</small></span>
+            <span><b>03</b><em>Documentos</em><small>Contratos siempre disponibles.</small></span>
+            <span><b>04</b><em>Solicitudes</em><small>Cada caso queda registrado.</small></span>
           </div>
-          <button className="text-link" onClick={() => setContactOpen(true)}>Ver cómo funciona <Arrow /></button>
+          <button className="button button-secondary portal-cta" onClick={() => setContactOpen(true)}>Conocer la administración <Arrow /></button>
         </div>
         <PortalPreview />
       </section>
