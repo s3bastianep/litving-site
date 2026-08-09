@@ -61,7 +61,7 @@ test("uses responsive native sections and HD assets", async () => {
   assert.match(css, /family=Inter:wght@400;500;600;700&family=Montserrat:wght@500;600;700/);
   assert.match(css, /--font-display: "Montserrat"/);
   assert.match(css, /--ink: #0c0e0d/);
-  assert.match(css, /--teal: #e9ff7b/);
+  assert.match(css, /--teal: #e2fa58/);
   assert.match(css, /--on-accent: #0c0e0d/);
   assert.doesNotMatch(css, /Lora|Georgia/);
   assert.match(page, /TU PROPIEDAD, SIEMPRE VISIBLE/);

@@ -3,7 +3,7 @@
 :root {
   --paper: #f7f5ef;
   --ink: #0c0e0d;
-  --teal: #e9ff7b;
+  --teal: #e2fa58;
   --on-accent: #0c0e0d;
   --line: color-mix(in srgb, var(--ink) 20%, transparent);
   --max: 1440px;
