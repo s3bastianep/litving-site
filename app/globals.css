@@ -3,8 +3,8 @@
 :root {
   --paper: #f7f5ef;
   --ink: #0c0e0d;
-  --teal: #e2fa58;
-  --on-accent: #0c0e0d;
+  --teal: #3f5bff;
+  --on-accent: #f7f5ef;
   --line: color-mix(in srgb, var(--ink) 20%, transparent);
   --max: 1440px;
   --font-display: "Montserrat", Arial, sans-serif;
