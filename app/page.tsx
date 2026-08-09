@@ -137,7 +137,7 @@ export default function Home() {
           <a href="#beneficios" onClick={closeMenu}>Por qué Litving</a>
           <a href="#personas" onClick={closeMenu}>Para quién</a>
           <a href="#proceso" onClick={closeMenu}>Cómo trabajamos</a>
-          <button className="nav-contact" onClick={() => { setContactOpen(true); closeMenu(); }}>Hablar con un asesor <Arrow /></button>
+          <button className="nav-contact" onClick={() => { setContactOpen(true); closeMenu(); }}>Hablar con un asesor</button>
         </nav>
         <button className="menu-toggle" aria-expanded={menuOpen} aria-label="Abrir menú" onClick={() => setMenuOpen(!menuOpen)}><i /><i /></button>
       </header>
@@ -149,7 +149,7 @@ export default function Home() {
           <p className="hero-lead">La inmobiliaria que protege tu ingreso y te devuelve el control.</p>
           <p className="hero-support">Conseguimos el inquilino, gestionamos el contrato y operamos pagos y mantenimientos con respaldo de aseguradora, tecnología y un equipo responsable.</p>
           <div className="hero-actions">
-            <button className="button button-primary" onClick={() => setContactOpen(true)}>Quiero arrendar mi propiedad <Arrow /></button>
+            <button className="button button-primary" onClick={() => setContactOpen(true)}>Quiero arrendar mi propiedad</button>
             <a className="button button-secondary" href="#beneficios">Ver por qué Litving</a>
           </div>
         </div>
@@ -210,7 +210,7 @@ export default function Home() {
             <span><b>03</b><em>Documentos</em><small>Contratos siempre disponibles.</small></span>
             <span><b>04</b><em>Solicitudes</em><small>Cada caso queda registrado.</small></span>
           </div>
-          <button className="button button-secondary portal-cta" onClick={() => setContactOpen(true)}>Conocer la administración <Arrow /></button>
+          <button className="button button-secondary portal-cta" onClick={() => setContactOpen(true)}>Conocer la administración</button>
         </div>
         <PortalPreview />
       </section>
@@ -244,7 +244,7 @@ export default function Home() {
 
       <section className="human-section section-shell">
         <div className="human-image"><img src="/media/asesora-litving-hd.png" alt="Asesora Litving acompañando personalmente a un cliente" /></div>
-        <div className="human-copy"><span className="section-number">07</span><h2>La plataforma no reemplaza el servicio. Lo hace visible.</h2><p>Tu asesor se encarga de la operación; tú puedes verla completa y saber quién responde.</p><button className="button button-primary" onClick={() => setContactOpen(true)}>Hablar con un asesor <Arrow /></button></div>
+        <div className="human-copy"><span className="section-number">07</span><h2>La plataforma no reemplaza el servicio. Lo hace visible.</h2><p>Tu asesor se encarga de la operación; tú puedes verla completa y saber quién responde.</p><button className="button button-primary" onClick={() => setContactOpen(true)}>Hablar con un asesor</button></div>
       </section>
 
       <footer className="site-footer section-shell"><a className="brand" href="#inicio">LITVING</a><p>Bogotá · Colombia</p><button onClick={() => setContactOpen(true)}>Contacto</button><a href="#beneficios">Privacidad</a><small>© 2026 LITVING</small></footer>
@@ -261,7 +261,7 @@ export default function Home() {
                 <label>Nombre<input name="name" required autoFocus /></label>
                 <label>Correo o teléfono<input name="contact" required /></label>
                 <label>Quiero<select name="need" defaultValue="administrar"><option value="administrar">Administrar mi propiedad</option><option value="publicar">Publicar mi propiedad</option><option value="arrendar">Buscar una propiedad</option><option value="portal">Conocer el portal</option></select></label>
-                <button type="submit">Quiero que me contacten <Arrow /></button>
+                <button type="submit">Quiero que me contacten</button>
               </form>
             )}
           </section>

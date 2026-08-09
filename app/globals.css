@@ -3,7 +3,7 @@
 :root {
   --paper: #f8f4ee;
   --ink: #173443;
-  --teal: #087469;
+  --teal: #745962;
   --line: color-mix(in srgb, var(--ink) 20%, transparent);
   --max: 1440px;
   --font-display: "Montserrat", Arial, sans-serif;
