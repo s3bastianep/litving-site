@@ -53,6 +53,10 @@ test("uses responsive native sections and HD assets", async () => {
   assert.match(layout, /openGraph/);
   assert.match(css, /\.hero \{ width: 100%; max-width: none; min-height: 640px/);
   assert.match(page, /function BenefitIllustration/);
+  assert.match(page, /function ListingFacade/);
+  assert.match(page, /function ProcessIllustration/);
+  assert.equal((page.match(/<BenefitIllustration/g) ?? []).length, 1, "benefit artwork must only appear in the value section");
+  assert.doesNotMatch(page, /item\.sketch/);
   assert.match(page, /className="value-grid"/);
   assert.match(css, /family=Inter:wght@400;500;600;700&family=Lora:wght@500;600&family=Montserrat:wght@600;700/);
   assert.match(css, /@media \(max-width: 760px\)/);
@@ -65,6 +69,13 @@ test("uses responsive native sections and HD assets", async () => {
   await access(new URL("../public/media/benefit-presentation-sketch.png", import.meta.url));
   await access(new URL("../public/media/benefit-management-sketch.png", import.meta.url));
   await access(new URL("../public/media/benefit-human-sketch.png", import.meta.url));
+  await access(new URL("../public/media/listing-facade-rosales-v2.png", import.meta.url));
+  await access(new URL("../public/media/listing-facade-chico-reservado-v2.png", import.meta.url));
+  await access(new URL("../public/media/listing-facade-la-cabrera-v2.png", import.meta.url));
+  await access(new URL("../public/media/process-valuation-v2.png", import.meta.url));
+  await access(new URL("../public/media/process-positioning-v2.png", import.meta.url));
+  await access(new URL("../public/media/process-contract-v2.png", import.meta.url));
+  await access(new URL("../public/media/process-management-v2.png", import.meta.url));
   await access(new URL("../public/media/asesora-litving-hd.png", import.meta.url));
   await access(new URL("../public/media/audience-diptych-v2.png", import.meta.url));
 });

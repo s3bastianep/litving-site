@@ -10,9 +10,9 @@ const valueItems = [
 ];
 
 const listingExamples = [
-  { image: "/media/el-virrey.png", zone: "Rosales", city: "Bogotá", operation: "Arriendo", kind: "Apartamento", price: "$8.900.000 / mes", tag: "Verificado", badge: "360°", sketch: "verify" },
-  { image: "/media/san-simon.png", zone: "Chicó Reservado", city: "Bogotá", operation: "Venta", kind: "Casa", price: "$3.950.000.000", tag: "Verificado", badge: "360°", sketch: "camera" },
-  { image: "/media/terraza-hd.png", zone: "La Cabrera", city: "Bogotá", operation: "Arriendo", kind: "Apartamento", price: "$12.500.000 / mes", tag: "Verificado", badge: "360°", sketch: "portal" },
+  { image: "/media/el-virrey.png", facade: "/media/listing-facade-rosales-v2.png", zone: "Rosales", city: "Bogotá", operation: "Arriendo", kind: "Apartamento", price: "$8.900.000 / mes", tag: "Verificado", badge: "360°", proof: "12 fotos HD" },
+  { image: "/media/san-simon.png", facade: "/media/listing-facade-chico-reservado-v2.png", zone: "Chicó Reservado", city: "Bogotá", operation: "Venta", kind: "Casa", price: "$3.950.000.000", tag: "Verificado", badge: "360°", proof: "Tour 360° listo" },
+  { image: "/media/terraza-hd.png", facade: "/media/listing-facade-la-cabrera-v2.png", zone: "La Cabrera", city: "Bogotá", operation: "Arriendo", kind: "Apartamento", price: "$12.500.000 / mes", tag: "Verificado", badge: "360°", proof: "Ficha verificada" },
 ];
 
 const ownerBenefits = [
@@ -49,6 +49,27 @@ const benefitAssets: Record<string, { src: string; alt: string }> = {
 function BenefitIllustration({ type }: { type: string }) {
   const asset = benefitAssets[type] ?? benefitAssets.verify;
   return <img className={`benefit-illustration benefit-illustration--${type}`} src={asset.src} alt={asset.alt} />;
+}
+
+function ListingFacade({ src, zone, proof }: { src: string; zone: string; proof: string }) {
+  return (
+    <figure className="listing-facade">
+      <img src={src} alt={`Boceto de la fachada del anuncio de muestra en ${zone}`} />
+      <figcaption><i />{proof}</figcaption>
+    </figure>
+  );
+}
+
+const processAssets: Record<string, { src: string; alt: string }> = {
+  valuation: { src: "/media/process-valuation-v2.png", alt: "Valoración comercial de un inmueble" },
+  positioning: { src: "/media/process-positioning-v2.png", alt: "Preparación editorial del anuncio inmobiliario" },
+  contract: { src: "/media/process-contract-v2.png", alt: "Contrato de arrendamiento protegido por aseguradora" },
+  management: { src: "/media/process-management-v2.png", alt: "Gestión de mantenimiento y seguimiento del inmueble" },
+};
+
+function ProcessIllustration({ type }: { type: string }) {
+  const asset = processAssets[type] ?? processAssets.valuation;
+  return <img className="process-illustration" src={asset.src} alt={asset.alt} />;
 }
 
 function ArchitecturalBlueprint() {
@@ -147,7 +168,7 @@ export default function Home() {
             <article className="value-card" key={item.number}>
               <span className="value-number">{item.number}</span>
               <BenefitIllustration type={item.icon} />
-              <h3>{item.title}<i /></h3>
+              <h3>{item.title}</h3>
               <p>{item.copy}</p>
             </article>
           ))}
@@ -171,7 +192,7 @@ export default function Home() {
                 <div className="listing-image"><img src={item.image} alt={`Ejemplo de fotografía inmobiliaria profesional en ${item.zone}`} /><span><i /> {item.tag}</span><b>{item.badge}</b></div>
                 <div className="listing-body">
                   <div className="listing-copy"><small>{item.city}</small><h3>{item.zone}</h3><p>{item.operation} · {item.kind}</p><strong>{item.price}</strong></div>
-                  <BenefitIllustration type={item.sketch} />
+                  <ListingFacade src={item.facade} zone={item.zone} proof={item.proof} />
                 </div>
                 <small className="listing-disclaimer">ANUNCIO DE MUESTRA · FICHA ACTUALIZADA</small>
               </article>
@@ -215,11 +236,11 @@ export default function Home() {
         <div className="process-heading"><span className="section-number">06</span><h2>Del precio correcto al mantenimiento resuelto.</h2></div>
         <div className="process-grid">
           {[
-            ['01', 'Valoramos', 'Revisamos precio, documentos, estado y riesgos.', 'verify', 'DIAGNÓSTICO'],
-            ['02', 'Posicionamos', 'Producimos fotos, 360°, ficha y estrategia de publicación.', 'camera', 'PUBLICACIÓN'],
-            ['03', 'Arrendamos', 'Filtramos prospectos, coordinamos póliza y firmamos contrato.', 'portal', 'CONTRATO'],
-            ['04', 'Administramos', 'Controlamos cartera, novedades, mantenimiento y reportes.', 'people', 'OPERACIÓN'],
-          ].map(([n, title, copy, icon, status], index) => <article key={n}><span>{n}</span><BenefitIllustration type={icon} /><small><i />{status}</small><h3>{title}</h3><p>{copy}</p>{index < 3 && <Arrow />}</article>)}
+            ['01', 'Valoramos', 'Definimos un canon competitivo y verificamos el estado inicial.', 'valuation', 'DIAGNÓSTICO'],
+            ['02', 'Posicionamos', 'Creamos el anuncio, producimos el material y activamos los canales.', 'positioning', 'PUBLICACIÓN'],
+            ['03', 'Arrendamos', 'Estudiamos al prospecto, coordinamos la póliza y firmamos digitalmente.', 'contract', 'CONTRATO'],
+            ['04', 'Administramos', 'Supervisamos cartera, novedades y mantenimientos hasta resolverlos.', 'management', 'OPERACIÓN'],
+          ].map(([n, title, copy, icon, status], index) => <article key={n}><span>{n}</span><ProcessIllustration type={icon} /><small><i />{status}</small><h3>{title}</h3><p>{copy}</p>{index < 3 && <Arrow />}</article>)}
         </div>
       </section>
 
