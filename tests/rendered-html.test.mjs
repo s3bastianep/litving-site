@@ -60,7 +60,9 @@ test("uses responsive native sections and HD assets", async () => {
   assert.match(page, /className="value-grid"/);
   assert.match(css, /family=Inter:wght@400;500;600;700&family=Montserrat:wght@500;600;700/);
   assert.match(css, /--font-display: "Montserrat"/);
-  assert.match(css, /--teal: #9b3f58/);
+  assert.match(css, /--ink: #0c0e0d/);
+  assert.match(css, /--teal: #c7f000/);
+  assert.match(css, /--on-accent: #0c0e0d/);
   assert.doesNotMatch(css, /Lora|Georgia/);
   assert.match(page, /TU PROPIEDAD, SIEMPRE VISIBLE/);
   assert.match(page, /portal-footer/);
