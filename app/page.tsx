@@ -200,12 +200,12 @@ export default function Home() {
         <div className="section-shell">
           <div className="audience-grid">
             <article className="audience-card owner-card">
-              <div className="audience-sketch"><img src="/media/benefit-human-sketch.png" alt="Propietario consultando la gestión de su inmueble" /></div>
+              <div className="audience-sketch"><img src="/media/audience-diptych-v2.png" alt="Propietario consultando la gestión de su inmueble" /></div>
               <div className="audience-content"><p className="eyebrow">PARA PROPIETARIOS</p><h3>Tu activo protegido<br />y bajo control.</h3>{ownerBenefits.map(([title, copy]) => <div className="benefit-row" key={title}><span>✓</span><p><b>{title}</b>{copy}</p></div>)}</div>
             </article>
             <article className="audience-card tenant-card">
               <div className="audience-content"><p className="eyebrow">PARA INQUILINOS</p><h3>Un arriendo claro,<br />desde el primer día.</h3>{tenantBenefits.map(([title, copy]) => <div className="benefit-row" key={title}><span>✓</span><p><b>{title}</b>{copy}</p></div>)}</div>
-              <div className="audience-sketch"><img src="/media/benefit-human-sketch.png" alt="Inquilina revisando su información en el portal" /></div>
+              <div className="audience-sketch"><img src="/media/audience-diptych-v2.png" alt="Inquilina revisando su información en el portal" /></div>
             </article>
           </div>
         </div>

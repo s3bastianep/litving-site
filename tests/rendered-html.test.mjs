@@ -47,6 +47,7 @@ test("uses responsive native sections and HD assets", async () => {
   assert.match(page, />LITVING<\/a>/);
   assert.match(page, /className="portal-window"/);
   assert.match(page, /asesora-litving-hd\.png/);
+  assert.match(page, /audience-diptych-v2\.png/);
   assert.doesNotMatch(page, /approved-page|hotspot|litving-approved-page/);
   assert.match(layout, /metadataBase/);
   assert.match(layout, /openGraph/);
@@ -65,4 +66,5 @@ test("uses responsive native sections and HD assets", async () => {
   await access(new URL("../public/media/benefit-management-sketch.png", import.meta.url));
   await access(new URL("../public/media/benefit-human-sketch.png", import.meta.url));
   await access(new URL("../public/media/asesora-litving-hd.png", import.meta.url));
+  await access(new URL("../public/media/audience-diptych-v2.png", import.meta.url));
 });
