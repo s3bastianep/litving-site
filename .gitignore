@@ -27,6 +27,10 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
+compare-dev.out
+compare-dev.err
+dev.out
+dev.err
 
 # env files (can opt-in for committing if needed)
 .env*
@@ -41,5 +45,12 @@ next-env.d.ts
 /outputs/
 /work/
 /.npm-cache/
-dev.out
-dev.err
+/tmp/
+*.tar.gz
+portal-redesign.png
+ux-audit-*.png
+
+# local media experiments / backups
+public/media/*-blue-backup.png
+public/media/_*.png
+scripts/

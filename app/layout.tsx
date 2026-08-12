@@ -4,10 +4,12 @@ import "./globals.css";
 export const metadata: Metadata = {
   metadataBase: new URL("https://litving-bogota.macampoq.chatgpt.site"),
   title: "LITVING | Tu propiedad, bien administrada",
-  description: "Arrendamos y administramos propiedades en Bogotá con canon respaldado, publicación profesional, portal de gestión y un asesor responsable.",
+  description:
+    "Arrendamos y administramos propiedades en Bogotá con canon respaldado, publicación profesional, portal de gestión y un asesor responsable.",
   openGraph: {
     title: "LITVING | Tu propiedad, bien administrada",
-    description: "Una inmobiliaria digital para arrendar mejor, proteger el ingreso y mantener el control.",
+    description:
+      "Una inmobiliaria digital para arrendar mejor, proteger el ingreso y mantener el control.",
     url: "/",
     siteName: "LITVING",
     locale: "es_CO",
@@ -17,11 +19,16 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "LITVING | Tu propiedad, bien administrada",
-    description: "Una inmobiliaria digital para arrendar mejor, proteger el ingreso y mantener el control.",
+    description:
+      "Una inmobiliaria digital para arrendar mejor, proteger el ingreso y mantener el control.",
     images: ["/og.png"],
   },
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="es"><body>{children}</body></html>;
+  return (
+    <html lang="es">
+      <body>{children}</body>
+    </html>
+  );
 }
