@@ -943,7 +943,8 @@ export default function Home() {
       <header className="site-header" ref={headerRef}>
         <a className="brand" href="#inicio" aria-label="Litving, inicio">LITVING</a>
         <nav id="main-navigation" className={menuOpen ? "main-nav open" : "main-nav"} aria-label="Navegación principal">
-          <a href="#presentacion" onClick={closeMenu}>Buscar propiedades</a>
+          <a href="#presentacion" onClick={closeMenu}>Buscar para compra</a>
+          <a href="#presentacion" onClick={closeMenu}>Buscar para arriendo</a>
           <button type="button" className="nav-link" onClick={event => openContact(event, "arriendo")}>Publicar para arriendo</button>
           <button type="button" className="nav-link" onClick={event => openContact(event, "venta")}>Publicar para venta</button>
           <a href="#beneficios" onClick={closeMenu}>Conoce Litving</a>
@@ -1132,7 +1133,7 @@ export default function Home() {
             <article className="audience-card owner-card">
               <div className="audience-photo">
                 <img
-                  src="/media/audience-owner-framed-v2-fuchsia.png?v=14"
+                  src="/media/audience-owner-framed-v2-fuchsia.png?v=17"
                   alt="Propietaria y asesora revisando la gestión del inmueble juntas"
                 />
               </div>
@@ -1158,7 +1159,7 @@ export default function Home() {
             <article className="audience-card tenant-card">
               <div className="audience-photo">
                 <img
-                  src="/media/audience-tenant-framed-v2-fuchsia.png?v=14"
+                  src="/media/audience-tenant-framed-v2-fuchsia.png?v=17"
                   alt="Asesor e inquilina en un hogar verificado, con proceso claro"
                 />
               </div>
@@ -1184,7 +1185,7 @@ export default function Home() {
             <article className="audience-card buyer-card">
               <div className="audience-photo">
                 <img
-                  src="/media/audience-buyer-framed-v2-fuchsia.png?v=14"
+                  src="/media/audience-buyer-framed-v2-fuchsia.png?v=17"
                   alt="Compradores y asesora revisando planos y criterios de compra con respaldo"
                 />
               </div>
@@ -1244,8 +1245,8 @@ export default function Home() {
       <section className="human-section section-shell" id="equipo">
         <div className="human-image">
           <img
-            src="/media/asesora-confianza-v1.png?v=1"
-            alt="Asesora Litving acompañando a una propietaria con seguimiento claro en plataforma"
+            src="/media/asesora-confianza-v4.png?v=4"
+            alt="Asesora Litving conversando con una clienta sobre el seguimiento de su propiedad"
           />
         </div>
         <div className="human-copy">
