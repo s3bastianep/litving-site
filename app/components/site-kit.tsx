@@ -203,9 +203,15 @@ export function ArchitecturalBlueprint() {
 export function InteractiveListingCard({
   listing,
   onOpen,
+  id,
+  className,
+  onHover,
 }: {
   listing: ListingExample;
   onOpen: (listing: ListingExample) => void;
+  id?: string;
+  className?: string;
+  onHover?: () => void;
 }) {
   const [photo, setPhoto] = useState(0);
   const total = listing.images.length;
@@ -229,7 +235,11 @@ export function InteractiveListingCard({
   };
 
   return (
-    <article className="listing-card">
+    <article
+      id={id}
+      className={["listing-card", className].filter(Boolean).join(" ")}
+      onMouseEnter={onHover}
+    >
       <div className="listing-image">
         <img
           src={listing.images[photo]}
@@ -328,147 +338,6 @@ export function InteractiveListingCard({
         </div>
       </div>
     </article>
-  );
-}
-
-export function ListingAdPreview({
-  listing,
-  onClose,
-  onContact,
-}: {
-  listing: ListingExample;
-  onClose: () => void;
-  onContact: (event: MouseEvent<HTMLButtonElement>) => void;
-}) {
-  const [photo, setPhoto] = useState(0);
-  const total = listing.images.length;
-  const dialogRef = useRef<HTMLElement | null>(null);
-  const closeRef = useRef<HTMLButtonElement | null>(null);
-
-  useEffect(() => {
-    closeRef.current?.focus();
-    const onKey = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        onClose();
-        return;
-      }
-      if (event.key === "ArrowLeft") setPhoto((current) => (current - 1 + total) % total);
-      if (event.key === "ArrowRight") setPhoto((current) => (current + 1) % total);
-      if (event.key !== "Tab" || !dialogRef.current) return;
-      const focusable = Array.from(
-        dialogRef.current.querySelectorAll<HTMLElement>("button, [href], input, select, textarea"),
-      ).filter((el) => !el.hasAttribute("disabled") && el.getAttribute("aria-hidden") !== "true");
-      if (!focusable.length) return;
-      const first = focusable[0];
-      const last = focusable[focusable.length - 1];
-      if (event.shiftKey && document.activeElement === first) {
-        event.preventDefault();
-        last.focus();
-      } else if (!event.shiftKey && document.activeElement === last) {
-        event.preventDefault();
-        first.focus();
-      }
-    };
-    document.addEventListener("keydown", onKey);
-    return () => document.removeEventListener("keydown", onKey);
-  }, [onClose, total]);
-
-  return (
-    <div className="modal-backdrop listing-preview-backdrop" onMouseDown={onClose}>
-      <section
-        ref={dialogRef}
-        className="listing-preview"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="listing-preview-title"
-        onMouseDown={(event) => event.stopPropagation()}
-      >
-        <button
-          ref={closeRef}
-          className="modal-close"
-          type="button"
-          onClick={onClose}
-          aria-label="Cerrar"
-        >
-          ×
-        </button>
-        <div className="listing-preview-media">
-          <img
-            src={listing.images[photo]}
-            alt={`${listing.zone}, ${listing.city}, foto ${photo + 1} de ${total}`}
-          />
-          <div className="listing-preview-badges">
-            <span>
-              <SketchIcon name="check" /> Verificado
-            </span>
-            <b>{listing.operation}</b>
-          </div>
-          {total > 1 && (
-            <div className="listing-preview-thumbs" role="group" aria-label="Fotos del anuncio">
-              {listing.images.map((src, index) => (
-                <button
-                  key={src}
-                  type="button"
-                  className={index === photo ? "is-active" : undefined}
-                  onClick={() => setPhoto(index)}
-                  aria-pressed={index === photo}
-                  aria-label={`Ver foto ${index + 1}`}
-                >
-                  <img src={src} alt="" />
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-        <div className="listing-preview-copy">
-          <p className="eyebrow">ASÍ SE VE UNA PUBLICACIÓN LITVING</p>
-          <h2 id="listing-preview-title">
-            {listing.zone} · {listing.city}
-          </h2>
-          <p className="listing-preview-meta">
-            Código {listing.code} · {listing.operation === "Renta" ? "Arriendo" : "Venta"} · {listing.kind} · {listing.floor}
-          </p>
-          <strong>
-            {listing.price}
-            {listing.priceSuffix ? ` ${listing.priceSuffix}` : ""}
-          </strong>
-          {listing.adminFee ? (
-            <p className="listing-preview-meta">
-              {listing.adminFee} Administración aprox.
-            </p>
-          ) : null}
-          {listing.priceNote ? (
-            <p className="listing-preview-meta">{listing.priceNote}</p>
-          ) : null}
-          <ul>
-            <li>{listing.area}</li>
-            <li>{listing.rooms}</li>
-            <li>{listing.baths}</li>
-            <li>{listing.parking}</li>
-            <li>{listing.elevator}</li>
-            <li>{listing.pets}</li>
-          </ul>
-          <p>
-            Fotografía profesional, recorrido 360° e información clara para posicionar el inmueble frente al perfil adecuado.
-          </p>
-          <div className="listing-preview-actions">
-            <button
-              className="button button-primary"
-              type="button"
-              onClick={(event) => {
-                onClose();
-                onContact(event);
-              }}
-            >
-              Quiero agendar una visita
-            </button>
-            <button className="button button-secondary" type="button" onClick={onClose}>
-              Cerrar
-            </button>
-          </div>
-        </div>
-      </section>
-    </div>
   );
 }
 

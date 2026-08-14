@@ -1,6 +1,8 @@
 "use client";
 
+import Link from "next/link";
 import { FormEvent, MouseEvent, useEffect, useRef, useState } from "react";
+import { ListingAdPreview } from "./components/listing-ad-preview";
 
 const valueItems = [
   { number: "01", icon: "verify", title: "Arriendo protegido", copy: "Evaluamos al arrendatario y gestionamos el respaldo necesario para proteger tu ingreso." },
@@ -329,147 +331,6 @@ function InteractiveListingCard({
         </div>
       </div>
     </article>
-  );
-}
-
-function ListingAdPreview({
-  listing,
-  onClose,
-  onContact,
-}: {
-  listing: ListingExample;
-  onClose: () => void;
-  onContact: (event: MouseEvent<HTMLButtonElement>) => void;
-}) {
-  const [photo, setPhoto] = useState(0);
-  const total = listing.images.length;
-  const dialogRef = useRef<HTMLElement | null>(null);
-  const closeRef = useRef<HTMLButtonElement | null>(null);
-
-  useEffect(() => {
-    closeRef.current?.focus();
-    const onKey = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        onClose();
-        return;
-      }
-      if (event.key === "ArrowLeft") setPhoto((current) => (current - 1 + total) % total);
-      if (event.key === "ArrowRight") setPhoto((current) => (current + 1) % total);
-      if (event.key !== "Tab" || !dialogRef.current) return;
-      const focusable = Array.from(
-        dialogRef.current.querySelectorAll<HTMLElement>("button, [href], input, select, textarea"),
-      ).filter((el) => !el.hasAttribute("disabled") && el.getAttribute("aria-hidden") !== "true");
-      if (!focusable.length) return;
-      const first = focusable[0];
-      const last = focusable[focusable.length - 1];
-      if (event.shiftKey && document.activeElement === first) {
-        event.preventDefault();
-        last.focus();
-      } else if (!event.shiftKey && document.activeElement === last) {
-        event.preventDefault();
-        first.focus();
-      }
-    };
-    document.addEventListener("keydown", onKey);
-    return () => document.removeEventListener("keydown", onKey);
-  }, [onClose, total]);
-
-  return (
-    <div className="modal-backdrop listing-preview-backdrop" onMouseDown={onClose}>
-      <section
-        ref={dialogRef}
-        className="listing-preview"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="listing-preview-title"
-        onMouseDown={(event) => event.stopPropagation()}
-      >
-        <button
-          ref={closeRef}
-          className="modal-close"
-          type="button"
-          onClick={onClose}
-          aria-label="Cerrar"
-        >
-          ×
-        </button>
-        <div className="listing-preview-media">
-          <img
-            src={listing.images[photo]}
-            alt={`${listing.zone}, ${listing.city}, foto ${photo + 1} de ${total}`}
-          />
-          <div className="listing-preview-badges">
-            <span>
-              <SketchIcon name="check" /> Verificado
-            </span>
-            <b>{listing.operation}</b>
-          </div>
-          {total > 1 && (
-            <div className="listing-preview-thumbs" role="group" aria-label="Fotos del anuncio">
-              {listing.images.map((src, index) => (
-                <button
-                  key={src}
-                  type="button"
-                  className={index === photo ? "is-active" : undefined}
-                  onClick={() => setPhoto(index)}
-                  aria-pressed={index === photo}
-                  aria-label={`Ver foto ${index + 1}`}
-                >
-                  <img src={src} alt="" />
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-        <div className="listing-preview-copy">
-          <p className="eyebrow">ASÍ SE VE UNA PUBLICACIÓN LITVING</p>
-          <h2 id="listing-preview-title">
-            {listing.zone} · {listing.city}
-          </h2>
-          <p className="listing-preview-meta">
-            Código {listing.code} · {listing.operation === "Renta" ? "Arriendo" : "Venta"} · {listing.kind} · {listing.floor}
-          </p>
-          <strong>
-            {listing.price}
-            {listing.priceSuffix ? ` ${listing.priceSuffix}` : ""}
-          </strong>
-          {listing.adminFee ? (
-            <p className="listing-preview-meta">
-              {listing.adminFee} Administración aprox.
-            </p>
-          ) : null}
-          {listing.priceNote ? (
-            <p className="listing-preview-meta">{listing.priceNote}</p>
-          ) : null}
-          <ul>
-            <li>{listing.area}</li>
-            <li>{listing.rooms}</li>
-            <li>{listing.baths}</li>
-            <li>{listing.parking}</li>
-            <li>{listing.elevator}</li>
-            <li>{listing.pets}</li>
-          </ul>
-          <p>
-            Fotografía profesional, recorrido 360° e información clara para posicionar el inmueble frente al perfil adecuado.
-          </p>
-          <div className="listing-preview-actions">
-            <button
-              className="button button-primary"
-              type="button"
-              onClick={(event) => {
-                onClose();
-                onContact(event);
-              }}
-            >
-              Quiero agendar una visita
-            </button>
-            <button className="button button-secondary" type="button" onClick={onClose}>
-              Cerrar
-            </button>
-          </div>
-        </div>
-      </section>
-    </div>
   );
 }
 
@@ -838,6 +699,7 @@ function PortalPreview() {
 
 export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
   const [contactOpen, setContactOpen] = useState(false);
   const [contactNeed, setContactNeed] = useState("administrar");
   const [activeListing, setActiveListing] = useState<ListingExample | null>(null);
@@ -857,6 +719,7 @@ export default function Home() {
     setContactNeed(need);
     setContactOpen(true);
     setMenuOpen(false);
+    setSearchOpen(false);
   };
 
   const openListing = (listing: ListingExample) => {
@@ -903,12 +766,16 @@ export default function Home() {
   }, [contactOpen]);
 
   useEffect(() => {
-    if (!menuOpen) return;
+    if (!menuOpen && !searchOpen) return;
     const onKey = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setMenuOpen(false);
+      if (event.key === "Escape") {
+        setSearchOpen(false);
+        setMenuOpen(false);
+      }
     };
     const onPointer = (event: PointerEvent) => {
       if (!headerRef.current?.contains(event.target as Node)) {
+        setSearchOpen(false);
         setMenuOpen(false);
       }
     };
@@ -918,7 +785,7 @@ export default function Home() {
       document.removeEventListener("keydown", onKey);
       document.removeEventListener("pointerdown", onPointer);
     };
-  }, [menuOpen]);
+  }, [menuOpen, searchOpen]);
 
   const submitContact = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -935,22 +802,86 @@ export default function Home() {
     setSent(true);
   };
 
-  const closeMenu = () => setMenuOpen(false);
+  const closeMenu = () => {
+    setMenuOpen(false);
+    setSearchOpen(false);
+  };
 
   return (
     <main>
       <a className="skip-link" href="#inicio">Saltar al contenido</a>
       <header className="site-header" ref={headerRef}>
-        <a className="brand" href="#inicio" aria-label="Litving, inicio">LITVING</a>
-        <nav id="main-navigation" className={menuOpen ? "main-nav open" : "main-nav"} aria-label="Navegación principal">
-          <a href="#presentacion" onClick={closeMenu}>Buscar para compra</a>
-          <a href="#presentacion" onClick={closeMenu}>Buscar para arriendo</a>
-          <button type="button" className="nav-link" onClick={event => openContact(event, "arriendo")}>Publicar para arriendo</button>
-          <button type="button" className="nav-link" onClick={event => openContact(event, "venta")}>Publicar para venta</button>
-          <a href="#beneficios" onClick={closeMenu}>Conoce Litving</a>
-          <button className="nav-contact" onClick={openContact}>Valorar mi propiedad</button>
-        </nav>
-        <button className="menu-toggle" aria-controls="main-navigation" aria-expanded={menuOpen} aria-label={menuOpen ? "Cerrar menú" : "Abrir menú"} onClick={() => setMenuOpen(!menuOpen)}><i /><i /></button>
+        <div className="header-left">
+          <a className="brand" href="#inicio" aria-label="Litving, inicio">
+            <img
+              src="/media/litving-logo-lockup.png?v=4"
+              alt="Litving Inmobiliaria"
+              className="brand-logo"
+              width="210"
+              height="48"
+            />
+          </a>
+          <nav
+            id="main-navigation"
+            className={menuOpen ? "main-nav open" : "main-nav"}
+            aria-label="Navegación principal"
+          >
+            <div className={`nav-dropdown${searchOpen ? " is-open" : ""}`}>
+              <button
+                type="button"
+                className="nav-link nav-dropdown-trigger"
+                aria-expanded={searchOpen}
+                aria-haspopup="true"
+                onClick={() => setSearchOpen(open => !open)}
+              >
+                Arrendar / Comprar
+                <span className="nav-dropdown-caret" aria-hidden="true" />
+              </button>
+              <div className="nav-dropdown-menu" hidden={!searchOpen} role="menu">
+                <Link href="/arrendar" role="menuitem" onClick={closeMenu}>
+                  Buscar para arriendo
+                </Link>
+                <Link href="/comprar" role="menuitem" onClick={closeMenu}>
+                  Buscar para compra
+                </Link>
+              </div>
+            </div>
+            <button
+              type="button"
+              className="nav-link"
+              onClick={event => openContact(event, "arriendo")}
+            >
+              Publicar para arriendo
+            </button>
+            <button
+              type="button"
+              className="nav-link"
+              onClick={event => openContact(event, "venta")}
+            >
+              Publicar para venta
+            </button>
+            <button
+              type="button"
+              className="nav-login nav-login--mobile"
+              onClick={openContact}
+            >
+              Iniciar sesión
+            </button>
+          </nav>
+        </div>
+        <button type="button" className="nav-login nav-login--desktop" onClick={openContact}>
+          Iniciar sesión
+        </button>
+        <button
+          className="menu-toggle"
+          aria-controls="main-navigation"
+          aria-expanded={menuOpen}
+          aria-label={menuOpen ? "Cerrar menú" : "Abrir menú"}
+          onClick={() => setMenuOpen(!menuOpen)}
+        >
+          <i />
+          <i />
+        </button>
       </header>
       {menuOpen ? (
         <button
@@ -1271,7 +1202,7 @@ export default function Home() {
         </div>
       </section>
 
-      <footer className="site-footer section-shell"><a className="brand" href="#inicio">LITVING</a><p>Bogotá · Colombia</p><button onClick={openContact}>Contacto</button><small>© 2026 LITVING</small></footer>
+      <footer className="site-footer section-shell"><a className="brand" href="#inicio" aria-label="Litving, inicio"><img src="/media/litving-logo-lockup.png?v=4" alt="Litving Inmobiliaria" className="brand-logo" width="170" height="38" /></a><p>Bogotá · Colombia</p><button onClick={openContact}>Contacto</button><small>© 2026 LITVING</small></footer>
 
       {activeListing && (
         <ListingAdPreview

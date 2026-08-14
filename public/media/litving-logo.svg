@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 110" role="img" aria-label="Litving Inmobiliaria">
+  <title>Litving Inmobiliaria</title>
+  <!-- Vector mark: stays sharp at any size. Prefer the inline BrandLogo on the site for crisp type. -->
+  <g fill="none" stroke="#111312" stroke-width="7.2" stroke-linejoin="round">
+    <rect x="8" y="10" width="46" height="58" rx="5"/>
+    <rect x="34" y="34" width="46" height="58" rx="5"/>
+  </g>
+  <rect x="39" y="45" width="14" height="14" fill="#d81b60"/>
+  <g fill="#111312" font-family="Montserrat, Arial, Helvetica, sans-serif">
+    <text x="102" y="58" font-size="42" font-weight="700" letter-spacing="0.06em">LITVING</text>
+    <text x="104" y="88" font-size="13" font-weight="500" letter-spacing="0.38em">INMOBILIARIA</text>
+  </g>
+</svg>

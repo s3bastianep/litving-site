@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 160" role="img" aria-labelledby="title desc">
+  <title id="title">LITVING Inmobiliaria</title>
+  <desc id="desc">Logotipo minimalista de Litving Inmobiliaria con un símbolo de conexión y un acento magenta.</desc>
+
+  <!-- Símbolo: dos espacios abiertos que se encuentran en el centro -->
+  <g fill="none" stroke="#102634" stroke-width="8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M24 72V28c0-7 5-12 12-12h44"/>
+    <path d="M80 16v38"/>
+    <path d="M80 54h35c7 0 12 5 12 12v42c0 7-5 12-12 12H71"/>
+    <path d="M71 120V82"/>
+  </g>
+  <rect x="66" y="69" width="15" height="15" rx="1" fill="#D41468"/>
+
+  <!-- Wordmark -->
+  <text x="172" y="83" fill="#102634"
+        font-family="Inter, Montserrat, Arial, sans-serif"
+        font-size="58" font-weight="600" letter-spacing="11">LITVING</text>
+  <text x="176" y="119" fill="#102634"
+        font-family="Inter, Montserrat, Arial, sans-serif"
+        font-size="15" font-weight="500" letter-spacing="6">INMOBILIARIA</text>
+</svg>

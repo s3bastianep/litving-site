@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 683 174" role="img" aria-labelledby="title desc">
+  <title id="title">LITVING INMOBILIARIA</title>
+  <desc id="desc">Símbolo abstracto magenta y azul marino junto al nombre Litving Inmobiliaria.</desc>
+
+  <!-- Símbolo original: dos módulos abiertos, enfrentados y conectados -->
+  <g fill="none" stroke="#081827" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M94 116V53l38-8v25"/>
+    <path d="M132 70 95 79"/>
+    <path d="M142 76l31-7v64l-37 8v-23"/>
+    <path d="M136 119l37-10"/>
+  </g>
+  <rect x="127" y="87" width="11" height="11" fill="#D41468"/>
+
+  <!-- Wordmark principal -->
+  <text x="224" y="114" fill="#081827"
+        font-family="Arial, Helvetica, sans-serif"
+        font-size="42" font-weight="400" letter-spacing="35">LITVING</text>
+  <text x="270" y="151" fill="#081827"
+        font-family="Arial, Helvetica, sans-serif"
+        font-size="13" font-weight="400" letter-spacing="15">INMOBILIARIA</text>
+</svg>
