@@ -18,6 +18,7 @@ export type SearchListing = {
   floor?: string;
   pets: boolean;
   furnished: boolean;
+  adminFee?: string;
   image: string;
   gallery: string[];
   lat: number;
@@ -44,6 +45,7 @@ export const searchListings: SearchListing[] = [
     floor: "Piso 8",
     pets: true,
     furnished: false,
+    adminFee: "$ 980.000",
     image: "/media/listing-chico-living-hd.png",
     gallery: [
       "/media/listing-chico-living-hd.png",
@@ -72,6 +74,7 @@ export const searchListings: SearchListing[] = [
     floor: "Piso 5",
     pets: false,
     furnished: false,
+    adminFee: "$ 680.000",
     image: "/media/listing-salitre-terrace-a-hd.png",
     gallery: [
       "/media/listing-salitre-terrace-a-hd.png",
@@ -100,6 +103,7 @@ export const searchListings: SearchListing[] = [
     floor: "Piso 10",
     pets: true,
     furnished: true,
+    adminFee: "$ 520.000",
     image: "/media/listing-salitre-living-hd.png",
     gallery: ["/media/listing-salitre-living-hd.png", "/media/listing-chico-kitchen-hd.png"],
     lat: 4.6752,
@@ -124,6 +128,7 @@ export const searchListings: SearchListing[] = [
     floor: "Piso 4",
     pets: true,
     furnished: false,
+    adminFee: "$ 890.000",
     image: "/media/listing-facade-rosales-v2.png",
     gallery: ["/media/listing-facade-rosales-v2.png", "/media/listing-chico-bedroom-hd.png"],
     lat: 4.6569,
@@ -148,6 +153,7 @@ export const searchListings: SearchListing[] = [
     floor: "Piso 12",
     pets: true,
     furnished: false,
+    adminFee: "$ 1.150.000",
     image: "/media/listing-facade-la-cabrera-v2.png",
     gallery: ["/media/listing-facade-la-cabrera-v2.png", "/media/listing-chapinero-v2-living-hd.png"],
     lat: 4.6654,
@@ -172,6 +178,7 @@ export const searchListings: SearchListing[] = [
     floor: "Piso 6",
     pets: false,
     furnished: false,
+    adminFee: "$ 640.000",
     image: "/media/listing-facade-chico-reservado-v2.png",
     gallery: ["/media/listing-facade-chico-reservado-v2.png", "/media/listing-chico-living-hd.png"],
     lat: 4.6821,
@@ -195,6 +202,7 @@ export const searchListings: SearchListing[] = [
     parking: 2,
     pets: true,
     furnished: false,
+    adminFee: "$ 750.000",
     image: "/media/listing-chapinero-v2-bedroom-hd.png",
     gallery: ["/media/listing-chapinero-v2-bedroom-hd.png", "/media/listing-chapinero-v2-kitchen-hd.png"],
     lat: 4.6955,
@@ -219,6 +227,7 @@ export const searchListings: SearchListing[] = [
     floor: "Piso 3",
     pets: true,
     furnished: false,
+    adminFee: "$ 480.000",
     image: "/media/listing-chico-kitchen-hd.png",
     gallery: ["/media/listing-chico-kitchen-hd.png", "/media/listing-salitre-living-hd.png"],
     lat: 4.7182,
@@ -243,6 +252,7 @@ export const searchListings: SearchListing[] = [
     floor: "Piso 12",
     pets: true,
     furnished: false,
+    adminFee: "$ 1.250.000",
     image: "/media/listing-chapinero-v2-living-hd.png",
     gallery: [
       "/media/listing-chapinero-v2-living-hd.png",
@@ -271,6 +281,7 @@ export const searchListings: SearchListing[] = [
     floor: "Piso 9",
     pets: true,
     furnished: false,
+    adminFee: "$ 980.000",
     image: "/media/listing-chico-kitchen-hd.png",
     gallery: ["/media/listing-chico-kitchen-hd.png", "/media/listing-chico-living-hd.png"],
     lat: 4.6741,
@@ -295,6 +306,7 @@ export const searchListings: SearchListing[] = [
     floor: "Piso 7",
     pets: true,
     furnished: false,
+    adminFee: "$ 1.450.000",
     image: "/media/listing-chico-bedroom-hd.png",
     gallery: ["/media/listing-chico-bedroom-hd.png", "/media/listing-facade-rosales-v2.png"],
     lat: 4.6582,
@@ -319,6 +331,7 @@ export const searchListings: SearchListing[] = [
     floor: "Piso 11",
     pets: false,
     furnished: false,
+    adminFee: "$ 720.000",
     image: "/media/listing-salitre-terrace-b-hd.png",
     gallery: ["/media/listing-salitre-terrace-b-hd.png", "/media/listing-salitre-living-hd.png"],
     lat: 4.6688,
@@ -343,6 +356,7 @@ export const searchListings: SearchListing[] = [
     floor: "Piso 14",
     pets: true,
     furnished: false,
+    adminFee: "$ 850.000",
     image: "/media/listing-chapinero-v2-kitchen-hd.png",
     gallery: ["/media/listing-chapinero-v2-kitchen-hd.png", "/media/listing-chapinero-v2-living-hd.png"],
     lat: 4.6768,
@@ -367,6 +381,7 @@ export const searchListings: SearchListing[] = [
     floor: "Piso 15",
     pets: true,
     furnished: false,
+    adminFee: "$ 1.680.000",
     image: "/media/listing-chapinero-v2-bedroom-hd.png",
     gallery: ["/media/listing-chapinero-v2-bedroom-hd.png", "/media/listing-facade-la-cabrera-v2.png"],
     lat: 4.6642,
@@ -390,6 +405,7 @@ export const searchListings: SearchListing[] = [
     parking: 3,
     pets: true,
     furnished: false,
+    adminFee: "$ 890.000",
     image: "/media/listing-facade-chico-reservado-v2.png",
     gallery: ["/media/listing-facade-chico-reservado-v2.png", "/media/listing-chico-living-hd.png"],
     lat: 4.6988,
@@ -414,6 +430,7 @@ export const searchListings: SearchListing[] = [
     floor: "Piso 8",
     pets: true,
     furnished: false,
+    adminFee: "$ 580.000",
     image: "/media/listing-salitre-living-hd.png",
     gallery: ["/media/listing-salitre-living-hd.png", "/media/listing-chico-kitchen-hd.png"],
     lat: 4.7225,

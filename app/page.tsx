@@ -1,13 +1,16 @@
 "use client";
 
 import Link from "next/link";
-import { FormEvent, MouseEvent, useEffect, useRef, useState } from "react";
+import { MouseEvent, useEffect, useRef, useState } from "react";
 import { ListingAdPreview } from "./components/listing-ad-preview";
+import { BrandLogo } from "./components/brand-logo";
+import { ContactModal } from "./components/contact-modal";
+import { type ContactLead, type ContactNeed } from "./lib/contact";
 
 const valueItems = [
   { number: "01", icon: "verify", title: "Arriendo protegido", copy: "Evaluamos al arrendatario y gestionamos el respaldo necesario para proteger tu ingreso." },
   { number: "02", icon: "camera", title: "Arriendo o venta que destaca", copy: "Valoramos, fotografiamos y presentamos tu propiedad para atraer al perfil correcto." },
-  { number: "03", icon: "portal", title: "Gestión virtual con trazabilidad", copy: "Pagos, contratos, solicitudes y mantenimientos en una plataforma: ves el estado, los tiempos y el historial de cada avance." },
+  { number: "03", icon: "portal", title: "Gestión virtual con trazabilidad", copy: "Cuando el portal está activo, ves pagos, contratos y solicitudes con historial. El acceso lo activa tu asesor." },
   { number: "04", icon: "people", title: "Seguimiento continuo", copy: "Respuestas en tiempos cortos y un asesor que conoce tu caso, para que el proceso no se detenga." },
 ];
 
@@ -23,8 +26,8 @@ const journeyItems = [
 const processSteps = [
   {
     number: "01",
-    title: "Definimos el precio",
-    copy: "Revisamos zona y mercado contigo para fijar un canon que se mueva y proteja el valor.",
+    title: "Hacemos que se mueva",
+    copy: "Revisamos zona y mercado contigo para fijar un canon que se arriende más rápido y proteja el valor.",
     icon: "valuation",
   },
   {
@@ -102,6 +105,7 @@ const listingExamples: ListingExample[] = [
     kind: "Apartamento",
     price: "$ 1.850.000.000",
     priceSuffix: "",
+    adminFee: "$ 1.250.000",
     area: "120 m²",
     rooms: "3 hab.",
     baths: "2 baños",
@@ -237,6 +241,8 @@ function InteractiveListingCard({
         <img
           src={listing.images[photo]}
           alt={`Presentación Litving: ${listing.zone}, ${listing.city}${total > 1 ? `, foto ${photo + 1} de ${total}` : ""}`}
+          loading="lazy"
+          decoding="async"
         />
         <em className="listing-badge listing-badge--op">
           {listing.operation === "Renta" ? "Arriendo" : "Venta"}
@@ -260,49 +266,51 @@ function InteractiveListingCard({
       <div className="listing-body">
         <header className="listing-head">
           <div className="listing-meta-top">
+            <span
+              className={`listing-op ${listing.operation === "Venta" ? "is-sale" : "is-rent"}`}
+            >
+              {listing.operation === "Venta" ? "Venta" : "Arriendo"}
+            </span>
             <span className="listing-code" title="Código de inmueble">
-              <em>Código</em>
+              <em>Cód.</em>
               <strong>{listing.code}</strong>
             </span>
           </div>
-          <div className="listing-location">
-            <span className="listing-pin" aria-hidden="true">
-              <SketchIcon name="pin" />
-            </span>
-            <b>{listing.zone}</b>
-            <i aria-hidden="true">·</i>
-            <span>{listing.city}</span>
-            <i aria-hidden="true">·</i>
-            <span>
-              {listing.kind} · {listing.floor}
-            </span>
-          </div>
           <div className="listing-price-block">
+            <p className="listing-price">
+              <strong>{listing.price}</strong>
+              {listing.priceSuffix ? <span>{listing.priceSuffix}</span> : null}
+            </p>
             {listing.adminFee ? (
-              <>
-                <p className="listing-price">
-                  <strong>{listing.price}</strong>
-                  {listing.priceSuffix ? <span>{listing.priceSuffix}</span> : null}
-                </p>
-                <p className="listing-admin-fee">
-                  <strong>{listing.adminFee}</strong> Administración aprox.
-                </p>
-              </>
+              <p className="listing-price-meta">
+                <span>Administración</span>
+                <strong>{listing.adminFee}</strong>
+              </p>
+            ) : listing.priceNote ? (
+              <p className="listing-price-meta">
+                <span>{listing.priceNote}</span>
+              </p>
             ) : (
-              <>
-                <p className="listing-price">
-                  <strong>{listing.price}</strong>
-                  {listing.priceSuffix ? <span>{listing.priceSuffix}</span> : null}
-                </p>
-                {listing.priceNote ? (
-                  <p className="listing-price-sub">{listing.priceNote}</p>
-                ) : (
-                  <p className="listing-price-sub listing-price-sub--spacer" aria-hidden="true">
-                    &nbsp;
-                  </p>
-                )}
-              </>
+              <p className="listing-price-meta is-empty" aria-hidden="true">
+                <span>Administración</span>
+                <strong>—</strong>
+              </p>
             )}
+          </div>
+          <div className="listing-location">
+            <p className="listing-zone">
+              <span className="listing-pin" aria-hidden="true">
+                <SketchIcon name="pin" />
+              </span>
+              <span className="listing-locality">
+                <b>{listing.zone}</b>
+                <span className="listing-city">{listing.city}</span>
+              </span>
+            </p>
+            <p className="listing-facts">
+              <span>{listing.kind}</span>
+              <span>{listing.floor}</span>
+            </p>
           </div>
         </header>
 
@@ -347,7 +355,7 @@ const tenantBenefits = [
 ];
 
 const buyerBenefits = [
-  ["Opciones de calidad", "Inmuebles presentados con datos verificados y recorrido completo."],
+  ["Opciones de calidad", "Inmuebles presentados con datos verificados y fotografías profesionales."],
   ["Proceso con trazabilidad", "Ves avances, plazos y próximos pasos en cada etapa de la compra."],
   ["Cierre ordenado", "Acompañamiento de alto nivel y seguimiento continuo hasta la escritura."],
 ];
@@ -361,7 +369,7 @@ const benefitAssets: Record<string, { src: string; alt: string }> = {
 
 function BenefitIllustration({ type }: { type: string }) {
   const asset = benefitAssets[type] ?? benefitAssets.verify;
-  return <img className={`benefit-illustration benefit-illustration--${type}`} src={asset.src} alt={asset.alt} />;
+  return <img className={`benefit-illustration benefit-illustration--${type}`} src={asset.src} alt={asset.alt} loading="lazy" decoding="async" />;
 }
 
 const processAssets: Record<string, { src: string; alt: string }> = {
@@ -385,7 +393,7 @@ const processAssets: Record<string, { src: string; alt: string }> = {
 
 function ProcessIllustration({ type }: { type: string }) {
   const asset = processAssets[type] ?? processAssets.valuation;
-  return <img className="process-illustration" src={asset.src} alt={asset.alt} />;
+  return <img className="process-illustration" src={asset.src} alt={asset.alt} loading="lazy" decoding="async" />;
 }
 
 const blueprintSignals = [
@@ -401,6 +409,8 @@ function ArchitecturalBlueprint() {
         className="blueprint-art"
         src="/media/hero-architectural-illustration-v4-transparent.png"
         alt="Casa moderna ilustrada con trazo arquitectónico y paisajismo detallado"
+        fetchPriority="high"
+        decoding="async"
       />
       <ul className="blueprint-tags" aria-label="Señales de gestión Litving">
         {blueprintSignals.map((signal) => (
@@ -688,6 +698,7 @@ function PortalPreview() {
             type="button"
             className={`portal-report${reportReady ? " is-ready" : ""}`}
             onClick={() => setReportReady(true)}
+            aria-live="polite"
           >
             {reportReady ? "Vista previa del reporte · demo" : "Ver reporte mensual (demo)"}
           </button>
@@ -700,10 +711,10 @@ function PortalPreview() {
 export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [publishOpen, setPublishOpen] = useState(false);
   const [contactOpen, setContactOpen] = useState(false);
-  const [contactNeed, setContactNeed] = useState("administrar");
+  const [contactLead, setContactLead] = useState<ContactLead>({ need: "administrar" });
   const [activeListing, setActiveListing] = useState<ListingExample | null>(null);
-  const [sent, setSent] = useState(false);
   const contactTrigger = useRef<HTMLButtonElement | null>(null);
   const listingTrigger = useRef<HTMLElement | null>(null);
   const headerRef = useRef<HTMLElement | null>(null);
@@ -713,14 +724,45 @@ export default function Home() {
     window.requestAnimationFrame(() => contactTrigger.current?.focus());
   };
 
-  const openContact = (event: MouseEvent<HTMLButtonElement>, need = "administrar") => {
-    contactTrigger.current = event.currentTarget;
-    setSent(false);
-    setContactNeed(need);
+  const openLead = (lead: ContactLead) => {
+    setContactLead(lead);
     setContactOpen(true);
     setMenuOpen(false);
     setSearchOpen(false);
+    setPublishOpen(false);
   };
+
+  const openContactFromEvent = (
+    event: MouseEvent<HTMLButtonElement>,
+    lead: ContactLead | ContactNeed = "administrar",
+  ) => {
+    contactTrigger.current = event.currentTarget;
+    openLead(typeof lead === "string" ? { need: lead } : lead);
+  };
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const listingId = params.get("inmueble");
+    if (listingId) {
+      const found = listingExamples.find(item => item.id === listingId);
+      if (found) setActiveListing(found);
+    }
+    if (!params.has("contact")) return;
+    const need = params.get("need") || params.get("contact");
+    const allowed: ContactNeed[] = [
+      "administrar",
+      "arriendo",
+      "venta",
+      "arrendar",
+      "visita",
+      "oferta",
+      "asesor",
+      "portal",
+    ];
+    openLead({
+      need: allowed.includes(need as ContactNeed) ? (need as ContactNeed) : "arriendo",
+    });
+  }, []);
 
   const openListing = (listing: ListingExample) => {
     listingTrigger.current = document.activeElement as HTMLElement | null;
@@ -766,16 +808,18 @@ export default function Home() {
   }, [contactOpen]);
 
   useEffect(() => {
-    if (!menuOpen && !searchOpen) return;
+    if (!menuOpen && !searchOpen && !publishOpen) return;
     const onKey = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         setSearchOpen(false);
+        setPublishOpen(false);
         setMenuOpen(false);
       }
     };
     const onPointer = (event: PointerEvent) => {
       if (!headerRef.current?.contains(event.target as Node)) {
         setSearchOpen(false);
+        setPublishOpen(false);
         setMenuOpen(false);
       }
     };
@@ -785,26 +829,12 @@ export default function Home() {
       document.removeEventListener("keydown", onKey);
       document.removeEventListener("pointerdown", onPointer);
     };
-  }, [menuOpen, searchOpen]);
-
-  const submitContact = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const form = event.currentTarget;
-    const data = new FormData(form);
-    const name = String(data.get("name") ?? "").trim();
-    const contact = String(data.get("contact") ?? "").trim();
-    const need = String(data.get("need") ?? "administrar");
-    const subject = encodeURIComponent(`Litving · ${name}`);
-    const body = encodeURIComponent(
-      `Nombre: ${name}\nContacto: ${contact}\nInterés: ${need}\n\nEnviado desde litving.com`,
-    );
-    window.location.href = `mailto:hola@litving.com?subject=${subject}&body=${body}`;
-    setSent(true);
-  };
+  }, [menuOpen, searchOpen, publishOpen]);
 
   const closeMenu = () => {
     setMenuOpen(false);
     setSearchOpen(false);
+    setPublishOpen(false);
   };
 
   return (
@@ -813,13 +843,7 @@ export default function Home() {
       <header className="site-header" ref={headerRef}>
         <div className="header-left">
           <a className="brand" href="#inicio" aria-label="Litving, inicio">
-            <img
-              src="/media/litving-logo-lockup.png?v=4"
-              alt="Litving Inmobiliaria"
-              className="brand-logo"
-              width="210"
-              height="48"
-            />
+            <BrandLogo />
           </a>
           <nav
             id="main-navigation"
@@ -832,45 +856,69 @@ export default function Home() {
                 className="nav-link nav-dropdown-trigger"
                 aria-expanded={searchOpen}
                 aria-haspopup="true"
-                onClick={() => setSearchOpen(open => !open)}
+                onClick={() => {
+                  setPublishOpen(false);
+                  setSearchOpen(open => !open);
+                }}
               >
-                Arrendar / Comprar
+                Buscar propiedades
                 <span className="nav-dropdown-caret" aria-hidden="true" />
               </button>
               <div className="nav-dropdown-menu" hidden={!searchOpen} role="menu">
                 <Link href="/arrendar" role="menuitem" onClick={closeMenu}>
-                  Buscar para arriendo
+                  Propiedad para arrendar
                 </Link>
                 <Link href="/comprar" role="menuitem" onClick={closeMenu}>
-                  Buscar para compra
+                  Propiedad para comprar
                 </Link>
+              </div>
+            </div>
+            <div className={`nav-dropdown${publishOpen ? " is-open" : ""}`}>
+              <button
+                type="button"
+                className="nav-link nav-dropdown-trigger"
+                aria-expanded={publishOpen}
+                aria-haspopup="true"
+                onClick={() => {
+                  setSearchOpen(false);
+                  setPublishOpen(open => !open);
+                }}
+              >
+                Publicar inmueble
+                <span className="nav-dropdown-caret" aria-hidden="true" />
+              </button>
+              <div className="nav-dropdown-menu" hidden={!publishOpen} role="menu">
+                <button
+                  type="button"
+                  role="menuitem"
+                  onClick={event => openContactFromEvent(event, "venta")}
+                >
+                  Venta
+                </button>
+                <button
+                  type="button"
+                  role="menuitem"
+                  onClick={event => openContactFromEvent(event, "arriendo")}
+                >
+                  Arriendo
+                </button>
               </div>
             </div>
             <button
               type="button"
-              className="nav-link"
-              onClick={event => openContact(event, "arriendo")}
-            >
-              Publicar para arriendo
-            </button>
-            <button
-              type="button"
-              className="nav-link"
-              onClick={event => openContact(event, "venta")}
-            >
-              Publicar para venta
-            </button>
-            <button
-              type="button"
               className="nav-login nav-login--mobile"
-              onClick={openContact}
+              onClick={event => openContactFromEvent(event, { need: "portal" })}
             >
-              Iniciar sesión
+              Pedir acceso
             </button>
           </nav>
         </div>
-        <button type="button" className="nav-login nav-login--desktop" onClick={openContact}>
-          Iniciar sesión
+        <button
+          type="button"
+          className="nav-login nav-login--desktop"
+          onClick={event => openContactFromEvent(event, { need: "portal" })}
+        >
+          Pedir acceso
         </button>
         <button
           className="menu-toggle"
@@ -911,12 +959,12 @@ export default function Home() {
               Gestión virtual con trazabilidad, respuestas en tiempos cortos y seguimiento continuo: simple, segura y de alto nivel.
             </p>
             <div className="hero-actions">
-              <button className="button button-primary" onClick={openContact}>
-                Publicar inmueble
-              </button>
-              <a className="button button-secondary" href="#beneficios">
-                Conocer LITVING
-              </a>
+              <Link className="button button-primary" href="/arrendar">
+                Ver propiedades
+              </Link>
+              <Link className="button button-secondary" href="/comprar">
+                Comprar
+              </Link>
             </div>
           </div>
         </div>
@@ -975,8 +1023,8 @@ export default function Home() {
                 <span className="catalog-line">se presenta así.</span>
               </h2>
               <p>
-                Fotografía profesional, recorrido completo y una estrategia comercial para arriendo
-                o venta, con el perfil correcto.
+                Fotografía profesional y una estrategia comercial para arriendo o venta, con el
+                perfil correcto.
               </p>
               <p className="catalog-note">Ejemplos de presentación comercial.</p>
             </div>
@@ -1025,12 +1073,11 @@ export default function Home() {
       <section className="portal-section section-shell" id="portal">
         <div className="portal-copy">
           <span className="section-number">03</span>
-          <p className="eyebrow">PLATAFORMA VIRTUAL</p>
-          <h2>Gestión virtual, con trazabilidad y seguimiento continuo.</h2>
+          <p className="eyebrow">VISTA PREVIA DEL PORTAL</p>
+          <h2>Así se ve el seguimiento de tu propiedad.</h2>
           <p>
-            Toda la operación vive en una plataforma: pagos, contratos, solicitudes y mantenimientos.
-            Ves el estado, los tiempos y el historial de cada avance. Respuestas en plazos cortos
-            y seguimiento continuo, para que siempre sepas qué está pasando con tu propiedad.
+            Esta es una demostración de pagos, contratos y solicitudes. El acceso real lo activa
+            un asesor: no hay inicio de sesión público todavía.
           </p>
           <div className="micro-benefits">
             <span><b>01</b><em>Trazabilidad</em><small>Historial y estado de cada gestión.</small></span>
@@ -1038,10 +1085,22 @@ export default function Home() {
             <span><b>03</b><em>Seguimiento continuo</em><small>El caso no se pierde en el camino.</small></span>
             <span><b>04</b><em>Todo en un lugar</em><small>Pagos, documentos y solicitudes.</small></span>
           </div>
-          <a className="button button-secondary portal-cta portal-cta--desktop" href="#personas">Siguiente: hecho para ti</a>
+          <button
+            type="button"
+            className="button button-primary portal-cta portal-cta--desktop"
+            onClick={event => openContactFromEvent(event, { need: "portal" })}
+          >
+            Pedir acceso
+          </button>
         </div>
         <PortalPreview />
-        <a className="button button-secondary portal-cta portal-cta--mobile" href="#personas">Siguiente: hecho para ti</a>
+        <button
+          type="button"
+          className="button button-primary portal-cta portal-cta--mobile"
+          onClick={event => openContactFromEvent(event, { need: "portal" })}
+        >
+          Pedir acceso
+        </button>
       </section>
 
       <section className="audiences" id="personas">
@@ -1064,8 +1123,10 @@ export default function Home() {
             <article className="audience-card owner-card">
               <div className="audience-photo">
                 <img
-                  src="/media/audience-owner-framed-v2-fuchsia.png?v=17"
+                  src="/media/audience-owner-framed-v2-fuchsia.png?v=19"
                   alt="Propietaria y asesora revisando la gestión del inmueble juntas"
+                  loading="lazy"
+                  decoding="async"
                 />
               </div>
               <div className="audience-content">
@@ -1090,8 +1151,10 @@ export default function Home() {
             <article className="audience-card tenant-card">
               <div className="audience-photo">
                 <img
-                  src="/media/audience-tenant-framed-v2-fuchsia.png?v=17"
+                  src="/media/audience-tenant-framed-v2-fuchsia.png?v=19"
                   alt="Asesor e inquilina en un hogar verificado, con proceso claro"
+                  loading="lazy"
+                  decoding="async"
                 />
               </div>
               <div className="audience-content">
@@ -1116,8 +1179,10 @@ export default function Home() {
             <article className="audience-card buyer-card">
               <div className="audience-photo">
                 <img
-                  src="/media/audience-buyer-framed-v2-fuchsia.png?v=17"
+                  src="/media/audience-buyer-framed-v2-fuchsia.png?v=19"
                   alt="Compradores y asesora revisando planos y criterios de compra con respaldo"
+                  loading="lazy"
+                  decoding="async"
                 />
               </div>
               <div className="audience-content">
@@ -1176,8 +1241,10 @@ export default function Home() {
       <section className="human-section section-shell" id="equipo">
         <div className="human-image">
           <img
-            src="/media/asesora-confianza-v4.png?v=4"
-            alt="Asesora Litving conversando con una clienta sobre el seguimiento de su propiedad"
+            src="/media/asesora-plataforma-natural.png?v=1"
+            alt="Asesora Litving revisando la plataforma con una clienta en su inmueble"
+            loading="lazy"
+            decoding="async"
           />
         </div>
         <div className="human-copy">
@@ -1196,49 +1263,40 @@ export default function Home() {
             En Litving ves avances, tiempos y respuestas en una sola plataforma.
             Un asesor conoce tu inmueble, responde rápido y da seguimiento continuo.
           </p>
-          <button className="button button-primary" onClick={openContact}>
+          <button className="button button-primary" onClick={event => openContactFromEvent(event)}>
             Hablar con un asesor
           </button>
         </div>
       </section>
 
-      <footer className="site-footer section-shell"><a className="brand" href="#inicio" aria-label="Litving, inicio"><img src="/media/litving-logo-lockup.png?v=4" alt="Litving Inmobiliaria" className="brand-logo" width="170" height="38" /></a><p>Bogotá · Colombia</p><button onClick={openContact}>Contacto</button><small>© 2026 LITVING</small></footer>
+      <footer className="site-footer section-shell">
+        <a className="brand" href="#inicio" aria-label="Litving, inicio">
+          <BrandLogo />
+        </a>
+        <p>Bogotá · Colombia</p>
+        <a href="mailto:hola@litving.com">hola@litving.com</a>
+        <button onClick={event => openContactFromEvent(event)}>Contacto</button>
+        <small>© 2026 LITVING</small>
+      </footer>
 
       {activeListing && (
         <ListingAdPreview
           listing={activeListing}
           onClose={closeListing}
-          onContact={openContact}
+          onLead={lead => {
+            closeListing();
+            openLead(lead);
+          }}
         />
       )}
 
-      {contactOpen && (
-        <div className="modal-backdrop" onMouseDown={closeContact}>
-          <section className="contact-modal" role="dialog" aria-modal="true" aria-labelledby="contact-title" onMouseDown={event => event.stopPropagation()}>
-            <button className="modal-close" onClick={closeContact} aria-label="Cerrar">×</button>
-            <p className="eyebrow">LITVING · BOGOTÁ</p>
-            <h2 id="contact-title">Hablemos de tu propiedad.</h2>
-            <p>Cuéntanos sobre tu inmueble. Revisaremos la zona, el canon esperado y la mejor estrategia para arrendarlo y administrarlo.</p>
-            {sent ? <div className="success-message" role="status" aria-live="polite"><b>Abrimos tu correo.</b><span>También puedes escribirnos a hola@litving.com.</span></div> : (
-              <form onSubmit={submitContact}>
-                <label>Nombre<input name="name" autoComplete="name" required autoFocus /></label>
-                <label>
-                  Correo o teléfono
-                  <input
-                    name="contact"
-                    type="text"
-                    inputMode="email"
-                    autoComplete="email"
-                    required
-                  />
-                </label>
-                <label>Quiero<select key={contactNeed} name="need" defaultValue={contactNeed}><option value="administrar">Administrar mi propiedad</option><option value="arriendo">Publicar para arriendo</option><option value="venta">Publicar para venta</option><option value="arrendar">Buscar una propiedad</option><option value="portal">Conocer el portal</option></select></label>
-                <button type="submit">Quiero que me contacten</button>
-              </form>
-            )}
-          </section>
-        </div>
-      )}
+      {contactOpen ? (
+        <ContactModal
+          key={`${contactLead.need}-${contactLead.listing?.id ?? "home"}`}
+          lead={contactLead}
+          onClose={closeContact}
+        />
+      ) : null}
     </main>
   );
 }

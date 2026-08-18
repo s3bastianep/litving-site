@@ -3,18 +3,20 @@
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { Map as LeafletMap, Marker as LeafletMarker } from "leaflet";
-import "leaflet/dist/leaflet.css";
-import "../search.css";
 import {
   listingsFor,
   type SearchListing,
   type SearchOperation,
 } from "../lib/search-listings";
+import { type ContactLead } from "../lib/contact";
 import {
   InteractiveListingCard,
   type ListingExample,
 } from "./site-kit";
 import { ListingAdPreview } from "./listing-ad-preview";
+import { BrandLogo } from "./brand-logo";
+import { ContactModal } from "./contact-modal";
+import "../search.css";
 
 type PropertySearchProps = {
   operation: SearchOperation;
@@ -129,6 +131,7 @@ function toListingExample(item: SearchListing): ListingExample {
     kind: item.kind,
     price: item.priceLabel,
     priceSuffix: item.operation === "arriendo" ? "/ mes" : "",
+    adminFee: item.adminFee,
     area: item.area,
     rooms: `${item.rooms} hab.`,
     baths: `${item.baths} baños`,
@@ -153,8 +156,10 @@ export function PropertySearch({ operation }: PropertySearchProps) {
   const [sort, setSort] = useState<SortKey>("relevancia");
   const [activeId, setActiveId] = useState<string | null>(null);
   const [selected, setSelected] = useState<SearchListing | null>(null);
-  const [mobileView, setMobileView] = useState<MobileView>("split");
+  const [mobileView, setMobileView] = useState<MobileView>("list");
+  const [mapEnabled, setMapEnabled] = useState(false);
   const [mapReady, setMapReady] = useState(false);
+  const [contactLead, setContactLead] = useState<ContactLead | null>(null);
   const mapRef = useRef<HTMLDivElement | null>(null);
   const mapInstance = useRef<LeafletMap | null>(null);
   const markersRef = useRef<Map<string, LeafletMarker>>(new Map());
@@ -163,6 +168,29 @@ export function PropertySearch({ operation }: PropertySearchProps) {
   const filtersRef = useRef<HTMLDivElement | null>(null);
 
   const all = useMemo(() => listingsFor(operation), [operation]);
+
+  const setView = (view: MobileView) => {
+    if (view !== "list") setMapEnabled(true);
+    setMobileView(view);
+  };
+
+  useEffect(() => {
+    const narrow = window.matchMedia("(max-width: 980px)").matches;
+    if (!narrow) {
+      setMobileView("split");
+      setMapEnabled(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    const id = new URLSearchParams(window.location.search).get("inmueble");
+    if (!id) return;
+    const found = all.find(item => item.id === id);
+    if (found) {
+      setSelected(found);
+      setActiveId(found.id);
+    }
+  }, [all]);
 
   const filtered = useMemo(() => {
     const minRooms = minFromOption(rooms);
@@ -244,6 +272,7 @@ export function PropertySearch({ operation }: PropertySearchProps) {
   }, [openMenu]);
 
   useEffect(() => {
+    if (!mapEnabled) return;
     let cancelled = false;
     if (!(markersRef.current instanceof Map)) {
       markersRef.current = new Map();
@@ -251,14 +280,17 @@ export function PropertySearch({ operation }: PropertySearchProps) {
 
     async function setupMap() {
       if (!mapRef.current || mapInstance.current) return;
+      await import("leaflet/dist/leaflet.css");
       const L = await import("leaflet");
       if (cancelled || !mapRef.current) return;
 
       const map = L.map(mapRef.current, {
         zoomControl: false,
         scrollWheelZoom: true,
+        attributionControl: true,
       }).setView([4.67, -74.06], 12);
 
+      map.attributionControl.setPrefix(false);
       L.control.zoom({ position: "topleft" }).addTo(map);
 
       L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png", {
@@ -287,7 +319,7 @@ export function PropertySearch({ operation }: PropertySearchProps) {
       }
       setMapReady(false);
     };
-  }, []);
+  }, [mapEnabled]);
 
   useEffect(() => {
     const map = mapInstance.current;
@@ -409,13 +441,7 @@ export function PropertySearch({ operation }: PropertySearchProps) {
       <header className="search-header">
         <div className="search-header-inner">
           <a className="brand" href="/" aria-label="Litving, inicio">
-            <img
-              src="/media/litving-logo-lockup.png?v=4"
-              alt="Litving Inmobiliaria"
-              className="brand-logo"
-              width="210"
-              height="48"
-            />
+            <BrandLogo />
           </a>
           <nav className="search-nav" aria-label="Buscar inmuebles">
             <Link href="/arrendar" className={operation === "arriendo" ? "is-active" : undefined}>
@@ -430,9 +456,13 @@ export function PropertySearch({ operation }: PropertySearchProps) {
             <Link href="/" className="search-account">
               Inicio
             </Link>
-            <Link href="/?contact=1" className="button button-primary search-publish">
+            <button
+              type="button"
+              className="button button-primary search-publish"
+              onClick={() => setContactLead({ need: "arriendo" })}
+            >
               Publicar inmueble
-            </Link>
+            </button>
           </div>
         </div>
       </header>
@@ -585,8 +615,14 @@ export function PropertySearch({ operation }: PropertySearchProps) {
 
       <div className={`search-split search-split--${mobileView}`}>
         <section className="search-map-panel" aria-label="Mapa de resultados">
-          <div ref={mapRef} className="search-map" />
-          {!mapReady ? <p className="search-map-loading">Cargando mapa…</p> : null}
+          {mapEnabled ? (
+            <>
+              <div ref={mapRef} className="search-map" />
+              {!mapReady ? <p className="search-map-loading">Cargando mapa…</p> : null}
+            </>
+          ) : (
+            <p className="search-map-loading">El mapa se carga al elegir Mapa o Ambos.</p>
+          )}
         </section>
 
         <section className="search-results" aria-label="Resultados">
@@ -612,21 +648,21 @@ export function PropertySearch({ operation }: PropertySearchProps) {
               <button
                 type="button"
                 className={mobileView === "map" ? "is-on" : undefined}
-                onClick={() => setMobileView("map")}
+                onClick={() => setView("map")}
               >
                 Mapa
               </button>
               <button
                 type="button"
                 className={mobileView === "list" ? "is-on" : undefined}
-                onClick={() => setMobileView("list")}
+                onClick={() => setView("list")}
               >
                 Lista
               </button>
               <button
                 type="button"
                 className={mobileView === "split" ? "is-on" : undefined}
-                onClick={() => setMobileView("split")}
+                onClick={() => setView("split")}
               >
                 Ambos
               </button>
@@ -634,12 +670,13 @@ export function PropertySearch({ operation }: PropertySearchProps) {
           </div>
 
           <div className="listing-grid search-listing-grid">
-            {filtered.map(item => (
+            {filtered.map((item, index) => (
               <InteractiveListingCard
                 key={item.id}
                 id={`listing-${item.id}`}
                 className={activeId === item.id ? "is-active" : undefined}
                 listing={toListingExample(item)}
+                priority={index < 2}
                 onHover={() => setActiveId(item.id)}
                 onOpen={() => {
                   setSelected(item);
@@ -651,9 +688,9 @@ export function PropertySearch({ operation }: PropertySearchProps) {
             <article className="search-promo">
               <div className="search-promo-inner">
                 <p>¿Quieres publicar tu inmueble?</p>
-                <Link href="/?contact=1" className="button">
+                <button type="button" className="button" onClick={() => setContactLead({ need: "arriendo" })}>
                   Publicar con Litving
-                </Link>
+                </button>
               </div>
             </article>
           </div>
@@ -670,9 +707,18 @@ export function PropertySearch({ operation }: PropertySearchProps) {
         <ListingAdPreview
           listing={toListingExample(selected)}
           onClose={() => setSelected(null)}
-          onContact={() => {
-            window.location.href = "/?contact=1";
+          onLead={lead => {
+            setSelected(null);
+            setContactLead(lead);
           }}
+        />
+      ) : null}
+
+      {contactLead ? (
+        <ContactModal
+          key={`${contactLead.need}-${contactLead.listing?.id ?? "search"}`}
+          lead={contactLead}
+          onClose={() => setContactLead(null)}
         />
       ) : null}
     </div>

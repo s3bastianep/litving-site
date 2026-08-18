@@ -1,56 +1,157 @@
 "use client";
 
-import { MouseEvent, useEffect, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { toContactListing, type ContactLead } from "../lib/contact";
 import { SketchIcon, type ListingExample } from "./site-kit";
 
-const visitDays = [
-  { key: "Jue", day: 13 },
-  { key: "Vie", day: 14 },
-  { key: "Sáb", day: 15 },
-  { key: "Dom", day: 16 },
-  { key: "Lun", day: 17 },
-  { key: "Mar", day: 18 },
-  { key: "Mié", day: 19 },
-];
+const weekdayShort = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
+const monthShort = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
+
+function upcomingVisitDates(count = 14) {
+  const start = new Date();
+  start.setHours(0, 0, 0, 0);
+  return Array.from({ length: count }, (_, index) => {
+    const date = new Date(start);
+    date.setDate(start.getDate() + index);
+    return {
+      key: `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`,
+      weekday: weekdayShort[date.getDay()],
+      day: date.getDate(),
+      month: monthShort[date.getMonth()],
+    };
+  });
+}
+
+function InfoGlyph({ name }: { name: "code" | "home" | "city" | "status" | "stratum" | "price" }) {
+  const common = {
+    viewBox: "0 0 24 24",
+    width: 18,
+    height: 18,
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: 1.7,
+    strokeLinecap: "round" as const,
+    strokeLinejoin: "round" as const,
+    "aria-hidden": true as const,
+  };
+
+  switch (name) {
+    case "code":
+      return (
+        <svg {...common}>
+          <rect x="5" y="4.5" width="14" height="15" rx="2.2" />
+          <path d="M8.5 9h7M8.5 12.5h7M8.5 16h4.5" />
+        </svg>
+      );
+    case "home":
+      return (
+        <svg {...common}>
+          <path d="M4.5 11.2 12 4.8l7.5 6.4" />
+          <path d="M7 10.8V19h10v-8.2" />
+        </svg>
+      );
+    case "city":
+      return (
+        <svg {...common}>
+          <path d="M4.8 19V9.5h6.2V19M11 19V5.5h8.2V19" />
+          <path d="M7.2 12.2h.1M7.2 15.2h.1M14.2 8.8h.1M17.2 8.8h.1M14.2 12.2h.1M17.2 12.2h.1M14.2 15.5h.1M17.2 15.5h.1" />
+        </svg>
+      );
+    case "status":
+      return (
+        <svg {...common}>
+          <circle cx="12" cy="12" r="7.2" />
+          <path d="M8.6 12.2 11 14.6 15.6 9.6" />
+        </svg>
+      );
+    case "stratum":
+      return (
+        <svg {...common}>
+          <path d="M12 4.8 14.2 9l4.8.7-3.5 3.4.8 4.8L12 15.6 7.7 17.9l.8-4.8L5 9.7 9.8 9Z" />
+        </svg>
+      );
+    default:
+      return (
+        <svg {...common}>
+          <path d="M7 8.5h10M7 12h6M7 15.5h8" />
+          <rect x="4.5" y="5" width="15" height="14" rx="2.2" />
+        </svg>
+      );
+  }
+}
+
+function money(value: number) {
+  return new Intl.NumberFormat("es-CO", {
+    style: "currency",
+    currency: "COP",
+    maximumFractionDigits: 0,
+  }).format(value);
+}
 
 function nearbyFor(zone: string) {
   return [
     {
-      group: "Centros comerciales",
+      group: "Compras",
       items: [
+        { name: "Centro Andino", walk: "18 min", car: "6 min" },
         { name: `C.C. cerca a ${zone}`, walk: "12 min", car: "4 min" },
-        { name: "Centro Andino", walk: "28 min", car: "10 min" },
       ],
     },
     {
-      group: "Supermercados",
+      group: "Mercado",
       items: [
-        { name: "Éxito", walk: "8 min", car: "3 min" },
         { name: "Carulla", walk: "11 min", car: "4 min" },
+        { name: "Éxito", walk: "8 min", car: "3 min" },
       ],
     },
     {
-      group: "Parques y transporte",
+      group: "Entorno",
       items: [
         { name: `Parque ${zone}`, walk: "7 min", car: "3 min" },
-        { name: "Estación TransMilenio", walk: "10 min", car: "4 min" },
+        { name: "TransMilenio", walk: "10 min", car: "4 min" },
       ],
     },
   ];
 }
 
+async function shareListing(listing: ListingExample) {
+  const url = new URL(window.location.href);
+  url.searchParams.set("inmueble", listing.id);
+  url.hash = "";
+  const href = url.toString();
+  const title = `${listing.kind} en ${listing.zone} · LITVING`;
+  const text = `${listing.price} · ${listing.zone}, ${listing.city}`;
+  try {
+    if (navigator.share) {
+      await navigator.share({ title, text, url: href });
+      return "shared" as const;
+    }
+  } catch (error) {
+    if (error instanceof Error && error.name === "AbortError") {
+      return "cancelled" as const;
+    }
+  }
+  await navigator.clipboard.writeText(href);
+  return "copied" as const;
+}
+
 export function ListingAdPreview({
   listing,
   onClose,
-  onContact,
+  onLead,
 }: {
   listing: ListingExample;
   onClose: () => void;
-  onContact: (event: MouseEvent<HTMLButtonElement>) => void;
+  onLead: (lead: ContactLead) => void;
 }) {
   const [photo, setPhoto] = useState(0);
-  const [visitDay, setVisitDay] = useState(13);
-  const [visitTime, setVisitTime] = useState<string | null>("10:00");
+  const [visitKind, setVisitKind] = useState<"presencial" | "virtual">("presencial");
+  const [visitDate, setVisitDate] = useState<string | null>(null);
+  const [visitTime, setVisitTime] = useState<string | null>(null);
+  const [shareNote, setShareNote] = useState<string | null>(null);
+  const datesRef = useRef<HTMLDivElement>(null);
+  const visitDates = useMemo(() => upcomingVisitDates(), []);
+  const visitHours = visitKind === "virtual" ? ["09:00", "11:00", "15:00", "17:00"] : ["10:00", "12:00", "16:00", "18:00"];
   const total = listing.images.length;
   const opLabel = listing.operation === "Renta" ? "Arriendo" : "Venta";
   const priceValue = Number(listing.price.replace(/[^\d]/g, "")) || 0;
@@ -70,12 +171,12 @@ export function ListingAdPreview({
       icon: "baths" as const,
     },
     {
-      value: listing.floor.replace("Piso ", "") || "—",
-      label: "Piso",
+      value: /ascensor|sí/i.test(listing.elevator) ? "Sí" : "No",
+      label: "Ascensor",
       icon: "elevator" as const,
     },
     {
-      value: listing.parking.replace(/ parqueaderos?/, ""),
+      value: listing.parking.replace(/\s*(park\.|parqueaderos?)\.?/i, "").trim() || listing.parking,
       label: "Parqueaderos",
       icon: "parking" as const,
     },
@@ -86,25 +187,69 @@ export function ListingAdPreview({
     },
   ];
 
-  const details: [string, string][] = [
-    ["Código", listing.code],
-    ["Tipo", listing.kind],
-    ["Barrio", listing.zone],
-    ["Ciudad", listing.city],
-    ["Piso", listing.floor],
-    ["Área", listing.area],
-    ["Habitaciones", listing.rooms],
-    ["Baños", listing.baths],
-    ["Parqueaderos", listing.parking],
-    ["Ascensor", listing.elevator],
-    ["Mascotas", listing.pets],
-    ["Precio por m²", priceM2Label],
-    ["Estado", "Disponible"],
-    [
-      "Estrato",
-      listing.zone.includes("Cedritos") || listing.zone.includes("Salitre") ? "4" : "5",
-    ],
+  const petsAllowed = /mascotas/i.test(listing.pets) && !/consultar|sin|no/i.test(listing.pets);
+  const hasElevator = /ascensor|sí/i.test(listing.elevator);
+  const stratum = listing.zone.includes("Cedritos") || listing.zone.includes("Salitre") ? "4" : "5";
+
+  const detailGroups = [
+    {
+      title: "Ubicación",
+      items: [
+        { icon: "pin" as const, label: "Barrio", value: listing.zone },
+        { icon: "city" as const, label: "Ciudad", value: listing.city },
+        { icon: "stratum" as const, label: "Estrato", value: stratum },
+      ],
+    },
+    {
+      title: "Publicación",
+      items: [
+        { icon: "code" as const, label: "Código", value: listing.code },
+        { icon: "home" as const, label: "Tipo", value: listing.kind },
+        { icon: "status" as const, label: "Estado", value: "Disponible" },
+      ],
+    },
+    {
+      title: "Condiciones",
+      items: [
+        { icon: "elevator" as const, label: "Ascensor", value: hasElevator ? "Sí" : "No" },
+        { icon: "pets" as const, label: "Mascotas", value: petsAllowed ? "Permitidas" : "Consultar" },
+        { icon: "price" as const, label: "Precio por m²", value: priceM2Label },
+      ],
+    },
   ];
+
+  const rentValue = priceValue;
+  const adminValue = Number((listing.adminFee || "0").replace(/[^\d]/g, "")) || 0;
+  const isRent = listing.operation === "Renta";
+  const monthlyTotal = isRent ? rentValue + adminValue : rentValue;
+
+  const canBook = Boolean(visitDate && visitTime);
+
+  const openVisit = () => {
+    if (!visitDate || !visitTime) return;
+    onLead({
+      need: "visita",
+      listing: toContactListing(listing),
+      visit: { kind: visitKind, date: visitDate, time: visitTime },
+    });
+    onClose();
+  };
+
+  const openAdvisor = () => {
+    onLead({
+      need: listing.operation === "Venta" ? "oferta" : "asesor",
+      listing: toContactListing(listing),
+    });
+    onClose();
+  };
+
+  const onShare = async () => {
+    const result = await shareListing(listing);
+    if (result === "copied") {
+      setShareNote("Enlace copiado");
+      window.setTimeout(() => setShareNote(null), 2200);
+    }
+  };
 
   const amenities = [
     "Portería 24h",
@@ -165,7 +310,7 @@ export function ListingAdPreview({
             </p>
           </div>
           <div className="float-topbar-actions">
-            <button type="button" className="float-icon-btn" aria-label="Compartir">
+            <button type="button" className="float-icon-btn" aria-label="Compartir" onClick={onShare}>
               <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
                 <path
                   d="M8.5 12.5 15 8.8M8.5 11.5 15 15.2"
@@ -179,6 +324,11 @@ export function ListingAdPreview({
                 <circle cx="17" cy="16.5" r="2.2" fill="none" stroke="currentColor" strokeWidth="1.7" />
               </svg>
             </button>
+            {shareNote ? (
+              <span className="float-share-toast" role="status" aria-live="polite">
+                {shareNote}
+              </span>
+            ) : null}
             <button type="button" className="float-icon-btn" aria-label="Cerrar" onClick={onClose}>
               <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
                 <path
@@ -199,6 +349,7 @@ export function ListingAdPreview({
               <img
                 src={listing.images[photo]}
                 alt={`${listing.zone}, ${listing.city}, foto ${photo + 1} de ${total}`}
+                decoding="async"
               />
               {total > 1 ? (
                 <>
@@ -234,7 +385,7 @@ export function ListingAdPreview({
                     onClick={() => setPhoto(index)}
                     aria-label={`Foto ${index + 1}`}
                   >
-                    <img src={src} alt="" />
+                    <img src={src} alt="" loading="lazy" decoding="async" />
                   </button>
                 ))}
               </div>
@@ -256,135 +407,284 @@ export function ListingAdPreview({
               <span className="float-pin" aria-hidden="true">
                 <SketchIcon name="pin" />
               </span>
-              <span>
+              <span className="float-locality">
                 <b>{listing.zone}</b>
-                {" · "}
-                {listing.city}
-                {" · "}
-                {listing.kind} · {listing.floor}
+                <span>{listing.city}</span>
               </span>
             </p>
-            <div className="float-price-row">
-              <div>
+            <p className="float-facts">
+              <span>{listing.kind}</span>
+              <span>{listing.floor}</span>
+            </p>
+            <div className="float-price-grid">
+              <div className="float-price-item">
                 <p className="float-price-label">
                   {listing.operation === "Renta" ? "Precio de arriendo" : "Precio de venta"}
                 </p>
                 <p className="float-price">
                   {listing.price}
-                  {listing.priceSuffix ? <span> {listing.priceSuffix}</span> : null}
+                  {listing.priceSuffix ? <span>{listing.priceSuffix}</span> : null}
                 </p>
-                {listing.adminFee ? (
-                  <p className="float-block-lead" style={{ marginTop: 6 }}>
-                    {listing.adminFee} Administración aprox.
-                  </p>
-                ) : null}
-                {listing.priceNote ? (
-                  <p className="float-block-lead" style={{ marginTop: 6 }}>
-                    {listing.priceNote}
-                  </p>
-                ) : null}
               </div>
-              <p className="float-price-m2">
-                <strong>{priceM2Label}</strong>
-                <span>por m²</span>
-              </p>
+              {listing.adminFee ? (
+                <div className="float-price-item">
+                  <p className="float-price-label">Administración</p>
+                  <p className="float-price-aside">{listing.adminFee}</p>
+                </div>
+              ) : listing.priceNote ? (
+                <div className="float-price-item">
+                  <p className="float-price-label">Nota</p>
+                  <p className="float-price-aside">{listing.priceNote}</p>
+                </div>
+              ) : null}
+              <div className="float-price-item">
+                <p className="float-price-label">Precio por m²</p>
+                <p className="float-price-aside">{priceM2Label}</p>
+              </div>
             </div>
-          </section>
-
-          <section className="float-stats" aria-label="Características principales">
-            {stats.map(stat => (
-              <div key={stat.label}>
-                <span className="float-stat-icon" aria-hidden="true">
-                  <SketchIcon name={stat.icon} />
-                </span>
-                <strong>{stat.value}</strong>
-                <span>{stat.label}</span>
-              </div>
-            ))}
+            <ul className="float-stats" aria-label="Características principales">
+              {stats.map(stat => (
+                <li key={stat.label}>
+                  <span className="float-stat-icon" aria-hidden="true">
+                    <SketchIcon name={stat.icon} />
+                  </span>
+                  <strong>{stat.value}</strong>
+                  <em>{stat.label}</em>
+                </li>
+              ))}
+            </ul>
           </section>
 
           <section className="float-block">
             <h3>Descripción</h3>
             <p>
-              Fotografía profesional, recorrido 360° e información clara para posicionar el
-              inmueble frente al perfil adecuado. {listing.kind} en {listing.zone} con{" "}
-              {listing.area}, {listing.rooms} y {listing.baths}.
+              {listing.kind} en {listing.zone}, {listing.city}. Publicación con fotografías
+              profesionales para que evalúes espacios, piso {listing.floor.replace("Piso ", "")} y
+              el entorno inmediato.
             </p>
           </section>
 
           <section className="float-block">
             <h3>Detalles del inmueble</h3>
-            <dl className="float-details">
-              {details.map(([label, value]) => (
-                <div key={label}>
-                  <dt>{label}</dt>
-                  <dd>{value}</dd>
-                </div>
+            <div className="float-detail-groups">
+              {detailGroups.map(group => (
+                <article key={group.title} className="float-detail-card">
+                  <h4>{group.title}</h4>
+                  <ul>
+                    {group.items.map(item => (
+                      <li key={item.label}>
+                        <span className="float-detail-icon" aria-hidden="true">
+                          {item.icon === "pin" || item.icon === "elevator" || item.icon === "pets" ? (
+                            <SketchIcon name={item.icon} />
+                          ) : (
+                            <InfoGlyph name={item.icon} />
+                          )}
+                        </span>
+                        <span className="float-detail-copy">
+                          <em>{item.label}</em>
+                          <strong>{item.value}</strong>
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </article>
               ))}
-            </dl>
+            </div>
           </section>
 
           <section className="float-block">
             <h3>Características del conjunto</h3>
             <ul className="float-amenities">
               {amenities.map(item => (
-                <li key={item}>{item}</li>
+                <li key={item}>
+                  <SketchIcon name="check" />
+                  <span>{item}</span>
+                </li>
               ))}
             </ul>
           </section>
 
-          <section className="float-block">
-            <h3>Horario de visitas</h3>
-            <p className="float-block-lead">
-              Elige un día y una franja para agendar con un asesor.
-            </p>
-            <div className="float-days" role="list">
-              {visitDays.map(day => (
+          <section className="float-book" aria-label="Agendar visita">
+            <div className="float-book-section">
+              <h3>Tipo de visita</h3>
+              <div className="float-book-types">
                 <button
-                  key={day.day}
                   type="button"
-                  role="listitem"
-                  className={visitDay === day.day ? "is-on" : undefined}
-                  onClick={() => setVisitDay(day.day)}
+                  className={visitKind === "presencial" ? "is-on" : undefined}
+                  aria-pressed={visitKind === "presencial"}
+                  onClick={() => {
+                    setVisitKind("presencial");
+                    setVisitTime(null);
+                  }}
                 >
-                  <span>{day.key}</span>
-                  <strong>{day.day}</strong>
+                  <span className="float-book-type-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" width="18" height="18">
+                      <path
+                        d="M12.1 20.5s-5.3-4.5-5.2-8.3c0-2.8 2.2-5 5.1-5.1 2.8.1 5 2.3 5 5.2 0 3.7-4.9 8.2-4.9 8.2Z"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="1.8"
+                        strokeLinejoin="round"
+                      />
+                      <path
+                        d="M12 9.5c1 .1 1.7.8 1.7 1.7-.1.9-.9 1.6-1.8 1.5-.9-.1-1.5-.9-1.4-1.7.1-.9.8-1.5 1.5-1.5Z"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="1.8"
+                      />
+                    </svg>
+                  </span>
+                  <strong>Presencial</strong>
+                  <em>En el inmueble</em>
                 </button>
-              ))}
+                <button
+                  type="button"
+                  className={visitKind === "virtual" ? "is-on" : undefined}
+                  aria-pressed={visitKind === "virtual"}
+                  onClick={() => {
+                    setVisitKind("virtual");
+                    setVisitTime(null);
+                  }}
+                >
+                  <span className="float-book-type-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" width="18" height="18">
+                      <rect x="3.5" y="6.5" width="12.5" height="11" rx="2.2" fill="none" stroke="currentColor" strokeWidth="1.8" />
+                      <path
+                        d="M16 10.2 20.2 8v8.2L16 14"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="1.8"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  </span>
+                  <strong>Virtual</strong>
+                  <em>Video llamada</em>
+                </button>
+              </div>
             </div>
-            <div className="float-times">
-              {["10:00", "12:00", "16:00", "18:00"].map(time => (
+
+            <div className="float-book-section">
+              <h3>Fecha</h3>
+              <div className="float-book-dates">
                 <button
-                  key={time}
                   type="button"
-                  className={visitTime === time ? "is-on" : undefined}
-                  onClick={() => setVisitTime(time)}
+                  className="float-book-date-nav"
+                  aria-label="Fechas anteriores"
+                  onClick={() => datesRef.current?.scrollBy({ left: -96, behavior: "smooth" })}
                 >
-                  {time}
+                  ‹
                 </button>
-              ))}
+                <div className="float-book-date-track" ref={datesRef} role="list">
+                  {visitDates.map(date => (
+                    <button
+                      key={date.key}
+                      type="button"
+                      role="listitem"
+                      className={visitDate === date.key ? "is-on" : undefined}
+                      onClick={() => {
+                        setVisitDate(date.key);
+                        setVisitTime(null);
+                      }}
+                    >
+                      <span>{date.weekday}</span>
+                      <strong>{date.day}</strong>
+                      <em>{date.month}</em>
+                    </button>
+                  ))}
+                </div>
+                <button
+                  type="button"
+                  className="float-book-date-nav"
+                  aria-label="Fechas siguientes"
+                  onClick={() => datesRef.current?.scrollBy({ left: 96, behavior: "smooth" })}
+                >
+                  ›
+                </button>
+              </div>
+            </div>
+
+            <div className="float-book-section">
+              <h3>Hora</h3>
+              {visitDate ? (
+                <div className="float-book-times">
+                  {visitHours.map(time => (
+                    <button
+                      key={time}
+                      type="button"
+                      className={visitTime === time ? "is-on" : undefined}
+                      onClick={() => setVisitTime(time)}
+                    >
+                      {time}
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <p className="float-book-hint">Selecciona una fecha para ver horarios disponibles.</p>
+              )}
+            </div>
+
+            <div className="float-book-cost">
+              <p className="float-book-cost-kicker">
+                <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+                  <rect x="4" y="6" width="16" height="13" rx="2" fill="none" stroke="currentColor" strokeWidth="1.7" />
+                  <path d="M4 10h16M8 6V4.8M16 6V4.8" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
+                  <path d="M8.5 14h3M8.5 16.5h7" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
+                </svg>
+                {isRent ? "Costo mensual" : "Resumen"}
+              </p>
+              <div className="float-book-total">
+                <span>{isRent ? "Total mensual" : "Precio"}</span>
+                <strong>{money(monthlyTotal)}</strong>
+              </div>
+              <dl>
+                <div>
+                  <dt>{isRent ? "Arriendo" : "Precio de venta"}</dt>
+                  <dd>{listing.price}</dd>
+                </div>
+                {listing.adminFee ? (
+                  <div>
+                    <dt>Administración</dt>
+                    <dd>{listing.adminFee}</dd>
+                  </div>
+                ) : null}
+                {isRent ? (
+                  <div>
+                    <dt>Depósito (una vez)</dt>
+                    <dd>{money(rentValue)}</dd>
+                  </div>
+                ) : null}
+              </dl>
+              {!canBook ? (
+                <p className="float-book-hint">Elige fecha y hora para agendar la visita.</p>
+              ) : null}
+              <button
+                type="button"
+                className="float-cta float-cta--primary"
+                onClick={openVisit}
+                disabled={!canBook}
+              >
+                Agendar visita
+              </button>
             </div>
           </section>
 
           <section className="float-block float-nearby">
             <h3>Lugares cercanos</h3>
             <p className="float-block-lead">
-              Referencias útiles alrededor de {listing.zone}.
+              Tiempos aproximados a pie y en carro desde {listing.zone}.
             </p>
-            <div className="float-nearby-list">
+            <div className="float-nearby-grid">
               {nearbyFor(listing.zone).map(group => (
-                <div key={group.group} className="float-nearby-group">
-                  <h4>
-                    <span className="float-nearby-mark" aria-hidden="true" />
-                    {group.group}
-                  </h4>
+                <article key={group.group} className="float-nearby-card">
+                  <h4>{group.group}</h4>
                   <ul>
                     {group.items.map(item => (
                       <li key={item.name}>
                         <strong>{item.name}</strong>
-                        <div className="float-nearby-meta">
+                        <p>
                           <span>
-                            <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true">
                               <circle cx="13.2" cy="5.2" r="1.7" fill="currentColor" />
                               <path
                                 d="M10.2 21.2 12 14.8l-2.2-2.4 1.4-3.6c.3-.7 1-1.2 1.8-1.2h.4c.9 0 1.6.6 1.8 1.4L16 13.2l2.2 1.4M12 14.8l1.8 6.4"
@@ -395,10 +695,10 @@ export function ListingAdPreview({
                                 strokeLinejoin="round"
                               />
                             </svg>
-                            {item.walk} a pie
+                            {item.walk}
                           </span>
                           <span>
-                            <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true">
                               <path
                                 d="M4.5 15.2h15M6.2 15.2l1.2-5.4c.2-.8.9-1.4 1.7-1.4h5.8c.8 0 1.5.6 1.7 1.4l1.2 5.4"
                                 fill="none"
@@ -410,38 +710,20 @@ export function ListingAdPreview({
                               <circle cx="8" cy="17.2" r="1.3" fill="none" stroke="currentColor" strokeWidth="1.7" />
                               <circle cx="16" cy="17.2" r="1.3" fill="none" stroke="currentColor" strokeWidth="1.7" />
                             </svg>
-                            {item.car} en carro
+                            {item.car}
                           </span>
-                        </div>
+                        </p>
                       </li>
                     ))}
                   </ul>
-                </div>
+                </article>
               ))}
             </div>
           </section>
         </div>
 
         <footer className="float-footer">
-          <button
-            type="button"
-            className="float-cta float-cta--primary"
-            onClick={event => {
-              onClose();
-              onContact(event);
-            }}
-          >
-            <SketchIcon name="calendar" />
-            <span>Agendar visita</span>
-          </button>
-          <button
-            type="button"
-            className="float-cta float-cta--secondary"
-            onClick={event => {
-              onClose();
-              onContact(event);
-            }}
-          >
+          <button type="button" className="float-cta float-cta--secondary" onClick={openAdvisor}>
             <span>{listing.operation === "Venta" ? "Ofertar" : "Hablar con un asesor"}</span>
           </button>
         </footer>

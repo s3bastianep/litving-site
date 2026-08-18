@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  FormEvent,
   MouseEvent,
   useEffect,
   useRef,
@@ -63,6 +62,7 @@ export const listingExamples: ListingExample[] = [
     kind: "Apartamento",
     price: "$ 1.850.000.000",
     priceSuffix: "",
+    adminFee: "$ 1.250.000",
     area: "120 m²",
     rooms: "3 hab.",
     baths: "2 baños",
@@ -206,12 +206,14 @@ export function InteractiveListingCard({
   id,
   className,
   onHover,
+  priority = false,
 }: {
   listing: ListingExample;
   onOpen: (listing: ListingExample) => void;
   id?: string;
   className?: string;
   onHover?: () => void;
+  priority?: boolean;
 }) {
   const [photo, setPhoto] = useState(0);
   const total = listing.images.length;
@@ -244,6 +246,9 @@ export function InteractiveListingCard({
         <img
           src={listing.images[photo]}
           alt={`Presentación Litving: ${listing.zone}, ${listing.city}${total > 1 ? `, foto ${photo + 1} de ${total}` : ""}`}
+          loading={priority ? "eager" : "lazy"}
+          decoding="async"
+          fetchPriority={priority ? "high" : "low"}
         />
         <em className="listing-badge listing-badge--op">
           {listing.operation === "Renta" ? "Arriendo" : "Venta"}
@@ -267,49 +272,51 @@ export function InteractiveListingCard({
       <div className="listing-body">
         <header className="listing-head">
           <div className="listing-meta-top">
+            <span
+              className={`listing-op ${listing.operation === "Venta" ? "is-sale" : "is-rent"}`}
+            >
+              {listing.operation === "Venta" ? "Venta" : "Arriendo"}
+            </span>
             <span className="listing-code" title="Código de inmueble">
-              <em>Código</em>
+              <em>Cód.</em>
               <strong>{listing.code}</strong>
             </span>
           </div>
-          <div className="listing-location">
-            <span className="listing-pin" aria-hidden="true">
-              <SketchIcon name="pin" />
-            </span>
-            <b>{listing.zone}</b>
-            <i aria-hidden="true">·</i>
-            <span>{listing.city}</span>
-            <i aria-hidden="true">·</i>
-            <span>
-              {listing.kind} · {listing.floor}
-            </span>
-          </div>
           <div className="listing-price-block">
+            <p className="listing-price">
+              <strong>{listing.price}</strong>
+              {listing.priceSuffix ? <span>{listing.priceSuffix}</span> : null}
+            </p>
             {listing.adminFee ? (
-              <>
-                <p className="listing-price">
-                  <strong>{listing.price}</strong>
-                  {listing.priceSuffix ? <span>{listing.priceSuffix}</span> : null}
-                </p>
-                <p className="listing-admin-fee">
-                  <strong>{listing.adminFee}</strong> Administración aprox.
-                </p>
-              </>
+              <p className="listing-price-meta">
+                <span>Administración</span>
+                <strong>{listing.adminFee}</strong>
+              </p>
+            ) : listing.priceNote ? (
+              <p className="listing-price-meta">
+                <span>{listing.priceNote}</span>
+              </p>
             ) : (
-              <>
-                <p className="listing-price">
-                  <strong>{listing.price}</strong>
-                  {listing.priceSuffix ? <span>{listing.priceSuffix}</span> : null}
-                </p>
-                {listing.priceNote ? (
-                  <p className="listing-price-sub">{listing.priceNote}</p>
-                ) : (
-                  <p className="listing-price-sub listing-price-sub--spacer" aria-hidden="true">
-                    &nbsp;
-                  </p>
-                )}
-              </>
+              <p className="listing-price-meta is-empty" aria-hidden="true">
+                <span>Administración</span>
+                <strong>—</strong>
+              </p>
             )}
+          </div>
+          <div className="listing-location">
+            <p className="listing-zone">
+              <span className="listing-pin" aria-hidden="true">
+                <SketchIcon name="pin" />
+              </span>
+              <span className="listing-locality">
+                <b>{listing.zone}</b>
+                <span className="listing-city">{listing.city}</span>
+              </span>
+            </p>
+            <p className="listing-facts">
+              <span>{listing.kind}</span>
+              <span>{listing.floor}</span>
+            </p>
           </div>
         </header>
 
@@ -620,65 +627,6 @@ export function PortalPreview() {
           </button>
         </footer>
       </div>
-    </div>
-  );
-}
-
-export function ContactModal({
-  sent,
-  onClose,
-  onSubmit,
-}: {
-  sent: boolean;
-  onClose: () => void;
-  onSubmit: (event: FormEvent<HTMLFormElement>) => void;
-}) {
-  return (
-    <div className="modal-backdrop" onMouseDown={onClose}>
-      <section
-        className="contact-modal"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="contact-title"
-        onMouseDown={(event) => event.stopPropagation()}
-      >
-        <button className="modal-close" onClick={onClose} aria-label="Cerrar">
-          ×
-        </button>
-        <p className="eyebrow">LITVING · BOGOTÁ</p>
-        <h2 id="contact-title">Hablemos de tu propiedad.</h2>
-        <p>
-          Cuéntanos zona, tipo de inmueble y si está vacío u ocupado. Te respondemos con un
-          siguiente paso concreto.
-        </p>
-        {sent ? (
-          <div className="success-message" role="status" aria-live="polite">
-            <b>Abrimos tu correo.</b>
-            <span>También puedes escribirnos a hola@litving.com.</span>
-          </div>
-        ) : (
-          <form onSubmit={onSubmit}>
-            <label>
-              Nombre
-              <input name="name" autoComplete="name" required autoFocus />
-            </label>
-            <label>
-              Correo o teléfono
-              <input name="contact" type="text" inputMode="email" autoComplete="email" required />
-            </label>
-            <label>
-              Quiero
-              <select name="need" defaultValue="administrar">
-                <option value="administrar">Proteger y administrar mi renta</option>
-                <option value="publicar">Publicar mi propiedad</option>
-                <option value="arrendar">Buscar una propiedad</option>
-                <option value="portal">Conocer el portal</option>
-              </select>
-            </label>
-            <button type="submit">Quiero que me contacten</button>
-          </form>
-        )}
-      </section>
     </div>
   );
 }
