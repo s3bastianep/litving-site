@@ -438,7 +438,6 @@ export function PortalPreview() {
   const [propertyId, setPropertyId] = useState<(typeof portalProperties)[number]["id"]>("rosales");
   const [propertyOpen, setPropertyOpen] = useState(false);
   const [selectedActivity, setSelectedActivity] = useState<string | null>(null);
-  const [reportReady, setReportReady] = useState(false);
   const propertyWrapRef = useRef<HTMLDivElement | null>(null);
 
   const property = portalProperties.find((item) => item.id === propertyId) ?? portalProperties[0];
@@ -618,13 +617,6 @@ export function PortalPreview() {
           <span>
             <i aria-hidden="true" /> Información actualizada hoy, 09:40
           </span>
-          <button
-            type="button"
-            className={`portal-report${reportReady ? " is-ready" : ""}`}
-            onClick={() => setReportReady(true)}
-          >
-            {reportReady ? "Vista previa del reporte · demo" : "Ver reporte mensual (demo)"}
-          </button>
         </footer>
       </div>
     </div>

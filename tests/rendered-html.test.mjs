@@ -58,7 +58,6 @@ test("uses responsive native sections and HD assets", async () => {
   assert.match(page, /aria-pressed=/);
   assert.match(page, /nav-backdrop/);
   assert.match(page, /mailto:hola@litving\.com/);
-  assert.match(page, /Ver reporte mensual \(demo\)/);
   assert.match(page, /Quiero agendar una visita/);
   assert.match(page, /asesora-litving-hd\.png/);
   assert.match(page, /audience-owner-blend-v3\.png/);

@@ -5,6 +5,7 @@ import { MouseEvent, useEffect, useRef, useState } from "react";
 import { ListingAdPreview } from "./components/listing-ad-preview";
 import { BrandLogo } from "./components/brand-logo";
 import { ContactModal } from "./components/contact-modal";
+import { PortalDashboard } from "./components/portal-dashboard";
 import { type ContactLead, type ContactNeed } from "./lib/contact";
 
 const valueItems = [
@@ -424,290 +425,6 @@ function ArchitecturalBlueprint() {
   );
 }
 
-type PortalNav =
-  | "Inicio"
-  | "Propiedades"
-  | "Contratos"
-  | "Pagos"
-  | "Mantenimientos"
-  | "Solicitudes"
-  | "Documentos";
-
-const portalNavItems: PortalNav[] = [
-  "Inicio",
-  "Propiedades",
-  "Contratos",
-  "Pagos",
-  "Mantenimientos",
-  "Solicitudes",
-  "Documentos",
-];
-
-const portalProperties = [
-  {
-    id: "rosales",
-    label: "Apartamento 506 · Rosales",
-    status: "Al día",
-    nextPay: "05 Jun. 2026",
-    openCases: "2",
-    openNote: "Ambas dentro del plazo",
-  },
-  {
-    id: "chico",
-    label: "Apartamento 801 · Chicó",
-    status: "Al día",
-    nextPay: "12 Jun. 2026",
-    openCases: "1",
-    openNote: "Visita programada",
-  },
-  {
-    id: "salitre",
-    label: "Apartamento 205 · Salitre",
-    status: "En revisión",
-    nextPay: "01 Jul. 2026",
-    openCases: "3",
-    openNote: "Una requiere respuesta",
-  },
-] as const;
-
-const portalActivityByNav: Record<PortalNav, readonly [string, string, string, string][]> = {
-  Inicio: [
-    ["20 Abr", "Pago recibido", "Canon de arrendamiento", "Completado"],
-    ["22 Abr", "Mantenimiento", "Revisión del ascensor", "En curso"],
-    ["15 Abr", "Solicitud", "Ajuste de cerradura", "Respondida"],
-    ["10 Abr", "Documento", "Contrato actualizado", "Disponible"],
-  ],
-  Propiedades: [
-    ["08 Abr", "Inspección", "Estado general del inmueble", "Programada"],
-    ["02 Abr", "Inventario", "Entrega actualizada", "Disponible"],
-    ["28 Mar", "Foto", "Galería renovada", "Completado"],
-  ],
-  Contratos: [
-    ["10 Abr", "Contrato", "Versión vigente cargada", "Disponible"],
-    ["01 Mar", "Anexo", "Cláusula de mascotas", "Firmado"],
-    ["12 Feb", "Renovación", "Propuesta enviada", "En curso"],
-  ],
-  Pagos: [
-    ["20 Abr", "Pago recibido", "Canon abril", "Completado"],
-    ["20 Mar", "Pago recibido", "Canon marzo", "Completado"],
-    ["05 Jun", "Próximo cobro", "Canon junio", "Programado"],
-  ],
-  Mantenimientos: [
-    ["22 Abr", "Ascensor", "Revisión técnica", "En curso"],
-    ["11 Abr", "Plomería", "Cambio de grifería", "Completado"],
-    ["03 Abr", "Pintura", "Retoque de terraza", "Cotizado"],
-  ],
-  Solicitudes: [
-    ["15 Abr", "Cerradura", "Ajuste solicitado", "Respondida"],
-    ["09 Abr", "Ruido", "Reporte a administración", "En curso"],
-    ["01 Abr", "Parqueadero", "Asignación temporal", "Cerrada"],
-  ],
-  Documentos: [
-    ["10 Abr", "Contrato", "PDF actualizado", "Disponible"],
-    ["02 Abr", "Póliza", "Cobertura vigente", "Disponible"],
-    ["20 Mar", "Recibo", "Pago de marzo", "Disponible"],
-  ],
-};
-
-function PortalPreview() {
-  const [activeNav, setActiveNav] = useState<PortalNav>("Inicio");
-  const [propertyId, setPropertyId] = useState<(typeof portalProperties)[number]["id"]>("rosales");
-  const [propertyOpen, setPropertyOpen] = useState(false);
-  const [selectedActivity, setSelectedActivity] = useState<string | null>(null);
-  const [reportReady, setReportReady] = useState(false);
-  const propertyWrapRef = useRef<HTMLDivElement | null>(null);
-
-  const property = portalProperties.find((item) => item.id === propertyId) ?? portalProperties[0];
-  const activity = portalActivityByNav[activeNav];
-  const sectionTitle =
-    activeNav === "Inicio" ? "Resumen de tu propiedad" : `Vista de ${activeNav.toLowerCase()}`;
-
-  useEffect(() => {
-    if (!propertyOpen) return;
-    const onPointerDown = (event: PointerEvent) => {
-      if (!propertyWrapRef.current?.contains(event.target as Node)) {
-        setPropertyOpen(false);
-      }
-    };
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setPropertyOpen(false);
-    };
-    window.addEventListener("pointerdown", onPointerDown);
-    window.addEventListener("keydown", onKeyDown);
-    return () => {
-      window.removeEventListener("pointerdown", onPointerDown);
-      window.removeEventListener("keydown", onKeyDown);
-    };
-  }, [propertyOpen]);
-
-  return (
-    <div className="portal-window" aria-label="Vista previa del portal Litving">
-      <aside className="portal-sidebar">
-        <div className="portal-brand">
-          <strong>LITVING</strong>
-          <small>Portal de gestión</small>
-        </div>
-        <nav className="portal-nav" aria-label="Menú del portal">
-          {portalNavItems.map((item) => (
-            <button
-              key={item}
-              type="button"
-              className={item === activeNav ? "active" : undefined}
-              aria-current={item === activeNav ? "page" : undefined}
-              onClick={() => {
-                setActiveNav(item);
-                setSelectedActivity(null);
-                setReportReady(false);
-              }}
-            >
-              <i aria-hidden="true" />
-              {item}
-            </button>
-          ))}
-        </nav>
-        <div className="portal-sidebar-art" aria-hidden="true">
-          <img src="/media/listing-facade-rosales-v2.png" alt="" />
-        </div>
-        <div className="portal-advisor">
-          <span>LM</span>
-          <p>
-            <b>Laura M.</b>
-            <small>Tu asesora</small>
-          </p>
-        </div>
-      </aside>
-
-      <div className="portal-content">
-        <header>
-          <div>
-            <b>Hola, Carolina</b>
-            <small>{sectionTitle}</small>
-          </div>
-          <div className="portal-head-actions">
-            <div
-              className={`portal-property-wrap${propertyOpen ? " is-open" : ""}`}
-              ref={propertyWrapRef}
-            >
-              <button
-                type="button"
-                className="portal-property"
-                aria-expanded={propertyOpen}
-                aria-haspopup="listbox"
-                onClick={() => setPropertyOpen((open) => !open)}
-              >
-                {property.label}
-                <span aria-hidden="true">⌄</span>
-              </button>
-              {propertyOpen ? (
-                <ul className="portal-property-menu" role="listbox" aria-label="Seleccionar propiedad">
-                  {portalProperties.map((item) => (
-                    <li key={item.id}>
-                      <button
-                        type="button"
-                        role="option"
-                        aria-selected={item.id === propertyId}
-                        className={item.id === propertyId ? "is-selected" : undefined}
-                        onClick={() => {
-                          setPropertyId(item.id);
-                          setPropertyOpen(false);
-                          setSelectedActivity(null);
-                          setReportReady(false);
-                        }}
-                      >
-                        {item.label}
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              ) : null}
-            </div>
-            <span className={`online${property.status === "Al día" ? "" : " is-warn"}`}>
-              {property.status}
-            </span>
-          </div>
-        </header>
-
-        {activeNav === "Inicio" ? (
-          <div className="portal-metrics">
-            <button type="button" className="portal-metric-card" onClick={() => setActiveNav("Pagos")}>
-              <small>Estado de cartera</small>
-              <strong>
-                <i aria-hidden="true" /> {property.status}
-              </strong>
-              <em>Pagos al corriente</em>
-            </button>
-            <button type="button" className="portal-metric-card" onClick={() => setActiveNav("Pagos")}>
-              <small>Próximo pago</small>
-              <strong>{property.nextPay}</strong>
-              <em>Canon de arrendamiento</em>
-            </button>
-            <button
-              type="button"
-              className="portal-metric-card"
-              onClick={() => setActiveNav("Solicitudes")}
-            >
-              <small>Gestiones abiertas</small>
-              <strong>{property.openCases}</strong>
-              <em>{property.openNote}</em>
-            </button>
-          </div>
-        ) : (
-          <div className="portal-panel">
-            <p className="portal-panel-lead">
-              Estás en <b>{activeNav}</b> de <b>{property.label}</b>. Elige un registro para ver estado, tiempos y trazabilidad.
-            </p>
-          </div>
-        )}
-
-        <div className="portal-activity">
-          <div className="activity-head">
-            <b>{activeNav === "Inicio" ? "Actividad reciente" : activeNav}</b>
-            <small>Seguimiento en tiempo real</small>
-          </div>
-          {activity.map((row) => {
-            const key = row[0] + row[1];
-            const selected = selectedActivity === key;
-            return (
-              <button
-                type="button"
-                className={`activity-row${selected ? " is-selected" : ""}`}
-                key={key}
-                onClick={() => setSelectedActivity(selected ? null : key)}
-              >
-                <time>{row[0]}</time>
-                <i aria-hidden="true" />
-                <span>
-                  <b>{row[1]}</b>
-                  <small>{selected ? `Detalle: ${row[2]} · estado ${row[3].toLowerCase()}.` : row[2]}</small>
-                </span>
-                <em>{row[3]}</em>
-              </button>
-            );
-          })}
-        </div>
-
-        <div className="portal-sketch-strip" aria-hidden="true">
-          <img src="/media/process-management-sketch-v5-paper.png" alt="" />
-        </div>
-
-        <footer className="portal-footer">
-          <span>
-            <i aria-hidden="true" /> Información actualizada hoy, 09:40
-          </span>
-          <button
-            type="button"
-            className={`portal-report${reportReady ? " is-ready" : ""}`}
-            onClick={() => setReportReady(true)}
-            aria-live="polite"
-          >
-            {reportReady ? "Vista previa del reporte · demo" : "Ver reporte mensual (demo)"}
-          </button>
-        </footer>
-      </div>
-    </div>
-  );
-}
-
 export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
@@ -904,22 +621,14 @@ export default function Home() {
                 </button>
               </div>
             </div>
-            <button
-              type="button"
-              className="nav-login nav-login--mobile"
-              onClick={event => openContactFromEvent(event, { need: "portal" })}
-            >
-              Pedir acceso
-            </button>
+            <Link href="/portal" className="nav-login nav-login--mobile">
+              Iniciar sesión
+            </Link>
           </nav>
         </div>
-        <button
-          type="button"
-          className="nav-login nav-login--desktop"
-          onClick={event => openContactFromEvent(event, { need: "portal" })}
-        >
-          Pedir acceso
-        </button>
+        <Link href="/portal" className="nav-login nav-login--desktop">
+          Iniciar sesión
+        </Link>
         <button
           className="menu-toggle"
           aria-controls="main-navigation"
@@ -1072,12 +781,14 @@ export default function Home() {
 
       <section className="portal-section section-shell" id="portal">
         <div className="portal-copy">
-          <span className="section-number">03</span>
-          <p className="eyebrow">VISTA PREVIA DEL PORTAL</p>
+          <div className="portal-copy-top">
+            <span className="section-number">03</span>
+            <p className="eyebrow">VISTA PREVIA DEL PORTAL</p>
+          </div>
           <h2>Así se ve el seguimiento de tu propiedad.</h2>
           <p>
-            Esta es una demostración de pagos, contratos y solicitudes. El acceso real lo activa
-            un asesor: no hay inicio de sesión público todavía.
+            Esta es una demostración de pagos, contratos y solicitudes. Entra al portal para ver
+            el panel con el estado de tu propiedad.
           </p>
           <div className="micro-benefits">
             <span><b>01</b><em>Trazabilidad</em><small>Historial y estado de cada gestión.</small></span>
@@ -1085,22 +796,14 @@ export default function Home() {
             <span><b>03</b><em>Seguimiento continuo</em><small>El caso no se pierde en el camino.</small></span>
             <span><b>04</b><em>Todo en un lugar</em><small>Pagos, documentos y solicitudes.</small></span>
           </div>
-          <button
-            type="button"
-            className="button button-primary portal-cta portal-cta--desktop"
-            onClick={event => openContactFromEvent(event, { need: "portal" })}
-          >
-            Pedir acceso
-          </button>
+          <Link href="/portal" className="button button-primary portal-cta portal-cta--desktop">
+            Iniciar sesión
+          </Link>
         </div>
-        <PortalPreview />
-        <button
-          type="button"
-          className="button button-primary portal-cta portal-cta--mobile"
-          onClick={event => openContactFromEvent(event, { need: "portal" })}
-        >
-          Pedir acceso
-        </button>
+        <PortalDashboard />
+        <Link href="/portal" className="button button-primary portal-cta portal-cta--mobile">
+          Iniciar sesión
+        </Link>
       </section>
 
       <section className="audiences" id="personas">
@@ -1132,8 +835,8 @@ export default function Home() {
               <div className="audience-content">
                 <p className="eyebrow">SI ERES PROPIETARIO</p>
                 <h3>
-                  <span className="audience-line">Arrienda o vende</span>
-                  <span className="audience-line">con acompañamiento.</span>
+                  <span className="audience-line">Arrienda o vende con</span>
+                  <span className="audience-line">acompañamiento.</span>
                 </h3>
                 <ul className="audience-points">
                   {ownerBenefits.map(([title, copy]) => (
@@ -1160,8 +863,8 @@ export default function Home() {
               <div className="audience-content">
                 <p className="eyebrow">SI QUIERES ARRENDAR</p>
                 <h3>
-                  <span className="audience-line">Encuentra tu hogar</span>
-                  <span className="audience-line">con proceso claro.</span>
+                  <span className="audience-line">Encuentra tu hogar con</span>
+                  <span className="audience-line">proceso claro.</span>
                 </h3>
                 <ul className="audience-points">
                   {tenantBenefits.map(([title, copy]) => (
@@ -1241,27 +944,23 @@ export default function Home() {
       <section className="human-section section-shell" id="equipo">
         <div className="human-image">
           <img
-            src="/media/asesora-plataforma-natural.png?v=1"
-            alt="Asesora Litving revisando la plataforma con una clienta en su inmueble"
+            src="/media/asesora-plataforma-crop.png?v=2"
+            alt="Asesora Litving revisando la plataforma con una clienta en un inmueble"
             loading="lazy"
             decoding="async"
           />
         </div>
         <div className="human-copy">
-          <span className="section-number">06</span>
-          <p className="eyebrow">SEGUIMIENTO CONTINUO</p>
+          <div className="human-copy-top">
+            <span className="section-number">06</span>
+            <p className="eyebrow">SEGUIMIENTO CONTINUO</p>
+          </div>
           <h2>
-            Plataforma que avanza.
-            <br />
-            Personas que responden.
+            Plataforma que avanza. Personas que responden.
           </h2>
           <p>
-            Pediste apoyo y terminas esperando, preguntándote si alguien realmente
-            está al tanto de tu propiedad.
-          </p>
-          <p>
-            En Litving ves avances, tiempos y respuestas en una sola plataforma.
-            Un asesor conoce tu inmueble, responde rápido y da seguimiento continuo.
+            Ves avances, tiempos y respuestas en un solo lugar. Un asesor
+            conoce tu inmueble y da seguimiento continuo.
           </p>
           <button className="button button-primary" onClick={event => openContactFromEvent(event)}>
             Hablar con un asesor
@@ -1270,13 +969,19 @@ export default function Home() {
       </section>
 
       <footer className="site-footer section-shell">
-        <a className="brand" href="#inicio" aria-label="Litving, inicio">
-          <BrandLogo />
-        </a>
-        <p>Bogotá · Colombia</p>
-        <a href="mailto:hola@litving.com">hola@litving.com</a>
-        <button onClick={event => openContactFromEvent(event)}>Contacto</button>
-        <small>© 2026 LITVING</small>
+        <div className="footer-brand">
+          <a className="brand" href="#inicio" aria-label="Litving, inicio">
+            <BrandLogo />
+          </a>
+          <p>Bogotá · Colombia</p>
+        </div>
+        <div className="footer-actions">
+          <a href="mailto:hola@litving.com">hola@litving.com</a>
+          <button type="button" onClick={event => openContactFromEvent(event)}>
+            Contacto
+          </button>
+          <small>© 2026 LITVING</small>
+        </div>
       </footer>
 
       {activeListing && (
