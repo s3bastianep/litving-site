@@ -5,6 +5,7 @@ import { MouseEvent, useEffect, useRef, useState } from "react";
 import { ListingAdPreview } from "./components/listing-ad-preview";
 import { BrandLogo } from "./components/brand-logo";
 import { ContactModal } from "./components/contact-modal";
+import { MobileAppNav } from "./components/mobile-app-nav";
 import { PortalDashboard } from "./components/portal-dashboard";
 import { type ContactLead, type ContactNeed } from "./lib/contact";
 
@@ -457,6 +458,10 @@ export default function Home() {
     openLead(typeof lead === "string" ? { need: lead } : lead);
   };
 
+  const openContact = (lead: ContactLead | ContactNeed = "administrar") => {
+    openLead(typeof lead === "string" ? { need: lead } : lead);
+  };
+
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const listingId = params.get("inmueble");
@@ -555,7 +560,7 @@ export default function Home() {
   };
 
   return (
-    <main>
+    <main className="has-mobile-nav">
       <a className="skip-link" href="#inicio">Saltar al contenido</a>
       <header className="site-header" ref={headerRef}>
         <div className="header-left">
@@ -1002,6 +1007,8 @@ export default function Home() {
           onClose={closeContact}
         />
       ) : null}
+
+      <MobileAppNav active="home" onContact={() => openContact()} />
     </main>
   );
 }

@@ -1134,3 +1134,97 @@
     grid-template-columns: 1fr;
   }
 }
+
+@media (max-width: 760px) {
+  .search-page--app {
+    --search-header: 72px;
+    --search-filters: 56px;
+    min-height: 100dvh;
+    padding-bottom: calc(var(--mobile-chrome-bottom) + var(--search-dock-height) + 8px);
+  }
+
+  .search-page--app .search-header {
+    padding-top: var(--safe-top);
+    height: calc(var(--search-header) + var(--safe-top));
+    background: color-mix(in srgb, var(--paper) 92%, transparent);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+  }
+
+  .search-page--app .search-header-inner {
+    width: min(100% - 24px, 1600px);
+    padding-left: 0;
+    gap: 10px;
+  }
+
+  .search-page--app .search-nav {
+    display: none;
+  }
+
+  .search-page--app .search-header-actions {
+    gap: 8px;
+  }
+
+  .search-page--app .search-account {
+    display: none;
+  }
+
+  .search-page--app .search-publish {
+    display: inline-flex;
+    min-height: 40px;
+    padding-inline: 14px;
+    font-size: 0.82rem;
+  }
+
+  .search-page--app .search-filters-shell {
+    top: calc(var(--search-header) + var(--safe-top));
+  }
+
+  .search-page--app .search-filters {
+    min-height: var(--search-filters);
+    padding: 8px 12px 6px;
+    gap: 8px;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+  }
+
+  .search-page--app .search-filters::-webkit-scrollbar {
+    display: none;
+  }
+
+  .search-page--app .search-query {
+    flex: 1 1 180px;
+    min-width: 140px;
+    max-width: none;
+  }
+
+  .search-page--app .search-dd-trigger,
+  .search-page--app .search-icon-btn {
+    min-height: 44px;
+    padding-inline: 12px;
+    font-size: 0.82rem;
+  }
+
+  .search-page--app .search-results-toolbar {
+    padding-inline: 12px;
+  }
+
+  .search-page--app .search-view-toggle {
+    display: none;
+  }
+
+  .search-page--app .search-split {
+    min-height: calc(100dvh - var(--search-header) - var(--search-filters) - var(--safe-top) - var(--mobile-chrome-bottom) - var(--search-dock-height));
+  }
+
+  .search-page--app .search-split--map .search-map-panel,
+  .search-page--app .search-split--list .search-results {
+    min-height: calc(100dvh - var(--search-header) - var(--search-filters) - var(--safe-top) - var(--mobile-chrome-bottom) - var(--search-dock-height));
+  }
+
+  .search-page--app .search-listing-grid {
+    padding-bottom: 12px;
+  }
+}

@@ -3,6 +3,7 @@
 import { FormEvent, useEffect, useState } from "react";
 import Link from "next/link";
 import { BrandLogo } from "../components/brand-logo";
+import { MobileAppNav } from "../components/mobile-app-nav";
 import { PortalDashboard } from "../components/portal-dashboard";
 import { isValidEmail } from "../lib/contact";
 
@@ -56,12 +57,12 @@ export default function PortalPage() {
   };
 
   if (!ready) {
-    return <div className="portal-app" />;
+    return <div className="portal-app has-mobile-nav" />;
   }
 
   if (!user) {
     return (
-      <div className="portal-app portal-app--login">
+      <div className="portal-app portal-app--login has-mobile-nav">
         <header className="portal-login-bar">
           <Link href="/" className="brand" aria-label="Litving, inicio">
             <BrandLogo />
@@ -95,13 +96,15 @@ export default function PortalPage() {
             <button type="submit">Entrar al portal</button>
           </form>
         </section>
+        <MobileAppNav active="portal" />
       </div>
     );
   }
 
   return (
-    <div className="portal-app">
+    <div className="portal-app has-mobile-nav">
       <PortalDashboard variant="app" userName={user.name} onLogout={logout} />
+      <MobileAppNav active="portal" />
     </div>
   );
 }

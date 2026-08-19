@@ -16,6 +16,7 @@ import {
 import { ListingAdPreview } from "./listing-ad-preview";
 import { BrandLogo } from "./brand-logo";
 import { ContactModal } from "./contact-modal";
+import { MobileAppNav, SearchMobileDock } from "./mobile-app-nav";
 import "../search.css";
 
 type PropertySearchProps = {
@@ -437,7 +438,7 @@ export function PropertySearch({ operation }: PropertySearchProps) {
   };
 
   return (
-    <div className="search-page">
+    <div className="search-page search-page--app has-mobile-nav">
       <header className="search-header">
         <div className="search-header-inner">
           <a className="brand" href="/" aria-label="Litving, inicio">
@@ -721,6 +722,13 @@ export function PropertySearch({ operation }: PropertySearchProps) {
           onClose={() => setContactLead(null)}
         />
       ) : null}
+
+      <SearchMobileDock view={mobileView} onChange={setView} />
+      <MobileAppNav
+        active="search"
+        searchHref={operation === "venta" ? "/comprar" : "/arrendar"}
+        onContact={() => setContactLead({ need: operation === "venta" ? "venta" : "arriendo" })}
+      />
     </div>
   );
 }
