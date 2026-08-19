@@ -80,6 +80,16 @@ function InfoGlyph({ name }: { name: "code" | "home" | "city" | "status" | "stra
   }
 }
 
+function DetailIcon({
+  name,
+}: {
+  name: "pin" | "code" | "home" | "city" | "status" | "stratum" | "price" | "elevator" | "pets";
+}) {
+  if (name === "pin" || name === "elevator" || name === "pets") {
+    return <SketchIcon name={name} />;
+  }
+  return <InfoGlyph name={name} />;
+}
 function money(value: number) {
   return new Intl.NumberFormat("es-CO", {
     style: "currency",
@@ -131,8 +141,12 @@ async function shareListing(listing: ListingExample) {
       return "cancelled" as const;
     }
   }
-  await navigator.clipboard.writeText(href);
-  return "copied" as const;
+  try {
+    await navigator.clipboard.writeText(href);
+    return "copied" as const;
+  } catch {
+    return "cancelled" as const;
+  }
 }
 
 export function ListingAdPreview({
@@ -464,26 +478,20 @@ export function ListingAdPreview({
             </p>
           </section>
 
-          <section className="float-block">
+          <section className="float-block float-details">
             <h3>Detalles del inmueble</h3>
             <div className="float-detail-groups">
               {detailGroups.map(group => (
-                <article key={group.title} className="float-detail-card">
+                <article key={group.title} className="float-detail-group">
                   <h4>{group.title}</h4>
-                  <ul>
+                  <ul className="float-detail-list">
                     {group.items.map(item => (
-                      <li key={item.label}>
+                      <li key={item.label} className="float-detail-row">
                         <span className="float-detail-icon" aria-hidden="true">
-                          {item.icon === "pin" || item.icon === "elevator" || item.icon === "pets" ? (
-                            <SketchIcon name={item.icon} />
-                          ) : (
-                            <InfoGlyph name={item.icon} />
-                          )}
+                          <DetailIcon name={item.icon} />
                         </span>
-                        <span className="float-detail-copy">
-                          <em>{item.label}</em>
-                          <strong>{item.value}</strong>
-                        </span>
+                        <span className="float-detail-label">{item.label}</span>
+                        <span className="float-detail-value">{item.value}</span>
                       </li>
                     ))}
                   </ul>
@@ -517,23 +525,6 @@ export function ListingAdPreview({
                     setVisitTime(null);
                   }}
                 >
-                  <span className="float-book-type-icon" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" width="18" height="18">
-                      <path
-                        d="M12.1 20.5s-5.3-4.5-5.2-8.3c0-2.8 2.2-5 5.1-5.1 2.8.1 5 2.3 5 5.2 0 3.7-4.9 8.2-4.9 8.2Z"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="1.8"
-                        strokeLinejoin="round"
-                      />
-                      <path
-                        d="M12 9.5c1 .1 1.7.8 1.7 1.7-.1.9-.9 1.6-1.8 1.5-.9-.1-1.5-.9-1.4-1.7.1-.9.8-1.5 1.5-1.5Z"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="1.8"
-                      />
-                    </svg>
-                  </span>
                   <strong>Presencial</strong>
                   <em>En el inmueble</em>
                 </button>
@@ -546,18 +537,6 @@ export function ListingAdPreview({
                     setVisitTime(null);
                   }}
                 >
-                  <span className="float-book-type-icon" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" width="18" height="18">
-                      <rect x="3.5" y="6.5" width="12.5" height="11" rx="2.2" fill="none" stroke="currentColor" strokeWidth="1.8" />
-                      <path
-                        d="M16 10.2 20.2 8v8.2L16 14"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="1.8"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
-                  </span>
                   <strong>Virtual</strong>
                   <em>Video llamada</em>
                 </button>
@@ -670,54 +649,89 @@ export function ListingAdPreview({
           </section>
 
           <section className="float-block float-nearby">
-            <h3>Lugares cercanos</h3>
-            <p className="float-block-lead">
-              Tiempos aproximados a pie y en carro desde {listing.zone}.
-            </p>
-            <div className="float-nearby-grid">
-              {nearbyFor(listing.zone).map(group => (
-                <article key={group.group} className="float-nearby-card">
-                  <h4>{group.group}</h4>
-                  <ul>
-                    {group.items.map(item => (
-                      <li key={item.name}>
-                        <strong>{item.name}</strong>
-                        <p>
-                          <span>
-                            <svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true">
-                              <circle cx="13.2" cy="5.2" r="1.7" fill="currentColor" />
-                              <path
-                                d="M10.2 21.2 12 14.8l-2.2-2.4 1.4-3.6c.3-.7 1-1.2 1.8-1.2h.4c.9 0 1.6.6 1.8 1.4L16 13.2l2.2 1.4M12 14.8l1.8 6.4"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth="1.7"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                              />
-                            </svg>
-                            {item.walk}
+            <header className="float-nearby-head">
+              <h3>Lugares cercanos</h3>
+              <p className="float-block-lead">
+                Tiempos aproximados a pie y en carro desde {listing.zone}.
+              </p>
+              <p className="float-nearby-legend" aria-hidden="true">
+                <span className="float-nearby-legend-item float-nearby-legend-item--walk">
+                  <svg viewBox="0 0 24 24" width="12" height="12" aria-hidden="true">
+                    <circle cx="13.2" cy="5.2" r="1.7" fill="currentColor" />
+                    <path
+                      d="M10.2 21.2 12 14.8l-2.2-2.4 1.4-3.6c.3-.7 1-1.2 1.8-1.2h.4c.9 0 1.6.6 1.8 1.4L16 13.2l2.2 1.4M12 14.8l1.8 6.4"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.7"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                  A pie
+                </span>
+                <span className="float-nearby-legend-item float-nearby-legend-item--car">
+                  <svg viewBox="0 0 24 24" width="12" height="12" aria-hidden="true">
+                    <path
+                      d="M4.5 15.2h15M6.2 15.2l1.2-5.4c.2-.8.9-1.4 1.7-1.4h5.8c.8 0 1.5.6 1.7 1.4l1.2 5.4"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.7"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                    <circle cx="8" cy="17.2" r="1.3" fill="none" stroke="currentColor" strokeWidth="1.7" />
+                    <circle cx="16" cy="17.2" r="1.3" fill="none" stroke="currentColor" strokeWidth="1.7" />
+                  </svg>
+                  En carro
+                </span>
+              </p>
+            </header>
+            <div className="float-nearby-shell">
+              <div className="float-nearby-groups">
+                {nearbyFor(listing.zone).map(group => (
+                  <article key={group.group} className="float-nearby-group">
+                    <h4>{group.group}</h4>
+                    <ul className="float-nearby-list">
+                      {group.items.map(item => (
+                        <li key={item.name} className="float-nearby-row">
+                          <span className="float-nearby-name">{item.name}</span>
+                          <span className="float-nearby-meta">
+                            <span className="float-nearby-meta-item float-nearby-meta-item--walk">
+                              <svg viewBox="0 0 24 24" width="12" height="12" aria-hidden="true">
+                                <circle cx="13.2" cy="5.2" r="1.7" fill="currentColor" />
+                                <path
+                                  d="M10.2 21.2 12 14.8l-2.2-2.4 1.4-3.6c.3-.7 1-1.2 1.8-1.2h.4c.9 0 1.6.6 1.8 1.4L16 13.2l2.2 1.4M12 14.8l1.8 6.4"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  strokeWidth="1.7"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                />
+                              </svg>
+                              <strong>{item.walk}</strong>
+                            </span>
+                            <span className="float-nearby-meta-item float-nearby-meta-item--car">
+                              <svg viewBox="0 0 24 24" width="12" height="12" aria-hidden="true">
+                                <path
+                                  d="M4.5 15.2h15M6.2 15.2l1.2-5.4c.2-.8.9-1.4 1.7-1.4h5.8c.8 0 1.5.6 1.7 1.4l1.2 5.4"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  strokeWidth="1.7"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                />
+                                <circle cx="8" cy="17.2" r="1.3" fill="none" stroke="currentColor" strokeWidth="1.7" />
+                                <circle cx="16" cy="17.2" r="1.3" fill="none" stroke="currentColor" strokeWidth="1.7" />
+                              </svg>
+                              <strong>{item.car}</strong>
+                            </span>
                           </span>
-                          <span>
-                            <svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true">
-                              <path
-                                d="M4.5 15.2h15M6.2 15.2l1.2-5.4c.2-.8.9-1.4 1.7-1.4h5.8c.8 0 1.5.6 1.7 1.4l1.2 5.4"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth="1.7"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                              />
-                              <circle cx="8" cy="17.2" r="1.3" fill="none" stroke="currentColor" strokeWidth="1.7" />
-                              <circle cx="16" cy="17.2" r="1.3" fill="none" stroke="currentColor" strokeWidth="1.7" />
-                            </svg>
-                            {item.car}
-                          </span>
-                        </p>
-                      </li>
-                    ))}
-                  </ul>
-                </article>
-              ))}
+                        </li>
+                      ))}
+                    </ul>
+                  </article>
+                ))}
+              </div>
             </div>
           </section>
         </div>

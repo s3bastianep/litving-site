@@ -8,11 +8,12 @@ import { ContactModal } from "./components/contact-modal";
 import { MobileAppNav } from "./components/mobile-app-nav";
 import { PortalDashboard } from "./components/portal-dashboard";
 import { type ContactLead, type ContactNeed } from "./lib/contact";
+import { resolveHomeListingId, searchRouteForListingId } from "./lib/listing-deep-link";
 
 const valueItems = [
   { number: "01", icon: "verify", title: "Arriendo protegido", copy: "Evaluamos al arrendatario y gestionamos el respaldo necesario para proteger tu ingreso." },
   { number: "02", icon: "camera", title: "Arriendo o venta que destaca", copy: "Valoramos, fotografiamos y presentamos tu propiedad para atraer al perfil correcto." },
-  { number: "03", icon: "portal", title: "Gestión virtual con trazabilidad", copy: "Cuando el portal está activo, ves pagos, contratos y solicitudes con historial. El acceso lo activa tu asesor." },
+  { number: "03", icon: "portal", title: "Gestión virtual con trazabilidad", copy: "Pagos, contratos y solicitudes con historial en plataforma. Tu asesor activa el acceso." },
   { number: "04", icon: "people", title: "Seguimiento continuo", copy: "Respuestas en tiempos cortos y un asesor que conoce tu caso, para que el proceso no se detenga." },
 ];
 
@@ -92,9 +93,9 @@ const listingExamples: ListingExample[] = [
     elevator: "Ascensor",
     pets: "Mascotas",
     images: [
-      "/media/listing-chico-living-hd.png",
-      "/media/listing-chico-kitchen-hd.png",
-      "/media/listing-chico-bedroom-hd.png",
+      "/media/listing-chico-living-hd.jpg",
+      "/media/listing-chico-kitchen-hd.jpg",
+      "/media/listing-chico-bedroom-hd.jpg",
     ],
   },
   {
@@ -138,9 +139,9 @@ const listingExamples: ListingExample[] = [
     elevator: "Ascensor",
     pets: "Consultar",
     images: [
-      "/media/listing-salitre-terrace-a-hd.png",
-      "/media/listing-salitre-living-hd.png",
-      "/media/listing-salitre-terrace-b-hd.png",
+      "/media/listing-salitre-terrace-a-hd.jpg",
+      "/media/listing-salitre-living-hd.jpg",
+      "/media/listing-salitre-terrace-b-hd.jpg",
     ],
   },
 ];
@@ -148,12 +149,12 @@ const listingExamples: ListingExample[] = [
 type SketchIconName = "area" | "rooms" | "baths" | "parking" | "elevator" | "pets" | "pin" | "check" | "calendar";
 
 const listingSpecIconAssets: Partial<Record<SketchIconName, string>> = {
-  area: "/media/listing-icon-area-glyph.png",
-  rooms: "/media/listing-icon-rooms-glyph.png",
-  baths: "/media/listing-icon-baths-glyph.png",
-  parking: "/media/listing-icon-parking-glyph.png",
-  elevator: "/media/listing-icon-elevator-glyph.png",
-  pets: "/media/listing-icon-pets-glyph.png",
+  area: "/media/listing-icon-area-glyph.png?v=5",
+  rooms: "/media/listing-icon-rooms-glyph.png?v=5",
+  baths: "/media/listing-icon-baths-glyph.png?v=5",
+  parking: "/media/listing-icon-parking-glyph.png?v=5",
+  elevator: "/media/listing-icon-elevator-glyph.png?v=5",
+  pets: "/media/listing-icon-pets-glyph.png?v=5",
 };
 
 function SketchIcon({ name }: { name: SketchIconName }) {
@@ -363,10 +364,10 @@ const buyerBenefits = [
 ];
 
 const benefitAssets: Record<string, { src: string; alt: string }> = {
-  verify: { src: "/media/benefit-verified-sketch-paper.png", alt: "Protección: propiedad, documento y respaldo ilustrados a lápiz" },
-  camera: { src: "/media/benefit-presentation-sketch-paper.png", alt: "Ocupación: cámara, plano y propiedad listos para destacar" },
-  portal: { src: "/media/benefit-management-sketch-paper.png", alt: "Plataforma virtual: pagos, contratos y trazabilidad de gestiones" },
-  people: { src: "/media/benefit-human-sketch-paper.png", alt: "Seguimiento continuo: asesor y propietario con respuestas a tiempo" },
+  verify: { src: "/media/benefit-verified-sketch-nobg.png?v=11", alt: "Protección: propiedad, documento y respaldo ilustrados a lápiz" },
+  camera: { src: "/media/benefit-presentation-sketch-nobg.png?v=11", alt: "Ocupación: cámara, plano y propiedad listos para destacar" },
+  portal: { src: "/media/benefit-management-sketch-nobg.png?v=11", alt: "Plataforma virtual: pagos, contratos y trazabilidad de gestiones" },
+  people: { src: "/media/benefit-human-sketch-nobg.png?v=11", alt: "Seguimiento continuo: asesor y propietario con respuestas a tiempo" },
 };
 
 function BenefitIllustration({ type }: { type: string }) {
@@ -376,19 +377,19 @@ function BenefitIllustration({ type }: { type: string }) {
 
 const processAssets: Record<string, { src: string; alt: string }> = {
   valuation: {
-    src: "/media/process-zone-price-sketch-v9-paper.png",
+    src: "/media/process-zone-price-sketch-v9-nobg.png?v=11",
     alt: "Inmueble y comparación de precio de zona, ilustrados a lápiz",
   },
   positioning: {
-    src: "/media/process-positioning-sketch-v5-paper.png",
+    src: "/media/process-positioning-sketch-v5-nobg.png?v=11",
     alt: "Cámara, interior y publicación ilustrados a lápiz",
   },
   contract: {
-    src: "/media/process-lease-calm-sketch-v6-paper.png",
+    src: "/media/process-lease-calm-sketch-v6-nobg.png?v=11",
     alt: "Entrega calmada de llaves y cierre de arriendo, ilustrados a lápiz",
   },
   management: {
-    src: "/media/process-management-sketch-v5-paper.png",
+    src: "/media/process-management-sketch-nobg.png?v=12",
     alt: "Portal de gestión y mantenimiento ilustrados a lápiz",
   },
 };
@@ -409,7 +410,7 @@ function ArchitecturalBlueprint() {
     <div className="blueprint" aria-label="Ilustración arquitectónica de una casa moderna">
       <img
         className="blueprint-art"
-        src="/media/hero-architectural-illustration-v4-transparent.png"
+        src="/media/hero-architectural-paper-match-v5.png?v=9"
         alt="Casa moderna ilustrada con trazo arquitectónico y paisajismo detallado"
         fetchPriority="high"
         decoding="async"
@@ -466,8 +467,17 @@ export default function Home() {
     const params = new URLSearchParams(window.location.search);
     const listingId = params.get("inmueble");
     if (listingId) {
-      const found = listingExamples.find(item => item.id === listingId);
-      if (found) setActiveListing(found);
+      const homeId = resolveHomeListingId(listingId);
+      if (homeId) {
+        const found = listingExamples.find(item => item.id === homeId);
+        if (found) setActiveListing(found);
+      } else {
+        const searchRoute = searchRouteForListingId(listingId);
+        if (searchRoute) {
+          window.location.replace(`${searchRoute}?inmueble=${encodeURIComponent(listingId)}`);
+          return;
+        }
+      }
     }
     if (!params.has("contact")) return;
     const need = params.get("need") || params.get("contact");
@@ -801,14 +811,8 @@ export default function Home() {
             <span><b>03</b><em>Seguimiento continuo</em><small>El caso no se pierde en el camino.</small></span>
             <span><b>04</b><em>Todo en un lugar</em><small>Pagos, documentos y solicitudes.</small></span>
           </div>
-          <Link href="/portal" className="button button-primary portal-cta portal-cta--desktop">
-            Iniciar sesión
-          </Link>
         </div>
         <PortalDashboard />
-        <Link href="/portal" className="button button-primary portal-cta portal-cta--mobile">
-          Iniciar sesión
-        </Link>
       </section>
 
       <section className="audiences" id="personas">
@@ -933,7 +937,9 @@ export default function Home() {
               <div className="process-step-index">
                 <span>{step.number}</span>
               </div>
-              <ProcessIllustration type={step.icon} />
+              <div className="process-visual">
+                <ProcessIllustration type={step.icon} />
+              </div>
               <h3>{step.title}</h3>
               <p>{step.copy}</p>
               {index < processSteps.length - 1 && (
@@ -948,12 +954,19 @@ export default function Home() {
 
       <section className="human-section section-shell" id="equipo">
         <div className="human-image">
-          <img
-            src="/media/asesora-plataforma-crop.png?v=2"
-            alt="Asesora Litving revisando la plataforma con una clienta en un inmueble"
-            loading="lazy"
-            decoding="async"
-          />
+          <div className="human-image-backdrop" aria-hidden="true" />
+          <div className="human-image-frame">
+            <img
+              src="/media/asesora-plataforma-crop.png?v=2"
+              alt="Asesora Litving revisando la plataforma con una clienta en un inmueble"
+              loading="lazy"
+              decoding="async"
+            />
+            <span className="human-image-tag">
+              <i aria-hidden="true">✓</i>
+              Asesoría humana + plataforma
+            </span>
+          </div>
         </div>
         <div className="human-copy">
           <div className="human-copy-top">

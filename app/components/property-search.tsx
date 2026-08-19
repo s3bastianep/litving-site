@@ -17,7 +17,7 @@ import { ListingAdPreview } from "./listing-ad-preview";
 import { BrandLogo } from "./brand-logo";
 import { ContactModal } from "./contact-modal";
 import { MobileAppNav, SearchMobileDock } from "./mobile-app-nav";
-import "../search.css";
+import { loadLeaflet } from "../lib/leaflet-loader";
 
 type PropertySearchProps = {
   operation: SearchOperation;
@@ -281,8 +281,7 @@ export function PropertySearch({ operation }: PropertySearchProps) {
 
     async function setupMap() {
       if (!mapRef.current || mapInstance.current) return;
-      await import("leaflet/dist/leaflet.css");
-      const L = await import("leaflet");
+      const L = await loadLeaflet();
       if (cancelled || !mapRef.current) return;
 
       const map = L.map(mapRef.current, {
@@ -334,7 +333,7 @@ export function PropertySearch({ operation }: PropertySearchProps) {
     const idsKey = filtered.map(item => item.id).join("|");
 
     async function syncMarkers() {
-      const L = await import("leaflet");
+      const L = await loadLeaflet();
       if (syncId !== markerSyncId.current || !mapInstance.current) return;
       if (!(markersRef.current instanceof Map)) {
         markersRef.current = new Map();
@@ -399,7 +398,7 @@ export function PropertySearch({ operation }: PropertySearchProps) {
     if (!(markersRef.current instanceof Map)) return;
 
     async function paintActive() {
-      const L = await import("leaflet");
+      const L = await loadLeaflet();
       filtered.forEach(item => {
         const marker = markersRef.current.get(item.id);
         if (!marker) return;
@@ -451,7 +450,7 @@ export function PropertySearch({ operation }: PropertySearchProps) {
             <Link href="/comprar" className={operation === "venta" ? "is-active" : undefined}>
               Comprar
             </Link>
-            <Link href="/#inicio">Nosotros</Link>
+            <Link href="/#beneficios">Nosotros</Link>
           </nav>
           <div className="search-header-actions">
             <Link href="/" className="search-account">
@@ -726,7 +725,7 @@ export function PropertySearch({ operation }: PropertySearchProps) {
       <SearchMobileDock view={mobileView} onChange={setView} />
       <MobileAppNav
         active="search"
-        searchHref={operation === "venta" ? "/comprar" : "/arrendar"}
+        searchHref="/buscar"
         onContact={() => setContactLead({ need: operation === "venta" ? "venta" : "arriendo" })}
       />
     </div>

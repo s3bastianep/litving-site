@@ -58,7 +58,7 @@ function ContactIcon() {
   );
 }
 
-export function MobileAppNav({ active, onContact, searchHref = "/arrendar" }: MobileAppNavProps) {
+export function MobileAppNav({ active, onContact, searchHref = "/buscar" }: MobileAppNavProps) {
   return (
     <nav className="mobile-app-nav" aria-label="Navegación móvil">
       <Link href="/" className={active === "home" ? "is-active" : undefined} aria-current={active === "home" ? "page" : undefined}>

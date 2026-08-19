@@ -156,7 +156,6 @@ export function PortalDashboard({
               onClick={() => {
                 setActiveNav(item);
                 setSelectedActivity(null);
-                setReportReady(false);
               }}
             >
               <i aria-hidden="true" />
@@ -165,7 +164,7 @@ export function PortalDashboard({
           ))}
         </nav>
         <div className="portal-sidebar-art" aria-hidden="true">
-          <img src="/media/listing-facade-rosales-v2.png" alt="" />
+          <img src="/media/listing-facade-rosales-v2.png" alt="" loading="lazy" decoding="async" />
         </div>
         <div className="portal-advisor">
           <span>LM</span>
@@ -215,7 +214,6 @@ export function PortalDashboard({
                           setPropertyId(item.id);
                           setPropertyOpen(false);
                           setSelectedActivity(null);
-                          setReportReady(false);
                         }}
                       >
                         {item.label}
@@ -294,7 +292,7 @@ export function PortalDashboard({
         </div>
 
         <div className="portal-sketch-strip" aria-hidden="true">
-          <img src="/media/process-management-sketch-v5-paper.png" alt="" />
+          <img src="/media/process-management-sketch-nobg.png?v=12" alt="" loading="lazy" decoding="async" />
         </div>
 
         <footer className="portal-footer">

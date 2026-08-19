@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
-import { PropertySearch } from "../components/property-search";
+import { PropertySearchLoader } from "../components/property-search-loader";
 import { JsonLd, listingsJsonLd } from "../components/json-ld";
 import "../search.css";
-
 export const metadata: Metadata = {
   title: "Comprar en Bogotá | LITVING",
   description:
@@ -13,7 +12,6 @@ export default function ComprarPage() {
   return (
     <>
       <JsonLd data={listingsJsonLd("venta")} />
-      <PropertySearch operation="venta" />
-    </>
+      <PropertySearchLoader operation="venta" />    </>
   );
 }

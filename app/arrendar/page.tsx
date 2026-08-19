@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { PropertySearch } from "../components/property-search";
+import { PropertySearchLoader } from "../components/property-search-loader";
 import { JsonLd, listingsJsonLd } from "../components/json-ld";
 import "../search.css";
 
@@ -13,7 +13,7 @@ export default function ArrendarPage() {
   return (
     <>
       <JsonLd data={listingsJsonLd("arriendo")} />
-      <PropertySearch operation="arriendo" />
+      <PropertySearchLoader operation="arriendo" />
     </>
   );
 }

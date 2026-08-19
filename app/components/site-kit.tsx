@@ -112,12 +112,12 @@ type SketchIconName =
   | "calendar";
 
 const listingSpecIconAssets: Partial<Record<SketchIconName, string>> = {
-  area: "/media/listing-icon-area-glyph.png",
-  rooms: "/media/listing-icon-rooms-glyph.png",
-  baths: "/media/listing-icon-baths-glyph.png",
-  parking: "/media/listing-icon-parking-glyph.png",
-  elevator: "/media/listing-icon-elevator-glyph.png",
-  pets: "/media/listing-icon-pets-glyph.png",
+  area: "/media/listing-icon-area-glyph.png?v=5",
+  rooms: "/media/listing-icon-rooms-glyph.png?v=5",
+  baths: "/media/listing-icon-baths-glyph.png?v=5",
+  parking: "/media/listing-icon-parking-glyph.png?v=5",
+  elevator: "/media/listing-icon-elevator-glyph.png?v=5",
+  pets: "/media/listing-icon-pets-glyph.png?v=5",
 };
 
 export function SketchIcon({ name }: { name: SketchIconName }) {
@@ -185,7 +185,7 @@ export function ArchitecturalBlueprint() {
     <div className="blueprint" aria-label="Ilustración arquitectónica de una casa moderna">
       <img
         className="blueprint-art"
-        src="/media/hero-architectural-illustration-v4-transparent.png"
+        src="/media/hero-architectural-paper-match-v5.png?v=9"
         alt="Casa moderna ilustrada con trazo arquitectónico y paisajismo detallado"
       />
       <ul className="blueprint-tags" aria-label="Señales de gestión Litving">
@@ -480,7 +480,6 @@ export function PortalPreview() {
               onClick={() => {
                 setActiveNav(item);
                 setSelectedActivity(null);
-                setReportReady(false);
               }}
             >
               <i aria-hidden="true" />
@@ -489,7 +488,7 @@ export function PortalPreview() {
           ))}
         </nav>
         <div className="portal-sidebar-art" aria-hidden="true">
-          <img src="/media/listing-facade-rosales-v2.png" alt="" />
+          <img src="/media/listing-facade-rosales-v2.png" alt="" loading="lazy" decoding="async" />
         </div>
         <div className="portal-advisor">
           <span>LM</span>
@@ -534,7 +533,6 @@ export function PortalPreview() {
                           setPropertyId(item.id);
                           setPropertyOpen(false);
                           setSelectedActivity(null);
-                          setReportReady(false);
                         }}
                       >
                         {item.label}
@@ -610,7 +608,7 @@ export function PortalPreview() {
         </div>
 
         <div className="portal-sketch-strip" aria-hidden="true">
-          <img src="/media/process-management-sketch-v5-paper.png" alt="" />
+          <img src="/media/process-management-sketch-nobg.png?v=12" alt="" loading="lazy" decoding="async" />
         </div>
 
         <footer className="portal-footer">
