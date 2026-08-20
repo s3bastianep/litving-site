@@ -7,6 +7,8 @@ import type { SaleDetails } from "../lib/sale-details";
 
 type Mode = "login" | "list" | "edit";
 
+const DRAFT_KEY = "litving-admin-draft-v1";
+
 const emptyForm: Partial<ManagedListing> = {
   code: "",
   operation: "arriendo",
@@ -55,11 +57,43 @@ export function AdminApp() {
   const [amenitiesText, setAmenitiesText] = useState("");
   const [message, setMessage] = useState<string | null>(null);
   const [filter, setFilter] = useState<"todas" | "arriendo" | "venta">("todas");
+  const [uploading, setUploading] = useState(false);
 
   const filtered = useMemo(() => {
     if (filter === "todas") return listings;
     return listings.filter(item => item.operation === filter);
   }, [filter, listings]);
+
+  function clearLocalDraft() {
+    try {
+      window.localStorage.removeItem(DRAFT_KEY);
+    } catch {
+      /* ignore */
+    }
+  }
+
+  function writeLocalDraft(nextForm: Partial<ManagedListing>, amenities: string) {
+    try {
+      window.localStorage.setItem(
+        DRAFT_KEY,
+        JSON.stringify({ form: nextForm, amenitiesText: amenities, savedAt: Date.now() }),
+      );
+    } catch {
+      /* ignore quota */
+    }
+  }
+
+  function readLocalDraft(): { form: Partial<ManagedListing>; amenitiesText: string } | null {
+    try {
+      const raw = window.localStorage.getItem(DRAFT_KEY);
+      if (!raw) return null;
+      const parsed = JSON.parse(raw) as { form?: Partial<ManagedListing>; amenitiesText?: string };
+      if (!parsed?.form) return null;
+      return { form: parsed.form, amenitiesText: parsed.amenitiesText || "" };
+    } catch {
+      return null;
+    }
+  }
 
   async function checkSession() {
     setLoading(true);
@@ -96,6 +130,15 @@ export function AdminApp() {
     void checkSession();
   }, []);
 
+  // Autosave local while editing so nothing is lost on refresh.
+  useEffect(() => {
+    if (mode !== "edit") return;
+    const timer = window.setTimeout(() => {
+      writeLocalDraft(form, amenitiesText);
+    }, 800);
+    return () => window.clearTimeout(timer);
+  }, [mode, form, amenitiesText]);
+
   async function onLogin(event: FormEvent) {
     event.preventDefault();
     setAuthError(null);
@@ -127,9 +170,16 @@ export function AdminApp() {
   }
 
   function openCreate() {
-    setForm({ ...emptyForm, code: `L-${String(Math.floor(1000 + Math.random() * 9000))}` });
-    setAmenitiesText("");
-    setMessage(null);
+    const draft = readLocalDraft();
+    if (draft?.form && window.confirm("Hay un borrador guardado en este navegador. ¿Continuar con él?")) {
+      setForm({ ...emptyForm, ...draft.form });
+      setAmenitiesText(draft.amenitiesText);
+      setMessage("Borrador local restaurado. Puedes seguir editando y guardar.");
+    } else {
+      setForm({ ...emptyForm, code: `L-${String(Math.floor(1000 + Math.random() * 9000))}`, published: false });
+      setAmenitiesText("");
+      setMessage("Puedes ir guardando borrador cuando quieras; no hace falta terminar todo de una.");
+    }
     setMode("edit");
   }
 
@@ -172,14 +222,14 @@ export function AdminApp() {
   async function onUpload(files: FileList | null) {
     if (!files?.length) return;
     const list = Array.from(files);
-    setMessage(`Subiendo ${list.length} foto(s)…`);
+    setUploading(true);
+    setMessage(`Subiendo ${list.length} foto(s) en alta calidad…`);
     const allUrls: string[] = [];
-    const batchSize = 3;
     try {
-      for (let i = 0; i < list.length; i += batchSize) {
-        const batch = list.slice(i, i + batchSize);
+      for (let i = 0; i < list.length; i += 1) {
+        const file = list[i];
         const body = new FormData();
-        batch.forEach(file => body.append("files", file));
+        body.append("files", file);
         const res = await fetch("/api/admin/upload", {
           method: "POST",
           credentials: "include",
@@ -189,37 +239,45 @@ export function AdminApp() {
         try {
           data = (await res.json()) as { urls?: string[]; error?: string };
         } catch {
-          setMessage("Error al subir fotos (respuesta inválida del servidor). Intenta con menos archivos.");
+          setMessage(`Error al subir “${file.name}”. Intenta esa foto sola.`);
           return;
         }
         if (!res.ok) {
-          setMessage(data.error || `No se pudieron subir las fotos (${res.status}).`);
+          setMessage(data.error || `No se pudo subir “${file.name}” (${res.status}).`);
           return;
         }
         allUrls.push(...(data.urls || []));
+        setForm(prev => {
+          const gallery = [...(prev.gallery || []), ...(data.urls || [])];
+          return {
+            ...prev,
+            gallery,
+            image: prev.image || gallery[0] || "",
+          };
+        });
         setMessage(`Subidas ${allUrls.length} de ${list.length} foto(s)…`);
       }
-      setForm(prev => {
-        const gallery = [...(prev.gallery || []), ...allUrls];
-        return {
-          ...prev,
-          gallery,
-          image: prev.image || gallery[0] || "",
-        };
-      });
-      setMessage(`${allUrls.length} foto(s) lista(s). Ya puedes guardar.`);
+      setMessage(`${allUrls.length} foto(s) lista(s). Ya puedes guardar borrador o publicar.`);
     } catch {
-      setMessage("No se pudo subir. Prueba de 3 en 3 o con fotos más livianas.");
+      setMessage("No se pudo subir. Revisa la conexión e intenta de nuevo (una o varias fotos).");
+    } finally {
+      setUploading(false);
     }
   }
 
-  async function onSave(event: FormEvent) {
-    event.preventDefault();
+  async function saveListing(asDraft: boolean) {
     setSaving(true);
     setMessage(null);
     try {
+      if (!asDraft) {
+        if (!form.code?.trim() || !form.zone?.trim() || !form.priceValue) {
+          setMessage("Para publicar necesitas código, barrio y precio.");
+          return;
+        }
+      }
       const payload: Partial<ManagedListing> = {
         ...form,
+        published: asDraft ? false : true,
         amenities: amenitiesText
           .split(",")
           .map(item => item.trim())
@@ -243,14 +301,29 @@ export function AdminApp() {
         setMessage(data.error || `No se pudo guardar (${res.status}).`);
         return;
       }
+      if (data.listing) {
+        setForm({ ...data.listing });
+        setAmenitiesText((data.listing.amenities || []).join(", "));
+      }
       await loadListings();
-      setMode("list");
-      setMessage("Publicación guardada.");
+      if (asDraft) {
+        writeLocalDraft(data.listing || payload, amenitiesText);
+        setMessage("Borrador guardado. Puedes cerrar y seguir después desde la lista.");
+      } else {
+        clearLocalDraft();
+        setMode("list");
+        setMessage("Publicación guardada y visible en el sitio.");
+      }
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "No se pudo guardar.");
     } finally {
       setSaving(false);
     }
+  }
+
+  async function onSave(event: FormEvent) {
+    event.preventDefault();
+    await saveListing(false);
   }
 
   async function onDelete(id: string) {
@@ -640,7 +713,10 @@ export function AdminApp() {
                 }}
               />
             </label>
-            <p className="admin-muted">Puedes elegir muchas; se suben de a 3. Espera el mensaje de “listas” antes de guardar.</p>
+            <p className="admin-muted">
+              Fotos en alta calidad (hasta 25 MB c/u). Se suben una por una; puedes guardar borrador en cualquier
+              momento.
+            </p>
             {gallery.length ? (
               <ul className="admin-gallery">
                 {gallery.map(url => (
@@ -682,8 +758,16 @@ export function AdminApp() {
           {message ? <p className="admin-banner">{message}</p> : null}
 
           <div className="admin-actions">
-            <button type="submit" className="admin-btn admin-btn--primary" disabled={saving}>
-              {saving ? "Guardando…" : "Guardar publicación"}
+            <button
+              type="button"
+              className="admin-btn"
+              disabled={saving || uploading}
+              onClick={() => void saveListing(true)}
+            >
+              {saving ? "Guardando…" : "Guardar borrador"}
+            </button>
+            <button type="submit" className="admin-btn admin-btn--primary" disabled={saving || uploading}>
+              {saving ? "Guardando…" : "Publicar en el sitio"}
             </button>
           </div>
         </form>

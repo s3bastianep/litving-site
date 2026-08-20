@@ -32,10 +32,19 @@ export async function POST(request: Request) {
     return Response.json({ error: "JSON inválido." }, { status: 400 });
   }
   if (!body.zone || !body.code || !body.priceValue) {
-    return Response.json({ error: "Código, barrio y precio son obligatorios." }, { status: 400 });
+    // Drafts can be incomplete; publish still needs the essentials.
+    if (body.published !== false) {
+      return Response.json({ error: "Código, barrio y precio son obligatorios para publicar." }, { status: 400 });
+    }
   }
   try {
-    const saved = await upsertManagedListing(body);
+    const saved = await upsertManagedListing({
+      ...body,
+      code: body.code || `BORR-${Date.now().toString().slice(-6)}`,
+      zone: body.zone || "Por completar",
+      priceValue: body.priceValue || 0,
+      published: body.published ?? true,
+    });
     return Response.json({ listing: saved }, { status: 201 });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Error al guardar en la base de datos.";
@@ -56,12 +65,21 @@ export async function PUT(request: Request) {
   if (!body.id) {
     return Response.json({ error: "Falta el id." }, { status: 400 });
   }
+  const isDraft = body.published === false;
+  if (!isDraft && (!body.zone || !body.code || !body.priceValue)) {
+    return Response.json({ error: "Código, barrio y precio son obligatorios para publicar." }, { status: 400 });
+  }
   try {
     const existing = await getManagedListing(body.id);
     if (!existing) {
       return Response.json({ error: "No existe esa publicación." }, { status: 404 });
     }
-    const saved = await upsertManagedListing(body);
+    const saved = await upsertManagedListing({
+      ...body,
+      code: body.code || existing.code || `BORR-${Date.now().toString().slice(-6)}`,
+      zone: body.zone || existing.zone || "Por completar",
+      priceValue: body.priceValue ?? existing.priceValue ?? 0,
+    });
     return Response.json({ listing: saved });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Error al guardar en la base de datos.";
