@@ -41,7 +41,7 @@ function shortPrice(label: string) {
 function matchesQuery(item: SearchListing, query: string) {
   if (!query.trim()) return true;
   const q = query.trim().toLowerCase();
-  return [item.zone, item.city, item.kind, item.address, item.code, item.description].some(
+  return [item.zone, item.city, item.kind, item.address, item.buildingName, item.code, item.description].some(
     value => value.toLowerCase().includes(q),
   );
 }
@@ -128,6 +128,9 @@ function toListingExample(item: SearchListing): ListingExample {
     zone: item.zone,
     city: item.city,
     floor: item.floor ?? "Consultar",
+    buildingName: item.buildingName,
+    saleDetails: item.saleDetails,
+    address: item.address,
     operation: item.operation === "arriendo" ? "Renta" : "Venta",
     kind: item.kind,
     price: item.priceLabel,

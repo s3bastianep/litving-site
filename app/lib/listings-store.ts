@@ -4,6 +4,7 @@ import path from "node:path";
 import { ensureListingsTable, getDb, hasDatabaseUrl } from "../../db";
 import { listings } from "../../db/schema";
 import { searchListings, type SearchListing, type SearchOperation } from "./search-listings";
+import { normalizeSaleDetails, type SaleDetails } from "./sale-details";
 
 export type ListingKind = "Apartamento" | "Casa" | "Oficina";
 export type ListingStatus = "disponible" | "reservado" | "no_disponible";
@@ -16,6 +17,8 @@ export type ManagedListing = {
   zone: string;
   city: string;
   address: string;
+  buildingName?: string;
+  saleDetails?: SaleDetails;
   priceValue: number;
   priceLabel: string;
   adminFeeValue?: number;
@@ -77,6 +80,8 @@ function seedFromDemo(): ManagedListing[] {
       zone: item.zone,
       city: item.city,
       address: item.address,
+      buildingName: item.buildingName,
+      saleDetails: item.saleDetails,
       priceValue: item.priceValue,
       priceLabel: item.priceLabel,
       adminFee: item.adminFee,
@@ -125,6 +130,8 @@ function rowToListing(row: typeof listings.$inferSelect): ManagedListing {
     zone: row.zone,
     city: row.city,
     address: row.address,
+    buildingName: row.buildingName ?? undefined,
+    saleDetails: normalizeSaleDetails(row.saleDetails as SaleDetails | null),
     priceValue: row.priceValue,
     priceLabel: row.priceLabel,
     adminFeeValue: row.adminFeeValue ?? undefined,
@@ -165,6 +172,8 @@ function listingToRow(item: ManagedListing) {
     zone: item.zone,
     city: item.city,
     address: item.address,
+    buildingName: item.buildingName ?? null,
+    saleDetails: item.saleDetails ?? null,
     priceValue: item.priceValue,
     priceLabel: item.priceLabel,
     adminFeeValue: item.adminFeeValue ?? null,
@@ -288,10 +297,12 @@ export function normalizeListingInput(input: Partial<ManagedListing>, existing?:
       .replace(/-+/g, "-")
       .toLowerCase() || `listing-${Date.now()}`;
 
+  const operation = input.operation === "venta" ? "venta" : input.operation === "arriendo" ? "arriendo" : existing?.operation || "arriendo";
+
   return {
     id,
     code: String(input.code || existing?.code || "L-0000").trim(),
-    operation: input.operation === "venta" ? "venta" : "arriendo",
+    operation,
     kind:
       input.kind === "Casa" || input.kind === "Oficina" || input.kind === "Apartamento"
         ? input.kind
@@ -299,6 +310,8 @@ export function normalizeListingInput(input: Partial<ManagedListing>, existing?:
     zone: String(input.zone || existing?.zone || "").trim(),
     city: String(input.city || existing?.city || "Bogotá").trim() || "Bogotá",
     address: String(input.address || existing?.address || "").trim(),
+    buildingName: String(input.buildingName || existing?.buildingName || "").trim() || undefined,
+    saleDetails: operation === "venta" ? normalizeSaleDetails(input.saleDetails ?? existing?.saleDetails) : undefined,
     priceValue,
     priceLabel: String(input.priceLabel || formatMoney(priceValue)),
     adminFeeValue,
@@ -341,6 +354,8 @@ export function toSearchListing(item: ManagedListing): SearchListing {
     zone: item.zone,
     city: item.city,
     address: item.address,
+    buildingName: item.buildingName,
+    saleDetails: item.saleDetails,
     priceLabel: item.priceLabel,
     priceValue: item.priceValue,
     area: item.area,

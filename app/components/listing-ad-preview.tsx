@@ -2,7 +2,46 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { toContactListing, type ContactLead } from "../lib/contact";
+import { yesNo, type SaleDetails } from "../lib/sale-details";
 import { SketchIcon, type ListingExample } from "./site-kit";
+
+function saleDetailRows(listing: ListingExample, priceM2Label: string, stratum: string, hasElevator: boolean) {
+  const s: SaleDetails = listing.saleDetails || {};
+  const rows: { label: string; value: string }[] = [
+    { label: "Nombre del conjunto", value: listing.buildingName || "" },
+    { label: "Dirección", value: listing.address || "" },
+    { label: "Barrio", value: listing.zone },
+    { label: "Antigüedad", value: s.ageYears !== undefined ? `${s.ageYears} años` : "" },
+    { label: "Estrato", value: stratum },
+    { label: "Piso", value: listing.floor || "" },
+    { label: "Número de apartamento", value: s.apartmentNumber || "" },
+    { label: "Remodelado", value: yesNo(s.renovated) || "" },
+    { label: "Precio por m² construido", value: priceM2Label },
+    { label: "Administración", value: listing.adminFee || "" },
+    { label: "Número de parqueadero", value: s.parkingNumber || "" },
+    { label: "Torre", value: s.tower || "" },
+    { label: "Ascensor", value: hasElevator ? "Sí" : "No" },
+    { label: "Número de ascensores", value: s.elevatorCount !== undefined ? String(s.elevatorCount) : "" },
+    { label: "Depósito", value: yesNo(s.storage) || "" },
+    { label: "Vista exterior", value: yesNo(s.exteriorView) || "" },
+    { label: "Balcón", value: yesNo(s.balcony) || "" },
+    { label: "Terraza", value: yesNo(s.terrace) || "" },
+    { label: "Cuarto de servicio", value: yesNo(s.serviceRoom) || "" },
+    { label: "Estudio", value: yesNo(s.study) || "" },
+    { label: "Sala de estar", value: yesNo(s.livingRoom) || "" },
+    { label: "Aire acondicionado y/o calefacción", value: yesNo(s.acOrHeating) || "" },
+    { label: "Cocina integral", value: yesNo(s.integralKitchen) || "" },
+    { label: "Inmueble en obra gris", value: yesNo(s.grayWorkProperty) || "" },
+    { label: "Baño en obra gris", value: yesNo(s.grayWorkBathroom) || "" },
+    { label: "Piso de área social", value: s.socialAreaFlooring || "" },
+    { label: "Piso de habitaciones", value: s.bedroomFlooring || "" },
+    { label: "Penthouse", value: yesNo(s.penthouse) || "" },
+    { label: "Garaje cubierto", value: yesNo(s.coveredGarage) || "" },
+    { label: "Tipo de garaje", value: s.garageType || "" },
+    { label: "Tipo de inmueble", value: listing.kind },
+  ];
+  return rows.filter(row => row.value);
+}
 
 const weekdayShort = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
 const monthShort = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
@@ -203,7 +242,15 @@ export function ListingAdPreview({
 
   const petsAllowed = /mascotas/i.test(listing.pets) && !/consultar|sin|no/i.test(listing.pets);
   const hasElevator = /ascensor|sí/i.test(listing.elevator);
-  const stratum = listing.zone.includes("Cedritos") || listing.zone.includes("Salitre") ? "4" : "5";
+  const stratum =
+    listing.stratum ||
+    (listing.zone.includes("Cedritos") || listing.zone.includes("Salitre") ? "4" : "5");
+  const statusLabel =
+    listing.status === "reservado"
+      ? "Reservado"
+      : listing.status === "no_disponible"
+        ? "No disponible"
+        : "Disponible";
 
   const detailGroups = [
     {
@@ -219,7 +266,7 @@ export function ListingAdPreview({
       items: [
         { icon: "code" as const, label: "Código", value: listing.code },
         { icon: "home" as const, label: "Tipo", value: listing.kind },
-        { icon: "status" as const, label: "Estado", value: "Disponible" },
+        { icon: "status" as const, label: "Estado", value: statusLabel },
       ],
     },
     {
@@ -227,10 +274,15 @@ export function ListingAdPreview({
       items: [
         { icon: "elevator" as const, label: "Ascensor", value: hasElevator ? "Sí" : "No" },
         { icon: "pets" as const, label: "Mascotas", value: petsAllowed ? "Permitidas" : "Consultar" },
-        { icon: "price" as const, label: "Precio por m²", value: priceM2Label },
       ],
     },
   ];
+
+  const saleRows =
+    listing.operation === "Venta"
+      ? saleDetailRows(listing, priceM2Label, stratum, hasElevator)
+      : [];
+  const observations = listing.saleDetails?.observations;
 
   const rentValue = priceValue;
   const adminValue = Number((listing.adminFee || "0").replace(/[^\d]/g, "")) || 0;
@@ -265,16 +317,19 @@ export function ListingAdPreview({
     }
   };
 
-  const amenities = [
-    "Portería 24h",
-    "Parqueadero visitantes",
-    "Zona verde",
-    "Gimnasio",
-    "Salón comunal",
-    /mascotas/i.test(listing.pets) && !/consultar|sin|no/i.test(listing.pets)
-      ? "Pet friendly"
-      : "Consultar mascotas",
-  ];
+  const amenities =
+    listing.amenities && listing.amenities.length
+      ? listing.amenities
+      : [
+          "Portería 24h",
+          "Parqueadero visitantes",
+          "Zona verde",
+          "Gimnasio",
+          "Salón comunal",
+          /mascotas/i.test(listing.pets) && !/consultar|sin|no/i.test(listing.pets)
+            ? "Pet friendly"
+            : "Consultar mascotas",
+        ];
 
   useEffect(() => {
     const previous = document.body.style.overflow;
@@ -319,8 +374,10 @@ export function ListingAdPreview({
           </button>
           <div className="float-topbar-copy">
             <p className="float-topbar-kicker">{opLabel}</p>
-            <p className="float-topbar-title">
-              {listing.kind} · {listing.zone}
+            <p className="float-topbar-title" id="float-title">
+              {listing.operation === "Venta" && listing.buildingName
+                ? listing.buildingName
+                : `${listing.kind} · ${listing.zone}`}
             </p>
           </div>
           <div className="float-topbar-actions">
@@ -408,54 +465,87 @@ export function ListingAdPreview({
 
           <section className="float-summary">
             <div className="float-summary-top">
-              <span className="float-code">
-                <em>Código</em>
-                <strong>{listing.code}</strong>
+              <span className="float-city-pill">{listing.city.toUpperCase()}</span>
+              <span className={`float-available ${statusLabel !== "Disponible" ? "is-muted" : ""}`}>
+                {statusLabel}
               </span>
-              <span className="float-available">Disponible</span>
             </div>
-            <h2 id="float-title">
-              {listing.kind} en {listing.zone}
-            </h2>
-            <p className="float-location">
-              <span className="float-pin" aria-hidden="true">
-                <SketchIcon name="pin" />
-              </span>
-              <span className="float-locality">
-                <b>{listing.zone}</b>
-                <span>{listing.city}</span>
-              </span>
-            </p>
-            <p className="float-facts">
-              <span>{listing.kind}</span>
-              <span>{listing.floor}</span>
-            </p>
-            <div className="float-price-grid">
-              <div className="float-price-item">
-                <p className="float-price-label">
-                  {listing.operation === "Renta" ? "Precio de arriendo" : "Precio de venta"}
+            {listing.operation === "Venta" ? (
+              <>
+                <h2 className="float-sale-title">
+                  {listing.buildingName || `${listing.kind} en ${listing.zone}`}
+                </h2>
+                <p className="float-sale-meta">
+                  {listing.address ? <span>{listing.address}</span> : null}
+                  {listing.adminFee ? <span>Admin: {listing.adminFee}*</span> : null}
                 </p>
-                <p className="float-price">
-                  {listing.price}
-                  {listing.priceSuffix ? <span>{listing.priceSuffix}</span> : null}
+                {listing.adminFee ? (
+                  <p className="float-sale-disclaimer">*Valores aproximados, validar antes de realizar la compra</p>
+                ) : null}
+                <p className="float-sale-highlight">
+                  {listing.area} · {listing.rooms.replace(" hab.", " Hab")} · {listing.baths} ·{" "}
+                  {listing.parking.replace(/\s*(park\.|parqueaderos?)\.?/i, " Parqueadero").trim()}
                 </p>
-              </div>
-              {listing.adminFee ? (
-                <div className="float-price-item">
-                  <p className="float-price-label">Administración</p>
-                  <p className="float-price-aside">{listing.adminFee}</p>
+                <div className="float-sale-price-row">
+                  <div>
+                    <p className="float-price-label">Precio de venta</p>
+                    <p className="float-price">{listing.price}</p>
+                  </div>
+                  <p className="float-sale-nid">
+                    <em>Código</em> <strong>{listing.code}</strong>
+                  </p>
                 </div>
-              ) : listing.priceNote ? (
-                <div className="float-price-item">
-                  <p className="float-price-label">Nota</p>
-                  <p className="float-price-aside">{listing.priceNote}</p>
+              </>
+            ) : (
+              <>
+                <div className="float-summary-top float-summary-top--rent">
+                  <span className="float-code">
+                    <em>Código</em>
+                    <strong>{listing.code}</strong>
+                  </span>
                 </div>
-              ) : null}
-              <div className="float-price-item">
-                <p className="float-price-label">Precio por m²</p>
-                <p className="float-price-aside">{priceM2Label}</p>
-              </div>
-            </div>
+                <h2>
+                  {listing.kind} en {listing.zone}
+                </h2>
+                <p className="float-location">
+                  <span className="float-pin" aria-hidden="true">
+                    <SketchIcon name="pin" />
+                  </span>
+                  <span className="float-locality">
+                    <b>{listing.zone}</b>
+                    <span>{listing.city}</span>
+                  </span>
+                </p>
+                <p className="float-facts">
+                  <span>{listing.kind}</span>
+                  <span>{listing.floor}</span>
+                </p>
+                <div
+                  className={`float-price-grid ${
+                    listing.adminFee || listing.priceNote ? "float-price-grid--two" : "float-price-grid--one"
+                  }`}
+                >
+                  <div className="float-price-item float-price-item--main">
+                    <p className="float-price-label">Precio de arriendo</p>
+                    <p className="float-price">
+                      {listing.price}
+                      {listing.priceSuffix ? <span>{listing.priceSuffix}</span> : null}
+                    </p>
+                  </div>
+                  {listing.adminFee ? (
+                    <div className="float-price-item">
+                      <p className="float-price-label">Administración</p>
+                      <p className="float-price-aside">{listing.adminFee}</p>
+                    </div>
+                  ) : listing.priceNote ? (
+                    <div className="float-price-item">
+                      <p className="float-price-label">Nota</p>
+                      <p className="float-price-aside">{listing.priceNote}</p>
+                    </div>
+                  ) : null}
+                </div>
+              </>
+            )}
             <ul className="float-stats" aria-label="Características principales">
               {stats.map(stat => (
                 <li key={stat.label}>
@@ -472,33 +562,56 @@ export function ListingAdPreview({
           <section className="float-block">
             <h3>Descripción</h3>
             <p>
-              {listing.kind} en {listing.zone}, {listing.city}. Publicación con fotografías
-              profesionales para que evalúes espacios, piso {listing.floor.replace("Piso ", "")} y
-              el entorno inmediato.
+              {listing.description ||
+                `${listing.kind} en ${listing.zone}, ${listing.city}. Publicación con fotografías profesionales para que evalúes espacios, piso ${listing.floor.replace("Piso ", "")} y el entorno inmediato.`}
             </p>
           </section>
 
-          <section className="float-block float-details">
-            <h3>Detalles del inmueble</h3>
-            <div className="float-detail-groups">
-              {detailGroups.map(group => (
-                <article key={group.title} className="float-detail-group">
-                  <h4>{group.title}</h4>
-                  <ul className="float-detail-list">
-                    {group.items.map(item => (
-                      <li key={item.label} className="float-detail-row">
-                        <span className="float-detail-icon" aria-hidden="true">
-                          <DetailIcon name={item.icon} />
-                        </span>
-                        <span className="float-detail-label">{item.label}</span>
-                        <span className="float-detail-value">{item.value}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </article>
-              ))}
-            </div>
-          </section>
+          {listing.operation === "Venta" ? (
+            <>
+              <section className="float-block float-sale-details">
+                <h3>Detalles del inmueble</h3>
+                <dl className="float-sale-grid">
+                  {saleRows.map(row => (
+                    <div key={row.label} className="float-sale-cell">
+                      <dt>{row.label}</dt>
+                      <dd>{row.value}</dd>
+                    </div>
+                  ))}
+                </dl>
+              </section>
+              {observations ? (
+                <section className="float-block">
+                  <h3>Observaciones</h3>
+                  <p>{observations}</p>
+                </section>
+              ) : null}
+            </>
+          ) : (
+            <section className="float-block float-details">
+              <h3>Detalles del inmueble</h3>
+              <div className="float-detail-groups">
+                {detailGroups.map(group => (
+                  <article key={group.title} className="float-detail-group">
+                    <h4>{group.title}</h4>
+                    <ul className="float-detail-list">
+                      {group.items.map(item => (
+                        <li key={item.label} className="float-detail-row">
+                          <span className="float-detail-lead">
+                            <span className="float-detail-icon" aria-hidden="true">
+                              <DetailIcon name={item.icon} />
+                            </span>
+                            <span className="float-detail-label">{item.label}</span>
+                          </span>
+                          <span className="float-detail-value">{item.value}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </article>
+                ))}
+              </div>
+            </section>
+          )}
 
           <section className="float-block">
             <h3>Características del conjunto</h3>

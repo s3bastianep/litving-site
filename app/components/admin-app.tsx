@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import type { ManagedListing } from "../lib/listings-store";
+import type { SaleDetails } from "../lib/sale-details";
 
 type Mode = "login" | "list" | "edit";
 
@@ -13,6 +14,7 @@ const emptyForm: Partial<ManagedListing> = {
   zone: "",
   city: "Bogotá",
   address: "",
+  buildingName: "",
   priceValue: 0,
   adminFeeValue: undefined,
   priceNote: "",
@@ -141,6 +143,31 @@ export function AdminApp() {
   function patch<K extends keyof ManagedListing>(key: K, value: ManagedListing[K]) {
     setForm(prev => ({ ...prev, [key]: value }));
   }
+
+  function patchSale<K extends keyof SaleDetails>(key: K, value: SaleDetails[K]) {
+    setForm(prev => ({
+      ...prev,
+      saleDetails: { ...(prev.saleDetails || {}), [key]: value },
+    }));
+  }
+
+  const sale = form.saleDetails || {};
+  const yesNoOptions = [
+    { key: "renovated" as const, label: "Remodelado" },
+    { key: "balcony" as const, label: "Balcón" },
+    { key: "terrace" as const, label: "Terraza" },
+    { key: "livingRoom" as const, label: "Sala de estar" },
+    { key: "study" as const, label: "Estudio" },
+    { key: "storage" as const, label: "Depósito" },
+    { key: "serviceRoom" as const, label: "Cuarto de servicio" },
+    { key: "integralKitchen" as const, label: "Cocina integral" },
+    { key: "penthouse" as const, label: "Penthouse" },
+    { key: "exteriorView" as const, label: "Vista exterior" },
+    { key: "coveredGarage" as const, label: "Garaje cubierto" },
+    { key: "acOrHeating" as const, label: "Aire / calefacción" },
+    { key: "grayWorkBathroom" as const, label: "Baño en obra gris" },
+    { key: "grayWorkProperty" as const, label: "Inmueble en obra gris" },
+  ];
 
   async function onUpload(files: FileList | null) {
     if (!files?.length) return;
@@ -370,6 +397,106 @@ export function AdminApp() {
               </label>
             </div>
           </section>
+
+          {form.operation === "venta" ? (
+            <section className="admin-card">
+              <h2>Detalles de venta</h2>
+              <div className="admin-grid">
+                <label className="admin-span-2">
+                  Nombre del edificio / conjunto
+                  <input
+                    value={form.buildingName || ""}
+                    onChange={e => patch("buildingName", e.target.value)}
+                    placeholder="Ej. Edificio Claudia Cecilia"
+                  />
+                </label>
+                <label>
+                  Nº apartamento
+                  <input
+                    value={sale.apartmentNumber || ""}
+                    onChange={e => patchSale("apartmentNumber", e.target.value)}
+                  />
+                </label>
+                <label>
+                  Torre
+                  <input value={sale.tower || ""} onChange={e => patchSale("tower", e.target.value)} />
+                </label>
+                <label>
+                  Nº parqueadero
+                  <input
+                    value={sale.parkingNumber || ""}
+                    onChange={e => patchSale("parkingNumber", e.target.value)}
+                  />
+                </label>
+                <label>
+                  Antigüedad (años)
+                  <input
+                    type="number"
+                    min={0}
+                    value={sale.ageYears ?? ""}
+                    onChange={e =>
+                      patchSale("ageYears", e.target.value === "" ? undefined : Number(e.target.value))
+                    }
+                  />
+                </label>
+                <label>
+                  Nº de ascensores
+                  <input
+                    type="number"
+                    min={0}
+                    value={sale.elevatorCount ?? ""}
+                    onChange={e =>
+                      patchSale("elevatorCount", e.target.value === "" ? undefined : Number(e.target.value))
+                    }
+                  />
+                </label>
+                <label>
+                  Tipo de garaje
+                  <input
+                    value={sale.garageType || ""}
+                    onChange={e => patchSale("garageType", e.target.value)}
+                    placeholder="Privado, comunal…"
+                  />
+                </label>
+                <label>
+                  Piso área social
+                  <input
+                    value={sale.socialAreaFlooring || ""}
+                    onChange={e => patchSale("socialAreaFlooring", e.target.value)}
+                    placeholder="Porcelanato, madera…"
+                  />
+                </label>
+                <label>
+                  Piso habitaciones
+                  <input
+                    value={sale.bedroomFlooring || ""}
+                    onChange={e => patchSale("bedroomFlooring", e.target.value)}
+                  />
+                </label>
+                <label className="admin-span-2">
+                  Observaciones
+                  <textarea
+                    rows={3}
+                    value={sale.observations || ""}
+                    onChange={e => patchSale("observations", e.target.value)}
+                    placeholder="Ej. Régimen de propiedad horizontal"
+                  />
+                </label>
+              </div>
+              <div className="admin-checks admin-checks--sale">
+                {yesNoOptions.map(item => (
+                  <label key={item.key} className="admin-check">
+                    <input
+                      type="checkbox"
+                      checked={Boolean(sale[item.key])}
+                      onChange={e => patchSale(item.key, e.target.checked)}
+                    />
+                    {item.label}
+                  </label>
+                ))}
+              </div>
+            </section>
+          ) : null}
 
           <section className="admin-card">
             <h2>Precio y espacios</h2>
@@ -606,6 +733,7 @@ export function AdminApp() {
                 <td>
                   <strong>
                     {item.kind} · {item.zone}
+                    {item.operation === "venta" && item.buildingName ? ` · ${item.buildingName}` : ""}
                   </strong>
                   <span className="admin-muted">{item.address}</span>
                 </td>

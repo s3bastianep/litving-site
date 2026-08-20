@@ -13,6 +13,9 @@ export type ListingExample = {
   zone: string;
   city: string;
   floor: string;
+  buildingName?: string;
+  saleDetails?: import("../lib/sale-details").SaleDetails;
+  address?: string;
   operation: "Renta" | "Venta";
   kind: string;
   price: string;
@@ -26,6 +29,10 @@ export type ListingExample = {
   elevator: string;
   pets: string;
   images: string[];
+  description?: string;
+  stratum?: string;
+  status?: string;
+  amenities?: string[];
 };
 
 export const listingExamples: ListingExample[] = [

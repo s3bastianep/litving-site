@@ -50,6 +50,8 @@ export async function ensureListingsTable() {
           zone TEXT NOT NULL,
           city TEXT NOT NULL,
           address TEXT NOT NULL DEFAULT '',
+          building_name TEXT,
+          sale_details JSONB,
           price_value INTEGER NOT NULL,
           price_label TEXT NOT NULL,
           admin_fee_value INTEGER,
@@ -76,6 +78,12 @@ export async function ensureListingsTable() {
           created_at TEXT NOT NULL,
           updated_at TEXT NOT NULL
         );
+      `);
+      await pool.query(`
+        ALTER TABLE listings ADD COLUMN IF NOT EXISTS building_name TEXT;
+      `);
+      await pool.query(`
+        ALTER TABLE listings ADD COLUMN IF NOT EXISTS sale_details JSONB;
       `);
     })();
   }

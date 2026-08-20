@@ -8,6 +8,9 @@ export type SearchListing = {
   zone: string;
   city: string;
   address: string;
+  /** Nombre del edificio / conjunto (principalmente ventas). */
+  buildingName?: string;
+  saleDetails?: import("./sale-details").SaleDetails;
   priceLabel: string;
   priceValue: number;
   area: string;

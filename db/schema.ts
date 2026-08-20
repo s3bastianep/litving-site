@@ -15,6 +15,8 @@ export const listings = pgTable("listings", {
   zone: text("zone").notNull(),
   city: text("city").notNull(),
   address: text("address").notNull().default(""),
+  buildingName: text("building_name"),
+  saleDetails: jsonb("sale_details").$type<Record<string, unknown>>(),
   priceValue: integer("price_value").notNull(),
   priceLabel: text("price_label").notNull(),
   adminFeeValue: integer("admin_fee_value"),

@@ -117,6 +117,12 @@
   margin-top: 16px;
 }
 
+.admin-checks--sale {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid color-mix(in srgb, var(--ink) 10%, transparent);
+}
+
 .admin-check {
   display: inline-flex !important;
   align-items: center;
