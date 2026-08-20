@@ -41,7 +41,7 @@ export async function POST(request: Request) {
       await writeFile(path.join(uploadDir, name), buffer);
     } catch {
       return Response.json(
-        { error: "No se pudo guardar la imagen. Revisa el Volume en Railway." },
+        { error: "No se pudo guardar la imagen. Intenta de nuevo." },
         { status: 500 },
       );
     }

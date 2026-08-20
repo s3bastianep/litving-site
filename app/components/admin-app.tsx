@@ -43,7 +43,7 @@ function statusLabel(status: ManagedListing["status"]) {
 
 export function AdminApp() {
   const [mode, setMode] = useState<Mode>("login");
-  const [user, setUser] = useState("admin");
+  const [user, setUser] = useState("");
   const [password, setPassword] = useState("");
   const [authError, setAuthError] = useState<string | null>(null);
   const [listings, setListings] = useState<ManagedListing[]>([]);
@@ -228,11 +228,17 @@ export function AdminApp() {
       <main className="admin-shell admin-shell--login">
         <form className="admin-card admin-login" onSubmit={onLogin}>
           <p className="admin-kicker">LITVING</p>
-          <h1>Panel administrativo</h1>
-          <p className="admin-muted">Ingresa para publicar y editar inmuebles.</p>
+          <h1>Iniciar sesión</h1>
+          <p className="admin-muted">Entra a tu panel para gestionar inmuebles.</p>
           <label>
             Usuario
-            <input value={user} onChange={e => setUser(e.target.value)} autoComplete="username" required />
+            <input
+              value={user}
+              onChange={e => setUser(e.target.value)}
+              autoComplete="username"
+              required
+              autoFocus
+            />
           </label>
           <label>
             Contraseña
@@ -246,9 +252,8 @@ export function AdminApp() {
           </label>
           {authError ? <p className="admin-error">{authError}</p> : null}
           <button type="submit" className="admin-btn admin-btn--primary">
-            Iniciar sesión
+            Entrar
           </button>
-          <p className="admin-hint">Usa el usuario y la contraseña configurados en Railway.</p>
           <Link href="/" className="admin-back">
             ← Volver al sitio
           </Link>
@@ -546,8 +551,8 @@ export function AdminApp() {
     <main className="admin-shell">
       <header className="admin-top">
         <div>
-          <p className="admin-kicker">LITVING Admin</p>
-          <h1>Publicaciones</h1>
+          <p className="admin-kicker">LITVING</p>
+          <h1>Mis publicaciones</h1>
         </div>
         <div className="admin-top-actions">
           <button type="button" className="admin-btn admin-btn--primary" onClick={openCreate}>

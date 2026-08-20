@@ -5,15 +5,30 @@ const COOKIE = "litving_admin_session";
 const MAX_AGE_SEC = 60 * 60 * 12; // 12h
 
 function secret() {
-  return process.env.ADMIN_SESSION_SECRET || "litving-dev-session-secret-change-me";
+  const value = process.env.ADMIN_SESSION_SECRET?.trim();
+  if (value) return value;
+  if (process.env.NODE_ENV === "production") {
+    throw new Error("ADMIN_SESSION_SECRET is required in production.");
+  }
+  return "litving-dev-session-secret-change-me";
 }
 
 function adminUser() {
-  return process.env.ADMIN_USER || "admin";
+  const value = process.env.ADMIN_USER?.trim();
+  if (value) return value;
+  if (process.env.NODE_ENV === "production") {
+    throw new Error("ADMIN_USER is required in production.");
+  }
+  return "admin";
 }
 
 function adminPassword() {
-  return process.env.ADMIN_PASSWORD || "litving2026";
+  const value = process.env.ADMIN_PASSWORD;
+  if (value !== undefined && value !== "") return value;
+  if (process.env.NODE_ENV === "production") {
+    throw new Error("ADMIN_PASSWORD is required in production.");
+  }
+  return "litving2026";
 }
 
 function sign(payload: string) {

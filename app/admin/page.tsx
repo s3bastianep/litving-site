@@ -3,7 +3,7 @@ import { AdminApp } from "../components/admin-app";
 import "../admin.css";
 
 export const metadata: Metadata = {
-  title: "Admin | LITVING",
+  title: "Mi panel | LITVING",
   robots: { index: false, follow: false },
 };
 
