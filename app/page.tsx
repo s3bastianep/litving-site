@@ -636,12 +636,12 @@ export default function Home() {
                 </button>
               </div>
             </div>
-            <Link href="/portal" className="nav-login nav-login--mobile">
+            <Link href="/admin" className="nav-login nav-login--mobile">
               Iniciar sesión
             </Link>
           </nav>
         </div>
-        <Link href="/portal" className="nav-login nav-login--desktop">
+        <Link href="/admin" className="nav-login nav-login--desktop">
           Iniciar sesión
         </Link>
         <button

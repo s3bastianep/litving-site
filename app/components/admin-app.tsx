@@ -246,11 +246,9 @@ export function AdminApp() {
           </label>
           {authError ? <p className="admin-error">{authError}</p> : null}
           <button type="submit" className="admin-btn admin-btn--primary">
-            Entrar
+            Iniciar sesión
           </button>
-          <p className="admin-hint">
-            Local: usuario <strong>admin</strong> · contraseña <strong>litving2026</strong>
-          </p>
+          <p className="admin-hint">Usa el usuario y la contraseña configurados en Railway.</p>
           <Link href="/" className="admin-back">
             ← Volver al sitio
           </Link>
