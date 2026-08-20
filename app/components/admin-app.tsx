@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import type { ManagedListing } from "../lib/listings-store";
+import { prepareImageForUpload } from "../lib/prepare-image";
 import type { SaleDetails } from "../lib/sale-details";
 
 type Mode = "login" | "list" | "edit";
@@ -223,27 +224,45 @@ export function AdminApp() {
     if (!files?.length) return;
     const list = Array.from(files);
     setUploading(true);
-    setMessage(`Subiendo ${list.length} foto(s) en alta calidad…`);
+    setMessage(`Preparando ${list.length} foto(s)…`);
     const allUrls: string[] = [];
     try {
       for (let i = 0; i < list.length; i += 1) {
-        const file = list[i];
+        const original = list[i];
+        setMessage(`Optimizando “${original.name}” (${i + 1}/${list.length})…`);
+        let file: File;
+        try {
+          file = await prepareImageForUpload(original);
+        } catch (error) {
+          setMessage(error instanceof Error ? error.message : `No se pudo leer “${original.name}”.`);
+          return;
+        }
+
         const body = new FormData();
         body.append("files", file);
-        const res = await fetch("/api/admin/upload", {
-          method: "POST",
-          credentials: "include",
-          body,
-        });
+        let res: Response;
+        try {
+          res = await fetch("/api/admin/upload", {
+            method: "POST",
+            credentials: "include",
+            body,
+          });
+        } catch {
+          setMessage(
+            `Falló la conexión al subir “${original.name}”. Si es muy pesada, el sistema ya la reduce; reintenta esa foto.`,
+          );
+          return;
+        }
+
         let data: { urls?: string[]; error?: string } = {};
         try {
           data = (await res.json()) as { urls?: string[]; error?: string };
         } catch {
-          setMessage(`Error al subir “${file.name}”. Intenta esa foto sola.`);
+          setMessage(`El servidor respondió mal al subir “${original.name}” (${res.status}).`);
           return;
         }
         if (!res.ok) {
-          setMessage(data.error || `No se pudo subir “${file.name}” (${res.status}).`);
+          setMessage(data.error || `No se pudo subir “${original.name}” (${res.status}).`);
           return;
         }
         allUrls.push(...(data.urls || []));
@@ -258,8 +277,8 @@ export function AdminApp() {
         setMessage(`Subidas ${allUrls.length} de ${list.length} foto(s)…`);
       }
       setMessage(`${allUrls.length} foto(s) lista(s). Ya puedes guardar borrador o publicar.`);
-    } catch {
-      setMessage("No se pudo subir. Revisa la conexión e intenta de nuevo (una o varias fotos).");
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "No se pudo subir. Intenta de nuevo.");
     } finally {
       setUploading(false);
     }
@@ -714,8 +733,8 @@ export function AdminApp() {
               />
             </label>
             <p className="admin-muted">
-              Fotos en alta calidad (hasta 25 MB c/u). Se suben una por una; puedes guardar borrador en cualquier
-              momento.
+              Puedes elegir fotos grandes: se optimizan solas para subir bien y se ven nítidas en el sitio. Guarda
+              borrador cuando quieras.
             </p>
             {gallery.length ? (
               <ul className="admin-gallery">
