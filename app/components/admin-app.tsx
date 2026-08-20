@@ -403,24 +403,6 @@ export function AdminApp() {
                 Estrato
                 <input value={form.stratum || ""} onChange={e => patch("stratum", e.target.value)} />
               </label>
-              <label>
-                Latitud
-                <input
-                  type="number"
-                  step="any"
-                  value={form.lat ?? 4.65}
-                  onChange={e => patch("lat", Number(e.target.value))}
-                />
-              </label>
-              <label>
-                Longitud
-                <input
-                  type="number"
-                  step="any"
-                  value={form.lng ?? -74.06}
-                  onChange={e => patch("lng", Number(e.target.value))}
-                />
-              </label>
             </div>
           </section>
 
