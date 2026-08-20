@@ -1,4 +1,45 @@
-// Intentionally empty by default.
-// Add Drizzle tables here when the site actually needs a database.
-// See examples/d1/db/schema.ts for an opt-in example.
-export {};
+import {
+  boolean,
+  doublePrecision,
+  integer,
+  jsonb,
+  pgTable,
+  text,
+} from "drizzle-orm/pg-core";
+
+export const listings = pgTable("listings", {
+  id: text("id").primaryKey(),
+  code: text("code").notNull(),
+  operation: text("operation").notNull(),
+  kind: text("kind").notNull(),
+  zone: text("zone").notNull(),
+  city: text("city").notNull(),
+  address: text("address").notNull().default(""),
+  priceValue: integer("price_value").notNull(),
+  priceLabel: text("price_label").notNull(),
+  adminFeeValue: integer("admin_fee_value"),
+  adminFee: text("admin_fee"),
+  priceNote: text("price_note"),
+  areaM2: integer("area_m2").notNull(),
+  area: text("area").notNull(),
+  rooms: integer("rooms").notNull().default(0),
+  baths: integer("baths").notNull().default(0),
+  parking: integer("parking").notNull().default(0),
+  floor: text("floor"),
+  pets: boolean("pets").notNull().default(false),
+  furnished: boolean("furnished").notNull().default(false),
+  elevator: boolean("elevator").notNull().default(true),
+  stratum: text("stratum"),
+  status: text("status").notNull().default("disponible"),
+  published: boolean("published").notNull().default(true),
+  image: text("image").notNull(),
+  gallery: jsonb("gallery").$type<string[]>().notNull().default([]),
+  lat: doublePrecision("lat").notNull(),
+  lng: doublePrecision("lng").notNull(),
+  description: text("description").notNull().default(""),
+  amenities: jsonb("amenities").$type<string[]>().notNull().default([]),
+  createdAt: text("created_at").notNull(),
+  updatedAt: text("updated_at").notNull(),
+});
+
+export type ListingRow = typeof listings.$inferSelect;

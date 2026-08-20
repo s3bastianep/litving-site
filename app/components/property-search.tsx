@@ -133,13 +133,18 @@ function toListingExample(item: SearchListing): ListingExample {
     price: item.priceLabel,
     priceSuffix: item.operation === "arriendo" ? "/ mes" : "",
     adminFee: item.adminFee,
+    priceNote: item.priceNote,
     area: item.area,
     rooms: `${item.rooms} hab.`,
     baths: `${item.baths} baños`,
     parking: `${item.parking} park.`,
-    elevator: item.kind === "Casa" ? "Sin ascensor" : "Ascensor",
+    elevator: item.elevator === false ? "Sin ascensor" : "Ascensor",
     pets: item.pets ? "Mascotas" : "Consultar",
     images: item.gallery.length ? item.gallery : [item.image],
+    description: item.description,
+    stratum: item.stratum,
+    status: item.status,
+    amenities: item.amenities,
   };
 }
 
@@ -161,6 +166,7 @@ export function PropertySearch({ operation }: PropertySearchProps) {
   const [mapEnabled, setMapEnabled] = useState(false);
   const [mapReady, setMapReady] = useState(false);
   const [contactLead, setContactLead] = useState<ContactLead | null>(null);
+  const [catalog, setCatalog] = useState<SearchListing[]>(() => listingsFor(operation));
   const mapRef = useRef<HTMLDivElement | null>(null);
   const mapInstance = useRef<LeafletMap | null>(null);
   const markersRef = useRef<Map<string, LeafletMarker>>(new Map());
@@ -168,7 +174,21 @@ export function PropertySearch({ operation }: PropertySearchProps) {
   const fittedIdsRef = useRef("");
   const filtersRef = useRef<HTMLDivElement | null>(null);
 
-  const all = useMemo(() => listingsFor(operation), [operation]);
+  useEffect(() => {
+    let alive = true;
+    fetch(`/api/listings?operation=${operation}`)
+      .then(res => (res.ok ? res.json() : null))
+      .then((data: { listings?: SearchListing[] } | null) => {
+        if (!alive || !data?.listings?.length) return;
+        setCatalog(data.listings);
+      })
+      .catch(() => undefined);
+    return () => {
+      alive = false;
+    };
+  }, [operation]);
+
+  const all = catalog;
 
   const setView = (view: MobileView) => {
     if (view !== "list") setMapEnabled(true);
@@ -696,9 +716,24 @@ export function PropertySearch({ operation }: PropertySearchProps) {
           </div>
 
           {filtered.length === 0 ? (
-            <p className="search-empty">
-              No hay inmuebles con esos filtros. Prueba ampliar el precio o las habitaciones.
-            </p>
+            <div className="search-empty" role="status">
+              {all.length === 0 ? (
+                <>
+                  <strong>
+                    {operation === "arriendo"
+                      ? "No hay propiedades disponibles en el momento para arrendar."
+                      : "No hay propiedades disponibles en el momento para comprar."}
+                  </strong>
+                  <p>
+                    {operation === "arriendo"
+                      ? "Estamos actualizando el inventario. Vuelve pronto o déjanos tus datos para avisarte."
+                      : "Estamos actualizando el inventario. Vuelve pronto o consulta con un asesor."}
+                  </p>
+                </>
+              ) : (
+                <p>No hay inmuebles con esos filtros. Prueba ampliar el precio o las habitaciones.</p>
+              )}
+            </div>
           ) : null}
         </section>
       </div>
