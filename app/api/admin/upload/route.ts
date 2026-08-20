@@ -13,6 +13,12 @@ export async function POST(request: Request) {
   if (!files.length) {
     return Response.json({ error: "No se recibieron archivos." }, { status: 400 });
   }
+  if (files.length > 8) {
+    return Response.json(
+      { error: "Máximo 8 fotos por envío. El panel las sube en lotes automáticamente." },
+      { status: 400 },
+    );
+  }
 
   let uploadDir: string;
   try {
@@ -27,7 +33,9 @@ export async function POST(request: Request) {
   const urls: string[] = [];
 
   for (const file of files) {
-    if (!file.type.startsWith("image/")) {
+    const looksImage =
+      file.type.startsWith("image/") || /\.(jpe?g|png|webp|gif)$/i.test(file.name || "");
+    if (!looksImage) {
       return Response.json({ error: `Archivo no válido: ${file.name}` }, { status: 400 });
     }
     if (file.size > 8 * 1024 * 1024) {

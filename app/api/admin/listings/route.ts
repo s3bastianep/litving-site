@@ -34,8 +34,13 @@ export async function POST(request: Request) {
   if (!body.zone || !body.code || !body.priceValue) {
     return Response.json({ error: "Código, barrio y precio son obligatorios." }, { status: 400 });
   }
-  const saved = await upsertManagedListing(body);
-  return Response.json({ listing: saved }, { status: 201 });
+  try {
+    const saved = await upsertManagedListing(body);
+    return Response.json({ listing: saved }, { status: 201 });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Error al guardar en la base de datos.";
+    return Response.json({ error: message }, { status: 500 });
+  }
 }
 
 export async function PUT(request: Request) {
@@ -51,12 +56,17 @@ export async function PUT(request: Request) {
   if (!body.id) {
     return Response.json({ error: "Falta el id." }, { status: 400 });
   }
-  const existing = await getManagedListing(body.id);
-  if (!existing) {
-    return Response.json({ error: "No existe esa publicación." }, { status: 404 });
+  try {
+    const existing = await getManagedListing(body.id);
+    if (!existing) {
+      return Response.json({ error: "No existe esa publicación." }, { status: 404 });
+    }
+    const saved = await upsertManagedListing(body);
+    return Response.json({ listing: saved });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Error al guardar en la base de datos.";
+    return Response.json({ error: message }, { status: 500 });
   }
-  const saved = await upsertManagedListing(body);
-  return Response.json({ listing: saved });
 }
 
 export async function DELETE(request: Request) {

@@ -171,28 +171,46 @@ export function AdminApp() {
 
   async function onUpload(files: FileList | null) {
     if (!files?.length) return;
-    const body = new FormData();
-    Array.from(files).forEach(file => body.append("files", file));
-    const res = await fetch("/api/admin/upload", {
-      method: "POST",
-      credentials: "include",
-      body,
-    });
-    const data = (await res.json()) as { urls?: string[]; error?: string };
-    if (!res.ok) {
-      setMessage(data.error || "No se pudieron subir las fotos.");
-      return;
+    const list = Array.from(files);
+    setMessage(`Subiendo ${list.length} foto(s)…`);
+    const allUrls: string[] = [];
+    const batchSize = 3;
+    try {
+      for (let i = 0; i < list.length; i += batchSize) {
+        const batch = list.slice(i, i + batchSize);
+        const body = new FormData();
+        batch.forEach(file => body.append("files", file));
+        const res = await fetch("/api/admin/upload", {
+          method: "POST",
+          credentials: "include",
+          body,
+        });
+        let data: { urls?: string[]; error?: string } = {};
+        try {
+          data = (await res.json()) as { urls?: string[]; error?: string };
+        } catch {
+          setMessage("Error al subir fotos (respuesta inválida del servidor). Intenta con menos archivos.");
+          return;
+        }
+        if (!res.ok) {
+          setMessage(data.error || `No se pudieron subir las fotos (${res.status}).`);
+          return;
+        }
+        allUrls.push(...(data.urls || []));
+        setMessage(`Subidas ${allUrls.length} de ${list.length} foto(s)…`);
+      }
+      setForm(prev => {
+        const gallery = [...(prev.gallery || []), ...allUrls];
+        return {
+          ...prev,
+          gallery,
+          image: prev.image || gallery[0] || "",
+        };
+      });
+      setMessage(`${allUrls.length} foto(s) lista(s). Ya puedes guardar.`);
+    } catch {
+      setMessage("No se pudo subir. Prueba de 3 en 3 o con fotos más livianas.");
     }
-    const urls = data.urls || [];
-    setForm(prev => {
-      const gallery = [...(prev.gallery || []), ...urls];
-      return {
-        ...prev,
-        gallery,
-        image: prev.image || gallery[0] || "",
-      };
-    });
-    setMessage(`${urls.length} foto(s) subida(s).`);
   }
 
   async function onSave(event: FormEvent) {
@@ -214,14 +232,22 @@ export function AdminApp() {
         credentials: "include",
         body: JSON.stringify(payload),
       });
-      const data = (await res.json()) as { error?: string; listing?: ManagedListing };
+      let data: { error?: string; listing?: ManagedListing } = {};
+      try {
+        data = (await res.json()) as { error?: string; listing?: ManagedListing };
+      } catch {
+        setMessage(`No se pudo guardar (error del servidor ${res.status}). Recarga e intenta de nuevo.`);
+        return;
+      }
       if (!res.ok) {
-        setMessage(data.error || "No se pudo guardar.");
+        setMessage(data.error || `No se pudo guardar (${res.status}).`);
         return;
       }
       await loadListings();
       setMode("list");
       setMessage("Publicación guardada.");
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "No se pudo guardar.");
     } finally {
       setSaving(false);
     }
@@ -622,8 +648,17 @@ export function AdminApp() {
             <h2>Fotos</h2>
             <label className="admin-upload">
               Subir imágenes
-              <input type="file" accept="image/*" multiple onChange={e => void onUpload(e.target.files)} />
+              <input
+                type="file"
+                accept="image/*"
+                multiple
+                onChange={e => {
+                  void onUpload(e.target.files);
+                  e.target.value = "";
+                }}
+              />
             </label>
+            <p className="admin-muted">Puedes elegir muchas; se suben de a 3. Espera el mensaje de “listas” antes de guardar.</p>
             {gallery.length ? (
               <ul className="admin-gallery">
                 {gallery.map(url => (
