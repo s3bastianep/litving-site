@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, sql } from "drizzle-orm";
+import { and, asc, desc, eq } from "drizzle-orm";
 import { readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { ensureListingsTable, getDb, hasDatabaseUrl } from "../../db";
@@ -173,7 +173,7 @@ function listingToRow(item: ManagedListing) {
     city: item.city,
     address: item.address,
     buildingName: item.buildingName ?? null,
-    saleDetails: item.saleDetails ?? null,
+    saleDetails: (item.saleDetails ?? null) as Record<string, unknown> | null,
     priceValue: item.priceValue,
     priceLabel: item.priceLabel,
     adminFeeValue: item.adminFeeValue ?? null,
@@ -192,11 +192,11 @@ function listingToRow(item: ManagedListing) {
     status: item.status,
     published: item.published,
     image: item.image,
-    gallery: item.gallery,
+    gallery: item.gallery ?? [],
     lat: item.lat,
     lng: item.lng,
     description: item.description,
-    amenities: item.amenities,
+    amenities: item.amenities ?? [],
     createdAt: item.createdAt,
     updatedAt: item.updatedAt,
   };
@@ -268,14 +268,8 @@ async function saveJsonStore(store: StoreFile) {
   await writeDiskStore(store);
 }
 
-async function ensurePgSeeded() {
+async function ensurePgReady() {
   await ensureListingsTable();
-  const db = getDb();
-  const [{ count }] = await db.select({ count: sql<number>`count(*)::int` }).from(listings);
-  if (count > 0) return;
-  const seed = seedFromDemo();
-  if (!seed.length) return;
-  await db.insert(listings).values(seed.map(listingToRow));
 }
 
 export function normalizeListingInput(input: Partial<ManagedListing>, existing?: ManagedListing): ManagedListing {
@@ -382,7 +376,7 @@ export function toSearchListing(item: ManagedListing): SearchListing {
 
 export async function listManagedListings() {
   if (hasDatabaseUrl()) {
-    await ensurePgSeeded();
+    await ensurePgReady();
     const rows = await getDb().select().from(listings).orderBy(desc(listings.updatedAt));
     return rows.map(rowToListing);
   }
@@ -392,7 +386,7 @@ export async function listManagedListings() {
 
 export async function getManagedListing(id: string) {
   if (hasDatabaseUrl()) {
-    await ensurePgSeeded();
+    await ensurePgReady();
     const rows = await getDb().select().from(listings).where(eq(listings.id, id)).limit(1);
     return rows[0] ? rowToListing(rows[0]) : null;
   }
@@ -402,7 +396,7 @@ export async function getManagedListing(id: string) {
 
 export async function upsertManagedListing(input: Partial<ManagedListing>) {
   if (hasDatabaseUrl()) {
-    await ensurePgSeeded();
+    await ensurePgReady();
     const db = getDb();
     const existing = input.id ? await getManagedListing(input.id) : null;
     const next = normalizeListingInput(input, existing || undefined);
@@ -427,7 +421,7 @@ export async function upsertManagedListing(input: Partial<ManagedListing>) {
 
 export async function deleteManagedListing(id: string) {
   if (hasDatabaseUrl()) {
-    await ensurePgSeeded();
+    await ensurePgReady();
     const result = await getDb().delete(listings).where(eq(listings.id, id)).returning({ id: listings.id });
     return result.length > 0;
   }
@@ -441,7 +435,7 @@ export async function deleteManagedListing(id: string) {
 
 export async function listPublishedSearchListings(operation?: SearchOperation) {
   if (hasDatabaseUrl()) {
-    await ensurePgSeeded();
+    await ensurePgReady();
     const db = getDb();
     const rows = operation
       ? await db

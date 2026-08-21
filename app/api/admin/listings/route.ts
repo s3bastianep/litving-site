@@ -48,7 +48,11 @@ export async function POST(request: Request) {
     return Response.json({ listing: saved }, { status: 201 });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Error al guardar en la base de datos.";
-    return Response.json({ error: message }, { status: 500 });
+    const short =
+      message.includes("Failed query") || message.length > 180
+        ? "No se pudo guardar en la base de datos. Revisa que Postgres esté online e intenta de nuevo."
+        : message;
+    return Response.json({ error: short }, { status: 500 });
   }
 }
 
@@ -83,7 +87,11 @@ export async function PUT(request: Request) {
     return Response.json({ listing: saved });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Error al guardar en la base de datos.";
-    return Response.json({ error: message }, { status: 500 });
+    const short =
+      message.includes("Failed query") || message.length > 180
+        ? "No se pudo actualizar en la base de datos. Revisa que Postgres esté online e intenta de nuevo."
+        : message;
+    return Response.json({ error: short }, { status: 500 });
   }
 }
 
