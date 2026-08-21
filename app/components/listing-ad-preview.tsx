@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { toContactListing, type ContactLead } from "../lib/contact";
+import { groupNearbyPlaces } from "../lib/nearby-places";
 import { yesNo, type SaleDetails } from "../lib/sale-details";
 import { SketchIcon, type ListingExample } from "./site-kit";
 
@@ -135,32 +136,6 @@ function money(value: number) {
     currency: "COP",
     maximumFractionDigits: 0,
   }).format(value);
-}
-
-function nearbyFor(zone: string) {
-  return [
-    {
-      group: "Compras",
-      items: [
-        { name: "Centro Andino", walk: "18 min", car: "6 min" },
-        { name: `C.C. cerca a ${zone}`, walk: "12 min", car: "4 min" },
-      ],
-    },
-    {
-      group: "Mercado",
-      items: [
-        { name: "Carulla", walk: "11 min", car: "4 min" },
-        { name: "Éxito", walk: "8 min", car: "3 min" },
-      ],
-    },
-    {
-      group: "Entorno",
-      items: [
-        { name: `Parque ${zone}`, walk: "7 min", car: "3 min" },
-        { name: "TransMilenio", walk: "10 min", car: "4 min" },
-      ],
-    },
-  ];
 }
 
 async function shareListing(listing: ListingExample) {
@@ -317,19 +292,11 @@ export function ListingAdPreview({
     }
   };
 
-  const amenities =
-    listing.amenities && listing.amenities.length
-      ? listing.amenities
-      : [
-          "Portería 24h",
-          "Parqueadero visitantes",
-          "Zona verde",
-          "Gimnasio",
-          "Salón comunal",
-          /mascotas/i.test(listing.pets) && !/consultar|sin|no/i.test(listing.pets)
-            ? "Pet friendly"
-            : "Consultar mascotas",
-        ];
+  const amenities = listing.amenities?.length ? listing.amenities : [];
+  const nearbyGroups = listing.nearbyPlaces?.length ? groupNearbyPlaces(listing.nearbyPlaces) : [];
+  const depositLabel =
+    listing.depositLabel ||
+    (listing.depositValue ? money(listing.depositValue) : undefined);
 
   useEffect(() => {
     const previous = document.body.style.overflow;
@@ -613,17 +580,19 @@ export function ListingAdPreview({
             </section>
           )}
 
-          <section className="float-block">
-            <h3>Características del conjunto</h3>
-            <ul className="float-amenities">
-              {amenities.map(item => (
-                <li key={item}>
-                  <SketchIcon name="check" />
-                  <span>{item}</span>
-                </li>
-              ))}
-            </ul>
-          </section>
+          {amenities.length ? (
+            <section className="float-block">
+              <h3>Características del conjunto</h3>
+              <ul className="float-amenities">
+                {amenities.map(item => (
+                  <li key={item}>
+                    <SketchIcon name="check" />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ) : null}
 
           <section className="float-book" aria-label="Agendar visita">
             <div className="float-book-section">
@@ -740,10 +709,10 @@ export function ListingAdPreview({
                     <dd>{listing.adminFee}</dd>
                   </div>
                 ) : null}
-                {isRent ? (
+                {isRent && depositLabel ? (
                   <div>
                     <dt>Depósito (una vez)</dt>
-                    <dd>{money(rentValue)}</dd>
+                    <dd>{depositLabel}</dd>
                   </div>
                 ) : null}
               </dl>
@@ -761,7 +730,8 @@ export function ListingAdPreview({
             </div>
           </section>
 
-          <section className="float-block float-nearby">
+          {nearbyGroups.length ? (
+            <section className="float-block float-nearby">
             <header className="float-nearby-head">
               <h3>Lugares cercanos</h3>
               <p className="float-block-lead">
@@ -801,43 +771,24 @@ export function ListingAdPreview({
             </header>
             <div className="float-nearby-shell">
               <div className="float-nearby-groups">
-                {nearbyFor(listing.zone).map(group => (
+                {nearbyGroups.map(group => (
                   <article key={group.group} className="float-nearby-group">
                     <h4>{group.group}</h4>
                     <ul className="float-nearby-list">
                       {group.items.map(item => (
-                        <li key={item.name} className="float-nearby-row">
+                        <li key={`${group.group}-${item.name}`} className="float-nearby-row">
                           <span className="float-nearby-name">{item.name}</span>
                           <span className="float-nearby-meta">
-                            <span className="float-nearby-meta-item float-nearby-meta-item--walk">
-                              <svg viewBox="0 0 24 24" width="12" height="12" aria-hidden="true">
-                                <circle cx="13.2" cy="5.2" r="1.7" fill="currentColor" />
-                                <path
-                                  d="M10.2 21.2 12 14.8l-2.2-2.4 1.4-3.6c.3-.7 1-1.2 1.8-1.2h.4c.9 0 1.6.6 1.8 1.4L16 13.2l2.2 1.4M12 14.8l1.8 6.4"
-                                  fill="none"
-                                  stroke="currentColor"
-                                  strokeWidth="1.7"
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                />
-                              </svg>
-                              <strong>{item.walk}</strong>
-                            </span>
-                            <span className="float-nearby-meta-item float-nearby-meta-item--car">
-                              <svg viewBox="0 0 24 24" width="12" height="12" aria-hidden="true">
-                                <path
-                                  d="M4.5 15.2h15M6.2 15.2l1.2-5.4c.2-.8.9-1.4 1.7-1.4h5.8c.8 0 1.5.6 1.7 1.4l1.2 5.4"
-                                  fill="none"
-                                  stroke="currentColor"
-                                  strokeWidth="1.7"
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                />
-                                <circle cx="8" cy="17.2" r="1.3" fill="none" stroke="currentColor" strokeWidth="1.7" />
-                                <circle cx="16" cy="17.2" r="1.3" fill="none" stroke="currentColor" strokeWidth="1.7" />
-                              </svg>
-                              <strong>{item.car}</strong>
-                            </span>
+                            {item.walk ? (
+                              <span className="float-nearby-meta-item float-nearby-meta-item--walk">
+                                <strong>{item.walk}</strong>
+                              </span>
+                            ) : null}
+                            {item.car ? (
+                              <span className="float-nearby-meta-item float-nearby-meta-item--car">
+                                <strong>{item.car}</strong>
+                              </span>
+                            ) : null}
                           </span>
                         </li>
                       ))}
@@ -847,6 +798,7 @@ export function ListingAdPreview({
               </div>
             </div>
           </section>
+          ) : null}
         </div>
 
         <footer className="float-footer">

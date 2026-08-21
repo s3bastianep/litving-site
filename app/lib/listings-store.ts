@@ -5,6 +5,7 @@ import { ensureListingsTable, getDb, hasDatabaseUrl } from "../../db";
 import { listings } from "../../db/schema";
 import { searchListings, type SearchListing, type SearchOperation } from "./search-listings";
 import { normalizeSaleDetails, type SaleDetails } from "./sale-details";
+import { normalizeNearbyPlaces, type NearbyPlace } from "./nearby-places";
 
 export type ListingKind = "Apartamento" | "Casa" | "Oficina";
 export type ListingStatus = "disponible" | "reservado" | "no_disponible";
@@ -23,6 +24,8 @@ export type ManagedListing = {
   priceLabel: string;
   adminFeeValue?: number;
   adminFee?: string;
+  depositValue?: number;
+  depositLabel?: string;
   priceNote?: string;
   areaM2: number;
   area: string;
@@ -38,6 +41,7 @@ export type ManagedListing = {
   published: boolean;
   image: string;
   gallery: string[];
+  nearbyPlaces?: NearbyPlace[];
   lat: number;
   lng: number;
   description: string;
@@ -136,6 +140,8 @@ function rowToListing(row: typeof listings.$inferSelect): ManagedListing {
     priceLabel: row.priceLabel,
     adminFeeValue: row.adminFeeValue ?? undefined,
     adminFee: row.adminFee ?? undefined,
+    depositValue: row.depositValue ?? undefined,
+    depositLabel: row.depositLabel ?? undefined,
     priceNote: row.priceNote ?? undefined,
     areaM2: row.areaM2,
     area: row.area,
@@ -154,6 +160,7 @@ function rowToListing(row: typeof listings.$inferSelect): ManagedListing {
     published: row.published,
     image: row.image,
     gallery: Array.isArray(row.gallery) ? row.gallery : [],
+    nearbyPlaces: normalizeNearbyPlaces(row.nearbyPlaces as NearbyPlace[] | null),
     lat: row.lat,
     lng: row.lng,
     description: row.description,
@@ -178,6 +185,8 @@ function listingToRow(item: ManagedListing) {
     priceLabel: item.priceLabel,
     adminFeeValue: item.adminFeeValue ?? null,
     adminFee: item.adminFee ?? null,
+    depositValue: item.depositValue ?? null,
+    depositLabel: item.depositLabel ?? null,
     priceNote: item.priceNote ?? null,
     areaM2: item.areaM2,
     area: item.area,
@@ -193,6 +202,7 @@ function listingToRow(item: ManagedListing) {
     published: item.published,
     image: item.image,
     gallery: item.gallery ?? [],
+    nearbyPlaces: (item.nearbyPlaces ?? null) as Record<string, unknown>[] | null,
     lat: item.lat,
     lng: item.lng,
     description: item.description,
@@ -280,6 +290,10 @@ export function normalizeListingInput(input: Partial<ManagedListing>, existing?:
     input.adminFeeValue === undefined || input.adminFeeValue === null || Number(input.adminFeeValue) <= 0
       ? undefined
       : Number(input.adminFeeValue);
+  const depositValue =
+    input.depositValue === undefined || input.depositValue === null || Number(input.depositValue) <= 0
+      ? undefined
+      : Number(input.depositValue);
   const gallery = (input.gallery?.length ? input.gallery : existing?.gallery || [])
     .map(item => String(item || "").trim())
     .filter(Boolean);
@@ -310,6 +324,8 @@ export function normalizeListingInput(input: Partial<ManagedListing>, existing?:
     priceLabel: String(input.priceLabel || formatMoney(priceValue)),
     adminFeeValue,
     adminFee: adminFeeValue ? formatMoney(adminFeeValue) : undefined,
+    depositValue,
+    depositLabel: depositValue ? formatMoney(depositValue) : undefined,
     priceNote: String(input.priceNote || existing?.priceNote || "").trim() || undefined,
     areaM2,
     area: `${areaM2} m²`,
@@ -328,6 +344,7 @@ export function normalizeListingInput(input: Partial<ManagedListing>, existing?:
     published: input.published ?? existing?.published ?? true,
     image: image || "/media/listing-chico-living-hd.jpg",
     gallery: gallery.length ? gallery : image ? [image] : ["/media/listing-chico-living-hd.jpg"],
+    nearbyPlaces: normalizeNearbyPlaces(input.nearbyPlaces ?? existing?.nearbyPlaces),
     lat: Number(input.lat ?? existing?.lat ?? 4.65) || 4.65,
     lng: Number(input.lng ?? existing?.lng ?? -74.06) || -74.06,
     description: String(input.description || existing?.description || "").trim(),
@@ -366,8 +383,11 @@ export function toSearchListing(item: ManagedListing): SearchListing {
     amenities: item.amenities,
     priceNote: item.priceNote,
     adminFee: item.adminFee,
+    depositLabel: item.depositLabel,
+    depositValue: item.depositValue,
     image: item.image,
     gallery: item.gallery,
+    nearbyPlaces: item.nearbyPlaces,
     lat: item.lat,
     lng: item.lng,
     description: item.description,

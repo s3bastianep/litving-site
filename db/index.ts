@@ -58,6 +58,8 @@ export async function ensureListingsTable() {
           price_label TEXT NOT NULL,
           admin_fee_value INTEGER,
           admin_fee TEXT,
+          deposit_value INTEGER,
+          deposit_label TEXT,
           price_note TEXT,
           area_m2 INTEGER NOT NULL,
           area TEXT NOT NULL,
@@ -73,6 +75,7 @@ export async function ensureListingsTable() {
           published BOOLEAN NOT NULL DEFAULT TRUE,
           image TEXT NOT NULL,
           gallery JSONB NOT NULL DEFAULT '[]'::jsonb,
+          nearby_places JSONB,
           lat DOUBLE PRECISION NOT NULL,
           lng DOUBLE PRECISION NOT NULL,
           description TEXT NOT NULL DEFAULT '',
@@ -86,6 +89,15 @@ export async function ensureListingsTable() {
       `);
       await pool.query(`
         ALTER TABLE listings ADD COLUMN IF NOT EXISTS sale_details JSONB;
+      `);
+      await pool.query(`
+        ALTER TABLE listings ADD COLUMN IF NOT EXISTS deposit_value INTEGER;
+      `);
+      await pool.query(`
+        ALTER TABLE listings ADD COLUMN IF NOT EXISTS deposit_label TEXT;
+      `);
+      await pool.query(`
+        ALTER TABLE listings ADD COLUMN IF NOT EXISTS nearby_places JSONB;
       `);
     })();
   }

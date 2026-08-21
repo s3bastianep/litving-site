@@ -22,6 +22,8 @@ export type ListingExample = {
   priceSuffix: string;
   priceNote?: string;
   adminFee?: string;
+  depositLabel?: string;
+  depositValue?: number;
   area: string;
   rooms: string;
   baths: string;
@@ -33,6 +35,7 @@ export type ListingExample = {
   stratum?: string;
   status?: string;
   amenities?: string[];
+  nearbyPlaces?: import("../lib/nearby-places").NearbyPlace[];
 };
 
 export const listingExamples: ListingExample[] = [

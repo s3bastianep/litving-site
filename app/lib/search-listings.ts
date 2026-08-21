@@ -27,8 +27,11 @@ export type SearchListing = {
   amenities?: string[];
   priceNote?: string;
   adminFee?: string;
+  depositLabel?: string;
+  depositValue?: number;
   image: string;
   gallery: string[];
+  nearbyPlaces?: import("./nearby-places").NearbyPlace[];
   lat: number;
   lng: number;
   description: string;

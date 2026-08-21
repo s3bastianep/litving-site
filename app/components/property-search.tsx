@@ -136,6 +136,8 @@ function toListingExample(item: SearchListing): ListingExample {
     price: item.priceLabel,
     priceSuffix: item.operation === "arriendo" ? "/ mes" : "",
     adminFee: item.adminFee,
+    depositLabel: item.depositLabel,
+    depositValue: item.depositValue,
     priceNote: item.priceNote,
     area: item.area,
     rooms: `${item.rooms} hab.`,
@@ -148,6 +150,7 @@ function toListingExample(item: SearchListing): ListingExample {
     stratum: item.stratum,
     status: item.status,
     amenities: item.amenities,
+    nearbyPlaces: item.nearbyPlaces,
   };
 }
 

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import type { ManagedListing } from "../lib/listings-store";
+import { formatNearbyText, parseNearbyText } from "../lib/nearby-places";
 import { prepareImageForUpload, fileToBase64Payload } from "../lib/prepare-image";
 import type { SaleDetails } from "../lib/sale-details";
 
@@ -20,6 +21,7 @@ const emptyForm: Partial<ManagedListing> = {
   buildingName: "",
   priceValue: 0,
   adminFeeValue: undefined,
+  depositValue: undefined,
   priceNote: "",
   areaM2: 0,
   rooms: 1,
@@ -56,12 +58,14 @@ export function AdminApp() {
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState<Partial<ManagedListing>>(emptyForm);
   const [amenitiesText, setAmenitiesText] = useState("");
+  const [nearbyText, setNearbyText] = useState("");
   const [message, setMessage] = useState<string | null>(null);
   const [filter, setFilter] = useState<"todas" | "arriendo" | "venta" | "borradores">("todas");
   const [uploading, setUploading] = useState(false);
   const [localDraftMeta, setLocalDraftMeta] = useState<{
     form: Partial<ManagedListing>;
     amenitiesText: string;
+    nearbyText: string;
   } | null>(null);
 
   const drafts = useMemo(() => listings.filter(item => !item.published), [listings]);
@@ -84,24 +88,41 @@ export function AdminApp() {
     }
   }
 
-  function writeLocalDraft(nextForm: Partial<ManagedListing>, amenities: string) {
+  function writeLocalDraft(nextForm: Partial<ManagedListing>, amenities: string, nearby: string) {
     try {
       window.localStorage.setItem(
         DRAFT_KEY,
-        JSON.stringify({ form: nextForm, amenitiesText: amenities, savedAt: Date.now() }),
+        JSON.stringify({
+          form: nextForm,
+          amenitiesText: amenities,
+          nearbyText: nearby,
+          savedAt: Date.now(),
+        }),
       );
     } catch {
       /* ignore quota */
     }
   }
 
-  function readLocalDraft(): { form: Partial<ManagedListing>; amenitiesText: string } | null {
+  function readLocalDraft(): {
+    form: Partial<ManagedListing>;
+    amenitiesText: string;
+    nearbyText: string;
+  } | null {
     try {
       const raw = window.localStorage.getItem(DRAFT_KEY);
       if (!raw) return null;
-      const parsed = JSON.parse(raw) as { form?: Partial<ManagedListing>; amenitiesText?: string };
+      const parsed = JSON.parse(raw) as {
+        form?: Partial<ManagedListing>;
+        amenitiesText?: string;
+        nearbyText?: string;
+      };
       if (!parsed?.form) return null;
-      return { form: parsed.form, amenitiesText: parsed.amenitiesText || "" };
+      return {
+        form: parsed.form,
+        amenitiesText: parsed.amenitiesText || "",
+        nearbyText: parsed.nearbyText || formatNearbyText(parsed.form.nearbyPlaces),
+      };
     } catch {
       return null;
     }
@@ -150,10 +171,10 @@ export function AdminApp() {
   useEffect(() => {
     if (mode !== "edit") return;
     const timer = window.setTimeout(() => {
-      writeLocalDraft(form, amenitiesText);
+      writeLocalDraft(form, amenitiesText, nearbyText);
     }, 800);
     return () => window.clearTimeout(timer);
-  }, [mode, form, amenitiesText]);
+  }, [mode, form, amenitiesText, nearbyText]);
 
   async function onLogin(event: FormEvent) {
     event.preventDefault();
@@ -188,6 +209,7 @@ export function AdminApp() {
   function openCreate() {
     setForm({ ...emptyForm, code: `L-${String(Math.floor(1000 + Math.random() * 9000))}`, published: false });
     setAmenitiesText("");
+    setNearbyText("");
     setMessage("Puedes ir guardando borrador cuando quieras; no hace falta terminar todo de una.");
     setMode("edit");
   }
@@ -201,6 +223,7 @@ export function AdminApp() {
     }
     setForm({ ...emptyForm, ...draft.form });
     setAmenitiesText(draft.amenitiesText);
+    setNearbyText(draft.nearbyText);
     setMessage("Borrador del navegador abierto. Continúa y guarda cuando quieras.");
     setMode("edit");
   }
@@ -215,6 +238,7 @@ export function AdminApp() {
   function openEdit(item: ManagedListing) {
     setForm({ ...item });
     setAmenitiesText((item.amenities || []).join(", "));
+    setNearbyText(formatNearbyText(item.nearbyPlaces));
     setMessage(null);
     setMode("edit");
   }
@@ -329,6 +353,7 @@ export function AdminApp() {
           .split(",")
           .map(item => item.trim())
           .filter(Boolean),
+        nearbyPlaces: parseNearbyText(nearbyText),
       };
       const method = form.id ? "PUT" : "POST";
       const res = await fetch("/api/admin/listings", {
@@ -351,10 +376,11 @@ export function AdminApp() {
       if (data.listing) {
         setForm({ ...data.listing });
         setAmenitiesText((data.listing.amenities || []).join(", "));
+        setNearbyText(formatNearbyText(data.listing.nearbyPlaces));
       }
       await loadListings();
       if (asDraft) {
-        writeLocalDraft(data.listing || payload, amenitiesText);
+        writeLocalDraft(data.listing || payload, amenitiesText, nearbyText);
         setMessage("Borrador guardado. Puedes cerrar y seguir después desde la lista.");
       } else {
         clearLocalDraft();
@@ -654,6 +680,23 @@ export function AdminApp() {
                   placeholder="Opcional"
                 />
               </label>
+              {form.operation === "arriendo" ? (
+                <label>
+                  Depósito (COP)
+                  <input
+                    type="number"
+                    min={0}
+                    value={form.depositValue ?? ""}
+                    onChange={e =>
+                      patch(
+                        "depositValue",
+                        e.target.value === "" ? undefined : Number(e.target.value),
+                      )
+                    }
+                    placeholder="Opcional"
+                  />
+                </label>
+              ) : null}
               <label className="admin-span-2">
                 Nota de precio
                 <input
@@ -744,6 +787,18 @@ export function AdminApp() {
                 placeholder="Portería 24h, Gimnasio, Pet friendly"
               />
             </label>
+            <label>
+              Lugares cercanos (uno por línea)
+              <textarea
+                rows={5}
+                value={nearbyText}
+                onChange={e => setNearbyText(e.target.value)}
+                placeholder={"Compras | Centro Andino | 18 min | 6 min\nMercado | Carulla | 11 min | 4 min"}
+              />
+            </label>
+            <p className="admin-muted">
+              Formato: Grupo | Nombre | tiempo a pie | tiempo en carro. Si lo dejas vacío, no aparece en la ficha.
+            </p>
           </section>
 
           <section className="admin-card">
