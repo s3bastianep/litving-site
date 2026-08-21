@@ -1,6 +1,5 @@
 import { getAdminSessionFromRequest } from "../../../lib/admin-auth";
-import { hasDatabaseUrl } from "../../../db";
-import { saveMediaAsset } from "../../../lib/media-store";
+import { saveMediaAsset, hasMediaDatabase } from "../../../lib/media-store";
 import { ensureUploadDir, uploadPublicUrl } from "../../../lib/upload-dir";
 import { writeFile } from "node:fs/promises";
 import path from "node:path";
@@ -68,7 +67,7 @@ export async function POST(request: Request) {
     const id = makeId();
     const filename = `${id}.${ext}`;
 
-    if (hasDatabaseUrl()) {
+    if (hasMediaDatabase()) {
       await saveMediaAsset({ id, contentType: mime, bytes });
     } else {
       const uploadDir = await ensureUploadDir();

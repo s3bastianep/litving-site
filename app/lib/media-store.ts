@@ -1,5 +1,9 @@
 import { getPool, hasDatabaseUrl, ensureListingsTable } from "../../db";
 
+export function hasMediaDatabase() {
+  return hasDatabaseUrl();
+}
+
 type GlobalMedia = {
   __litvingMediaReady?: Promise<void>;
 };
