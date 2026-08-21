@@ -57,13 +57,24 @@ export function AdminApp() {
   const [form, setForm] = useState<Partial<ManagedListing>>(emptyForm);
   const [amenitiesText, setAmenitiesText] = useState("");
   const [message, setMessage] = useState<string | null>(null);
-  const [filter, setFilter] = useState<"todas" | "arriendo" | "venta">("todas");
+  const [filter, setFilter] = useState<"todas" | "arriendo" | "venta" | "borradores">("todas");
   const [uploading, setUploading] = useState(false);
+  const [localDraftMeta, setLocalDraftMeta] = useState<{
+    form: Partial<ManagedListing>;
+    amenitiesText: string;
+  } | null>(null);
+
+  const drafts = useMemo(() => listings.filter(item => !item.published), [listings]);
 
   const filtered = useMemo(() => {
-    if (filter === "todas") return listings;
-    return listings.filter(item => item.operation === filter);
-  }, [filter, listings]);
+    if (filter === "borradores") return drafts;
+    if (filter === "todas") return listings.filter(item => item.published);
+    return listings.filter(item => item.published && item.operation === filter);
+  }, [filter, listings, drafts]);
+
+  function refreshLocalDraftMeta() {
+    setLocalDraftMeta(readLocalDraft());
+  }
 
   function clearLocalDraft() {
     try {
@@ -131,6 +142,10 @@ export function AdminApp() {
     void checkSession();
   }, []);
 
+  useEffect(() => {
+    if (mode === "list") refreshLocalDraftMeta();
+  }, [mode, listings]);
+
   // Autosave local while editing so nothing is lost on refresh.
   useEffect(() => {
     if (mode !== "edit") return;
@@ -171,17 +186,30 @@ export function AdminApp() {
   }
 
   function openCreate() {
-    const draft = readLocalDraft();
-    if (draft?.form && window.confirm("Hay un borrador guardado en este navegador. ¿Continuar con él?")) {
-      setForm({ ...emptyForm, ...draft.form });
-      setAmenitiesText(draft.amenitiesText);
-      setMessage("Borrador local restaurado. Puedes seguir editando y guardar.");
-    } else {
-      setForm({ ...emptyForm, code: `L-${String(Math.floor(1000 + Math.random() * 9000))}`, published: false });
-      setAmenitiesText("");
-      setMessage("Puedes ir guardando borrador cuando quieras; no hace falta terminar todo de una.");
-    }
+    setForm({ ...emptyForm, code: `L-${String(Math.floor(1000 + Math.random() * 9000))}`, published: false });
+    setAmenitiesText("");
+    setMessage("Puedes ir guardando borrador cuando quieras; no hace falta terminar todo de una.");
     setMode("edit");
+  }
+
+  function continueLocalDraft() {
+    const draft = readLocalDraft();
+    if (!draft?.form) {
+      setMessage("Ese borrador local ya no está disponible.");
+      refreshLocalDraftMeta();
+      return;
+    }
+    setForm({ ...emptyForm, ...draft.form });
+    setAmenitiesText(draft.amenitiesText);
+    setMessage("Borrador del navegador abierto. Continúa y guarda cuando quieras.");
+    setMode("edit");
+  }
+
+  function deleteLocalDraftOnly() {
+    if (!window.confirm("¿Eliminar el borrador guardado en este navegador?")) return;
+    clearLocalDraft();
+    refreshLocalDraftMeta();
+    setMessage("Borrador del navegador eliminado.");
   }
 
   function openEdit(item: ManagedListing) {
@@ -813,20 +841,100 @@ export function AdminApp() {
 
       {message ? <p className="admin-banner">{message}</p> : null}
 
+      {drafts.length > 0 || localDraftMeta ? (
+        <section className="admin-drafts" aria-labelledby="admin-drafts-title">
+          <div className="admin-drafts-head">
+            <h2 id="admin-drafts-title">Pendientes / borradores</h2>
+            <p className="admin-muted">Continúa donde lo dejaste o elimina lo que ya no necesites.</p>
+          </div>
+          <ul className="admin-drafts-list">
+            {localDraftMeta ? (
+              <li className="admin-draft-card">
+                <div>
+                  <strong>
+                    {localDraftMeta.form.buildingName ||
+                      localDraftMeta.form.zone ||
+                      localDraftMeta.form.code ||
+                      "Borrador sin título"}
+                  </strong>
+                  <span className="admin-muted">
+                    En este navegador
+                    {localDraftMeta.form.operation === "venta"
+                      ? " · Venta"
+                      : localDraftMeta.form.operation === "arriendo"
+                        ? " · Arriendo"
+                        : ""}
+                    {localDraftMeta.form.code ? ` · ${localDraftMeta.form.code}` : ""}
+                  </span>
+                </div>
+                <div className="admin-row-actions">
+                  <button type="button" className="admin-btn admin-btn--small admin-btn--primary" onClick={continueLocalDraft}>
+                    Continuar
+                  </button>
+                  <button
+                    type="button"
+                    className="admin-btn admin-btn--small admin-btn--danger"
+                    onClick={deleteLocalDraftOnly}
+                  >
+                    Eliminar
+                  </button>
+                </div>
+              </li>
+            ) : null}
+            {drafts.map(item => (
+              <li key={item.id} className="admin-draft-card">
+                <div>
+                  <strong>
+                    {item.buildingName || item.zone || item.code}
+                    {item.kind ? ` · ${item.kind}` : ""}
+                  </strong>
+                  <span className="admin-muted">
+                    Guardado en el servidor · {item.operation === "venta" ? "Venta" : "Arriendo"} · {item.code}
+                    {item.priceValue ? ` · ${item.priceLabel}` : ""}
+                  </span>
+                </div>
+                <div className="admin-row-actions">
+                  <button
+                    type="button"
+                    className="admin-btn admin-btn--small admin-btn--primary"
+                    onClick={() => openEdit(item)}
+                  >
+                    Continuar
+                  </button>
+                  <button
+                    type="button"
+                    className="admin-btn admin-btn--small admin-btn--danger"
+                    onClick={() => void onDelete(item.id)}
+                  >
+                    Eliminar
+                  </button>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
+
       <div className="admin-toolbar">
         <div className="admin-filters" role="group" aria-label="Filtrar">
-          {(["todas", "arriendo", "venta"] as const).map(item => (
+          {(["todas", "arriendo", "venta", "borradores"] as const).map(item => (
             <button
               key={item}
               type="button"
               className={filter === item ? "is-on" : undefined}
               onClick={() => setFilter(item)}
             >
-              {item === "todas" ? "Todas" : item === "arriendo" ? "Arriendo" : "Venta"}
+              {item === "todas"
+                ? "Publicadas"
+                : item === "arriendo"
+                  ? "Arriendo"
+                  : item === "venta"
+                    ? "Venta"
+                    : `Borradores${drafts.length ? ` (${drafts.length})` : ""}`}
             </button>
           ))}
         </div>
-        <p className="admin-muted">{filtered.length} publicaciones</p>
+        <p className="admin-muted">{filtered.length} en esta lista</p>
       </div>
 
       <div className="admin-table-wrap">
