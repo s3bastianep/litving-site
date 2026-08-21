@@ -1,5 +1,6 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
+import { getMediaAsset } from "../../../lib/media-store";
 import { getUploadDir } from "../../../lib/upload-dir";
 
 const MIME: Record<string, string> = {
@@ -17,6 +18,22 @@ export async function GET(_request: Request, context: Ctx) {
   const name = decodeURIComponent(raw || "").replace(/[/\\]/g, "");
   if (!name || name.includes("..")) {
     return new Response("Not found", { status: 404 });
+  }
+
+  const id = name.replace(/\.(jpe?g|png|webp|gif)$/i, "");
+  try {
+    const fromDb = await getMediaAsset(id);
+    if (fromDb) {
+      return new Response(new Uint8Array(fromDb.bytes), {
+        status: 200,
+        headers: {
+          "Content-Type": fromDb.contentType || "image/jpeg",
+          "Cache-Control": "public, max-age=86400",
+        },
+      });
+    }
+  } catch {
+    /* fall through to disk */
   }
 
   try {

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import type { ManagedListing } from "../lib/listings-store";
-import { prepareImageForUpload } from "../lib/prepare-image";
+import { prepareImageForUpload, fileToBase64Payload } from "../lib/prepare-image";
 import type { SaleDetails } from "../lib/sale-details";
 
 type Mode = "login" | "list" | "edit";
@@ -238,18 +238,18 @@ export function AdminApp() {
           return;
         }
 
-        const body = new FormData();
-        body.append("files", file);
+        const payload = await fileToBase64Payload(file);
         let res: Response;
         try {
           res = await fetch("/api/admin/upload", {
             method: "POST",
             credentials: "include",
-            body,
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
           });
         } catch {
           setMessage(
-            `Falló la conexión al subir “${original.name}”. Si es muy pesada, el sistema ya la reduce; reintenta esa foto.`,
+            `Falló la conexión al subir “${original.name}”. Reintenta esa foto; si sigue fallando, avísanos.`,
           );
           return;
         }

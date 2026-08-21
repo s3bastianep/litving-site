@@ -35,6 +35,8 @@ export function getDb() {
   return drizzle(getPool(), { schema });
 }
 
+export { getPool };
+
 /** Create table once per process when using Postgres. */
 export async function ensureListingsTable() {
   if (!hasDatabaseUrl()) return;
